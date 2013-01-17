@@ -16,8 +16,11 @@
 #include "AutonContainer.hpp"
 
 #include <Compressor.h>
-#include "MecanumDrive.hpp"
 #include <Joystick.h>
+
+#include <Talon.h>
+#include <Jaguar.h>
+#include "MecanumDrive.hpp"
 
 #include "Kinect/TurretKinect.hpp"
 
@@ -50,6 +53,10 @@ private:
 
     Compressor mainCompressor;
 
+    Talon flMotor;
+    Jaguar rlMotor;
+    Talon frMotor;
+    Jaguar rrMotor;
     MecanumDrive mainDrive;
 
     Joystick driveStick1;

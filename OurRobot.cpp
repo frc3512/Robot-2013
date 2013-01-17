@@ -25,7 +25,11 @@ OurRobot::OurRobot() :
     Settings( "/ni-rt/system/IPSettings.txt" ),
 
     mainCompressor( 1 , 6 ),
-    mainDrive( 3 , 4 , 1 , 2 ),
+    flMotor( 3 ),
+    rlMotor( 4 ),
+    frMotor( 1 ),
+    rrMotor( 2 ),
+    mainDrive( flMotor , rlMotor , frMotor , rrMotor ),
     driveStick1( 1 ),
     driveStick2( 2 ),
     turretStick( 3 ),
