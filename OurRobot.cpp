@@ -13,6 +13,14 @@ float ScaleZ( Joystick& stick) {
     return floorf( 500.f * ( 1.f - stick.GetZ() ) / 2.f ) / 500.f;
 }
 
+double deadband( double value ) {
+    if ( abs( value ) < 0.05 ) {
+        return 0;
+    }
+
+    return value;
+}
+
 OurRobot::OurRobot() :
     Settings( "/ni-rt/system/IPSettings.txt" ),
 

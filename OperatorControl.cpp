@@ -16,7 +16,7 @@ void OurRobot::OperatorControl() {
     ButtonTracker turretStickButtons( 3 );
 
     while ( IsEnabled() && IsOperatorControl() ) {
-        DS_PrintOut();
+        //DS_PrintOut(); // TODO Fix packet data
 
         // update "new" value of joystick buttons
         driveStick1Buttons.updateButtons();
@@ -40,7 +40,8 @@ void OurRobot::OperatorControl() {
         /* =================================================== */
 
         // move robot based on two joystick inputs
-        mainDrive.ArcadeDrive( ScaleZ( driveStick1 ) * driveStick1.GetY() , ScaleZ( driveStick2 ) * driveStick2.GetX() , false );
+        mainDrive.Drive( driveStick1.GetX() , driveStick1.GetY() , driveStick2.GetX() , 0 );
+        //mainDrive.Drive( ScaleZ( driveStick1 ) * driveStick1.GetY() , ScaleZ( driveStick2 ) * driveStick2.GetX() , false );
 
         Wait( 0.1 );
     }

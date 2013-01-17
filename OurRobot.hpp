@@ -16,15 +16,18 @@
 #include "AutonContainer.hpp"
 
 #include <Compressor.h>
-#include <RobotDrive.h>
+#include "MecanumDrive.hpp"
 #include <Joystick.h>
 
 #include "Kinect/TurretKinect.hpp"
 
 #include <Timer.h>
 
-// scales joystick's Z axis values from -1 .. 1 to 0 .. 1, but within same range of movement
+// Scales joystick's Z axis values from -1 .. 1 to 0 .. 1, but within same range of movement
 float ScaleZ( Joystick& stick );
+
+// Adds deadband to joystick value
+double deadband( double value );
 
 class DriverStationDisplay;
 
@@ -47,7 +50,7 @@ private:
 
     Compressor mainCompressor;
 
-    RobotDrive mainDrive;
+    MecanumDrive mainDrive;
 
     Joystick driveStick1;
     Joystick driveStick2;

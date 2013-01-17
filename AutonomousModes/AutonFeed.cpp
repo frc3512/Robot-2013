@@ -9,7 +9,7 @@
 
 void OurRobot::AutonFeed() {
     while ( IsEnabled() && IsAutonomous() ) {
-        DS_PrintOut();
+        // DS_PrintOut(); // TODO Fix packet data
 
         Wait( 0.1 );
     }
