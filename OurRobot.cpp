@@ -14,7 +14,7 @@ float ScaleZ( Joystick& stick) {
 }
 
 double deadband( double value ) {
-    if ( abs( value ) < 0.05 ) {
+    if ( fabs( value ) < 0.05 ) {
         return 0;
     }
 
@@ -22,7 +22,7 @@ double deadband( double value ) {
 }
 
 OurRobot::OurRobot() :
-    Settings( "/ni-rt/system/IPSettings.txt" ),
+    Settings( "/ni-rt/system/RobotSettings.txt" ),
 
     mainCompressor( 1 , 6 ),
     flMotor( 3 ),

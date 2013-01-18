@@ -13,13 +13,13 @@
  *
  * It is useful for situations in which you need to toggle a variable and just
  * checking for it with Joystick::GetRawButton(UINT32) would cause it to toggle
- * every loop.
+ * in every iteration of a loop.
  *
  * USAGE
- * 1) Call updateButtons() at beginning of OperatorControl loop to get new button
- *    statuses from the Driver Station
- * 2) Call pressedButton(UINT32) or releasedButton(UINT32) to poll for whether the
- *    button was pressed or released since last loop
+ * 1) Call updateButtons() at beginning of loop to get new button statuses from
+ *    the Driver Station
+ * 2) Call pressedButton(UINT32) or releasedButton(UINT32) to poll for whether
+ *    the button was pressed or released since last loop iteration
  *
  * None of these functions block.
  */
