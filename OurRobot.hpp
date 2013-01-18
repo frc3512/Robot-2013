@@ -19,7 +19,6 @@
 #include <Joystick.h>
 
 #include <Talon.h>
-#include <Jaguar.h>
 #include "MecanumDrive.hpp"
 
 #include "Kinect/TurretKinect.hpp"
@@ -54,9 +53,9 @@ private:
     Compressor mainCompressor;
 
     Talon flMotor;
-    Jaguar rlMotor;
+    Talon rlMotor;
     Talon frMotor;
-    Jaguar rrMotor;
+    Talon rrMotor;
     MecanumDrive mainDrive;
 
     Joystick driveStick1;
