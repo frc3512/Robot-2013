@@ -13,7 +13,7 @@ void OurRobot::OperatorControl() {
 
     ButtonTracker driveStick1Buttons( 1 );
     ButtonTracker driveStick2Buttons( 2 );
-    ButtonTracker turretStickButtons( 3 );
+    ButtonTracker cameraStickButtons( 3 );
 
     while ( IsEnabled() && IsOperatorControl() ) {
         //DS_PrintOut(); // TODO Fix packet data
@@ -21,27 +21,75 @@ void OurRobot::OperatorControl() {
         // update "new" value of joystick buttons
         driveStick1Buttons.updateButtons();
         driveStick2Buttons.updateButtons();
-        turretStickButtons.updateButtons();
+        cameraStickButtons.updateButtons();
 
         /* ================= Target Selection ================ */
         // selecting target to left of current target
-        if ( turretStickButtons.releasedButton( 4 ) ) {
+        if ( cameraStickButtons.releasedButton( 4 ) ) {
             turretKinect.setTargetSelect( -1 );
 
             turretKinect.send();
         }
 
         // selecting target to right of current target
-        if ( turretStickButtons.releasedButton( 5 ) ) {
+        if ( cameraStickButtons.releasedButton( 5 ) ) {
             turretKinect.setTargetSelect( 1 );
 
             turretKinect.send();
         }
         /* =================================================== */
 
+        // Reset gyro
+        if ( driveStick1Buttons.releasedButton( 3 ) ) {
+            testGyro.Reset();
+        }
+
+        /*if ( driveStick1Buttons.releasedButton( 8 ) ) {
+            Timer timer;
+            timer.Start();
+
+            while ( timer.Get() < 3 ) {
+                mainDrive.Drive( 0.f , -1.f , 0.f );
+            }
+
+            timer.Stop();
+        }
+
+        if ( driveStick1Buttons.releasedButton( 9 ) ) {
+            Timer timer;
+            timer.Start();
+
+            while ( timer.Get() < 3 ) {
+                mainDrive.Drive( 0.f , 1.f , 0.f );
+            }
+
+            timer.Stop();
+        }*/
+
+        // Aim camera X
+        camXTilt.Set( camXTilt.Get() + cameraStick.GetX() / 25.f );
+
+        // Aim camera Y
+        camYTilt.Set( camYTilt.Get() - cameraStick.GetY() / 25.f );
+
+        // Aim camera to shoot
+        if ( cameraStickButtons.releasedButton( 4 ) ) {
+            camXTilt.Set( 1 );
+            camYTilt.Set( -1 );
+        }
+
+        // Aim camera to feed
+        if ( cameraStickButtons.releasedButton( 5 ) ) {
+            camXTilt.Set( -1 );
+            camYTilt.Set( 1 );
+        }
+
         // move robot based on two joystick inputs
-        mainDrive.Drive( driveStick1.GetX() , driveStick1.GetY() , driveStick2.GetX() , 0 );
-        //mainDrive.Drive( ScaleZ( driveStick1 ) * driveStick1.GetY() , ScaleZ( driveStick2 ) * driveStick2.GetX() , false );
+        mainDrive.Drive( driveStick1.GetX() , driveStick1.GetY() , driveStick2.GetX() , testGyro.GetAngle() );
+
+        DriverStationLCD::GetInstance()->Clear();
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , testGyro.GetAngle() );
+        DriverStationLCD::GetInstance()->UpdateLCD();
 
         Wait( 0.1 );
     }

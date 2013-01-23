@@ -26,16 +26,19 @@ OurRobot::OurRobot() :
 
     mainCompressor( 1 , 6 ),
     flMotor( 3 ),
-    rlMotor( 4 ),
+    rlMotor( 5 ),
     frMotor( 1 ),
-    rrMotor( 2 ),
+    rrMotor( 6 ),
     mainDrive( flMotor , rlMotor , frMotor , rrMotor ),
     driveStick1( 1 ),
     driveStick2( 2 ),
-    turretStick( 3 ),
+    cameraStick( 3 ),
 
     // single board computer's IP address and port
-    turretKinect( getValueFor( "SBC_IP" ) , atoi( getValueFor( "SBC_Port" ).c_str() ) )
+    turretKinect( getValueFor( "SBC_IP" ) , atoi( getValueFor( "SBC_Port" ).c_str() ) ),
+    testGyro( 1 ),
+    camYTilt( 10 ),
+    camXTilt( 9 )
 {
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
@@ -82,7 +85,7 @@ void OurRobot::DS_PrintOut() {
 
     *driverStation << static_cast<unsigned int>(ScaleZ(driveStick2) * 100000.f);
 
-    *driverStation << static_cast<unsigned int>(ScaleZ(turretStick) * 100000.f);
+    *driverStation << static_cast<unsigned int>(ScaleZ(cameraStick) * 100000.f);
 
     *driverStation << static_cast<bool>( fabs( turretKinect.getPixelOffset() ) < TurretKinect::pxlDeadband
             && turretKinect.getOnlineStatus() == sf::Socket::Done );

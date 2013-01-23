@@ -25,6 +25,10 @@
 
 #include <Timer.h>
 
+#include <DriverStationLCD.h>
+#include <Gyro.h>
+#include <Servo.h>
+
 // Scales joystick's Z axis values from -1 .. 1 to 0 .. 1, but within same range of movement
 float ScaleZ( Joystick& stick );
 
@@ -60,9 +64,13 @@ private:
 
     Joystick driveStick1;
     Joystick driveStick2;
-    Joystick turretStick;
+    Joystick cameraStick;
 
     TurretKinect turretKinect;
+
+    Gyro testGyro;
+    Servo camYTilt;
+    Servo camXTilt;
 
     // Determines which autonomous mode is run
     char autonMode;
