@@ -85,10 +85,13 @@ void OurRobot::OperatorControl() {
         }
 
         // move robot based on two joystick inputs
-        mainDrive.Drive( driveStick1.GetX() , driveStick1.GetY() , driveStick2.GetX() , testGyro.GetAngle() );
+        mainDrive.Drive( driveStick1.GetX() , driveStick1.GetY() , driveStick1.GetZ() , testGyro.GetAngle() );
 
         DriverStationLCD::GetInstance()->Clear();
         DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , testGyro.GetAngle() );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "JoyX: %f" , driveStick1.GetX() );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "JoyY: %f" , driveStick1.GetY() );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "JoyTwist: %f" , driveStick1.GetZ() );
         DriverStationLCD::GetInstance()->UpdateLCD();
 
         Wait( 0.1 );
