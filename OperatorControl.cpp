@@ -85,7 +85,7 @@ void OurRobot::OperatorControl() {
         }
 
         // move robot based on two joystick inputs
-        mainDrive.Drive( driveStick1.GetX() , driveStick1.GetY() , driveStick1.GetZ() , testGyro.GetAngle() );
+        mainDrive.Drive( driveStick1.GetX() , driveStick1.GetY() , driveStick1.GetZ() , 0 );
 
         DriverStationLCD::GetInstance()->Clear();
         DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , testGyro.GetAngle() );

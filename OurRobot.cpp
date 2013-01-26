@@ -13,6 +13,7 @@ float ScaleZ( Joystick& stick) {
     return floorf( 500.f * ( 1.f - stick.GetZ() ) / 2.f ) / 500.f;
 }
 
+// Creates a wider band in which the joystick won't make the robot move
 double deadband( double value ) {
     if ( fabs( value ) < 0.05 ) {
         return 0;
