@@ -21,6 +21,8 @@
 #include <Talon.h>
 #include "MecanumDrive.hpp"
 
+#include <Victor.h>
+
 #include "Kinect/TurretKinect.hpp"
 
 #include <Timer.h>
@@ -66,11 +68,14 @@ private:
     Joystick driveStick2;
     Joystick cameraStick;
 
+    Victor shooterMotor1;
+    Victor shooterMotor2;
+
     TurretKinect turretKinect;
 
     Gyro testGyro;
-    Servo camYTilt;
-    Servo camXTilt;
+    //Servo camYTilt;
+    //Servo camXTilt;
 
     // Determines which autonomous mode is run
     char autonMode;

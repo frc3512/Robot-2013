@@ -35,19 +35,28 @@ OurRobot::OurRobot() :
     driveStick2( 2 ),
     cameraStick( 3 ),
 
+    shooterMotor1( 7 ),
+    shooterMotor2( 8 ),
+
     // single board computer's IP address and port
     turretKinect( getValueFor( "SBC_IP" ) , atoi( getValueFor( "SBC_Port" ).c_str() ) ),
-    testGyro( 1 ),
-    camYTilt( 10 ),
-    camXTilt( 9 )
+    testGyro( 1 )
+    //camYTilt( 10 ),
+    //camXTilt( 9 )
 {
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
     autonModes.addMethod( "Shoot" , &OurRobot::AutonShoot , this );
     autonModes.addMethod( "Feed" , &OurRobot::AutonFeed , this );
 
-    // let motors run for up to 1 second uncontrolled before shutting them down
+    // Set encoder ports
+    mainDrive.SetEncoderPorts( 14 , 13 , 10 , 9 ,
+            6 , 5 , 8 , 7 );
+
+    // Let motors run for up to 1 second uncontrolled before shutting them down
     mainDrive.SetExpiration( 1.f );
+
+    mainDrive.SquareInputs( true );
 
     autonMode = 0;
 }
@@ -112,6 +121,15 @@ void OurRobot::DS_PrintOut() {
         driverStation->sendToDS();
     }
     /* ====================================== */
+
+    DriverStationLCD::GetInstance()->Clear();
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %.3f" , testGyro.GetAngle() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Joy: %.3f, %.3f, %.3f" , driveStick2.GetX() , driveStick2.GetY() , driveStick2.GetZ() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "encFL: %f" , mainDrive.GetFL() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "encRL: %f" , mainDrive.GetRL() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line5 , 1 , "encFR: %f" , mainDrive.GetFR() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "encRR: %f" , mainDrive.GetRR() );
+    DriverStationLCD::GetInstance()->UpdateLCD();
 }
 
 START_ROBOT_CLASS(OurRobot);
