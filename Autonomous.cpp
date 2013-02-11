@@ -8,6 +8,8 @@
 
 void OurRobot::Autonomous() {
     mainCompressor.Start();
+    shooterEncoder.Start();
+
     autoTime.Reset();
     autoTime.Start();
 

@@ -11,8 +11,12 @@
 void OurRobot::AutonShoot() {
     turretKinect.clearValues();
 
+    mainDrive.EnableEncoders( true );
+
     while ( IsEnabled() && IsAutonomous() ) {
         //DS_PrintOut(); // TODO Fix packet data
+        //mainDrive
+
 
         Wait( 0.1 );
     }

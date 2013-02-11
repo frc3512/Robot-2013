@@ -8,9 +8,9 @@
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
 
-float ScaleZ( Joystick& stick) {
+float ScaleValue( float value ) {
     // CONSTANT^-1 is step value (now 1/500)
-    return floorf( 500.f * ( 1.f - stick.GetZ() ) / 2.f ) / 500.f;
+    return floorf( 500.f * ( 1.f - value ) / 2.f ) / 500.f;
 }
 
 // Creates a wider band in which the joystick won't make the robot move
@@ -25,18 +25,25 @@ double deadband( double value ) {
 OurRobot::OurRobot() :
     Settings( "/ni-rt/system/RobotSettings.txt" ),
 
-    mainCompressor( 1 , 6 ),
-    flMotor( 3 ),
-    rlMotor( 5 ),
-    frMotor( 1 ),
-    rrMotor( 6 ),
-    mainDrive( flMotor , rlMotor , frMotor , rrMotor ),
     driveStick1( 1 ),
     driveStick2( 2 ),
-    cameraStick( 3 ),
+    shootStick( 3 ),
 
-    shooterMotor1( 7 ),
-    shooterMotor2( 8 ),
+    mainCompressor( 1 , 2 ),
+    frisbeeFeed( 1 ),
+
+    shooterAngle( 2 ),
+
+    shooterEncoder( 2 ),
+
+    flMotor( 3 ),
+    rlMotor( 5 ),
+    frMotor( 6 ),
+    rrMotor( 1 ),
+    mainDrive( flMotor , rlMotor , frMotor , rrMotor ),
+
+    shooterMotor1( 9 ),
+    shooterMotor2( 10 ),
 
     // single board computer's IP address and port
     turretKinect( getValueFor( "SBC_IP" ) , atoi( getValueFor( "SBC_Port" ).c_str() ) ),
@@ -57,6 +64,8 @@ OurRobot::OurRobot() :
     mainDrive.SetExpiration( 1.f );
 
     mainDrive.SquareInputs( true );
+
+    shooterRPM = 0;
 
     autonMode = 0;
 }
@@ -91,11 +100,11 @@ void OurRobot::DS_PrintOut() {
 
     *driverStation << static_cast<std::string>( "display" );
 
-    *driverStation << static_cast<unsigned int>(ScaleZ(driveStick1) * 100000.f);
+    *driverStation << static_cast<unsigned int>(ScaleValue(driveStick1.GetZ()) * 100000.f);
 
-    *driverStation << static_cast<unsigned int>(ScaleZ(driveStick2) * 100000.f);
+    *driverStation << static_cast<unsigned int>(ScaleValue(driveStick2.GetZ()) * 100000.f);
 
-    *driverStation << static_cast<unsigned int>(ScaleZ(cameraStick) * 100000.f);
+    *driverStation << static_cast<unsigned int>(ScaleValue(shootStick.GetZ()) * 100000.f);
 
     *driverStation << static_cast<bool>( fabs( turretKinect.getPixelOffset() ) < TurretKinect::pxlDeadband
             && turretKinect.getOnlineStatus() == sf::Socket::Done );
@@ -123,12 +132,63 @@ void OurRobot::DS_PrintOut() {
     /* ====================================== */
 
     DriverStationLCD::GetInstance()->Clear();
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %.3f" , testGyro.GetAngle() );
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Joy: %.3f, %.3f, %.3f" , driveStick2.GetX() , driveStick2.GetY() , driveStick2.GetZ() );
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "encFL: %f" , mainDrive.GetFL() );
+
+    /* Derivation of RPM:
+     * period = seconds per tick of gear
+     * 1 / period = ticks per second of gear
+     * 60 / period = ticks per minute of gear
+     * 57 ticks per revolution therefore: 60 / ( 57 * period ) = revolutions per minute of gear
+     * 4 * 60 / ( 56 * period ) = revolutions per minute of shooter wheel
+     */
+    //shooterRPM = 4.f * 60.f / ( 56.f * shooterEncoder.GetPeriod() );
+
+#if 1
+    if ( shooterTimer.HasPeriodPassed( 0.5f ) ) {
+        shooterRPM = 60.f * 2.f /* 2 times as much data in 1 second */ * (shooterEncoder.Get() / 56.f);
+        shooterEncoder.Reset();
+    }
+#endif
+
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , testGyro.GetAngle() );
+
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , shooterRPM );
+    //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , -ScaleValue(shootStick.GetAxis(Joystick::kZAxis)) );
+
+    if ( mainDrive.GetDriveMode() == MecanumDrive::Omni ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: Omni" );
+    }
+
+    else if ( mainDrive.GetDriveMode() == MecanumDrive::Strafe ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: Strafe" );
+    }
+
+    else if ( mainDrive.GetDriveMode() == MecanumDrive::Arcade ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: Arcade" );
+    }
+
+    else if ( mainDrive.GetDriveMode() == MecanumDrive::FLpivot ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: FLpivot" );
+    }
+
+    else if ( mainDrive.GetDriveMode() == MecanumDrive::FRpivot ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: FRpivot" );
+    }
+
+    else if ( mainDrive.GetDriveMode() == MecanumDrive::RLpivot ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: RLpivot" );
+    }
+
+    else if ( mainDrive.GetDriveMode() == MecanumDrive::RRpivot ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: RRpivot" );
+    }
+    //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "encFL: %f" , mainDrive.GetFL() );
+
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "encRL: %f" , mainDrive.GetRL() );
+
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line5 , 1 , "encFR: %f" , mainDrive.GetFR() );
+
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "encRR: %f" , mainDrive.GetRR() );
+
     DriverStationLCD::GetInstance()->UpdateLCD();
 }
 

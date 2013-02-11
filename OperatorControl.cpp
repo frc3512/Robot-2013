@@ -7,16 +7,19 @@
 #include <Timer.h>
 #include "OurRobot.hpp"
 #include "ButtonTracker.hpp"
+#include <iostream> // TODO Remove me
 
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
+    shooterEncoder.Start();
+    shooterTimer.Start();
 
     ButtonTracker driveStick1Buttons( 1 );
     ButtonTracker driveStick2Buttons( 2 );
-    ButtonTracker cameraStickButtons( 3 );
+    ButtonTracker shootStickButtons( 3 );
 
     bool isShooting = false;
-    bool shooterIsManual = false;
+    bool shooterIsManual = true;
 
     // Field-oriented driving by default
     bool gyroEnabled = true;
@@ -30,49 +33,36 @@ void OurRobot::OperatorControl() {
     MecanumDrive::DriveMode driveMode = MecanumDrive::Omni;
     mainDrive.SetDriveMode( driveMode );
 
+    mainDrive.EnableEncoders( true );
+
     while ( IsEnabled() && IsOperatorControl() ) {
         DS_PrintOut(); // TODO Fix packet data
 
         // update "new" value of joystick buttons
         driveStick1Buttons.updateButtons();
         driveStick2Buttons.updateButtons();
-        cameraStickButtons.updateButtons();
-
-#if 0
-        /* ================= Target Selection ================ */
-        // selecting target to left of current target
-        if ( cameraStickButtons.releasedButton( 4 ) ) {
-            turretKinect.setTargetSelect( -1 );
-
-            turretKinect.send();
-        }
-
-        // selecting target to right of current target
-        if ( cameraStickButtons.releasedButton( 5 ) ) {
-            turretKinect.setTargetSelect( 1 );
-
-            turretKinect.send();
-        }
-        /* =================================================== */
-#endif
+        shootStickButtons.updateButtons();
 
         /* ============== Toggle Shooter Motors ============== */
         // turns shooter on/off
-        if ( driveStick2Buttons.releasedButton( 1 ) ) { // if released trigger
-            isShooting = !isShooting;
+        if ( shootStickButtons.releasedButton( 4 ) ) {
+            isShooting = true;
+        }
+        else if ( shootStickButtons.releasedButton( 5 ) ) {
+            isShooting = false;
         }
 
         if ( isShooting ) {
             if ( shooterIsManual ) { // let driver change shooter speed manually
-                shooterMotor1.Set( ScaleZ(driveStick2) );
-                shooterMotor2.Set( ScaleZ(driveStick2) );
+                shooterMotor1.Set( -ScaleValue( shootStick.GetAxis(Joystick::kZAxis) ) );
+                shooterMotor2.Set( -ScaleValue( shootStick.GetAxis(Joystick::kZAxis) ) );
             }
             else { // else adjust shooter voltage to match RPM
                 //pidControl.SetTargetDistance( 25.f ); // * 0.00328084f
                 //pidControl.Update();
 
                 /*float encoderRPM = 60.f / ( 16.f * shooterEncoder.GetPeriod() );
-                if ( encoderRPM >= 72.0 * ScaleZ(turretStick) * 60.0 ) {
+                if ( encoderRPM >= 72.0 * ScaleZ(shootStick) * 60.0 ) {
                     shooterMotorLeft.Set( 0 );
                     shooterMotorRight.Set( 0 );
                 }
@@ -92,15 +82,64 @@ void OurRobot::OperatorControl() {
         }
 
         // toggle manual RPM setting vs setting with encoder input
-        if ( driveStick1Buttons.releasedButton( 12 ) ) {
+        if ( shootStickButtons.releasedButton( 12 ) ) {
             shooterIsManual = !shooterIsManual;
         }
         /* =================================================== */
 
+        /* ===== Change shooter angle and speed ===== */
+        // Use high shooter angle
+        if ( shootStickButtons.releasedButton( 2 ) ) {
+            shooterAngle.Set( true );
+        }
+
+        // Use low shooter angle
+        if ( shootStickButtons.releasedButton( 3 ) ) {
+            shooterAngle.Set( false );
+        }
+        /* ========================================== */
+
+        /* ===== Shoot frisbee ===== */
+        /* A delay is used here so the frisbee feed actuator is fully activated
+         * before retracting it again
+         */
+
+        if ( shootStickButtons.releasedButton( 1 ) ) {
+            // Push frisbee into feeder
+            frisbeeFeed.Set( true );
+
+            // Start delay timer
+            feedTimer.Start();
+        }
+
+        // If frisbee was fed into shooter
+        if ( frisbeeFeed.Get() ) {
+            // Wait until acuator is out before retracting it
+            if ( feedTimer.Get() > 0.275 ) {
+                // Retract feed actuator
+                frisbeeFeed.Set( false );
+
+                // Reset timer
+                feedTimer.Stop();
+                feedTimer.Reset();
+            }
+        }
+        /* ========================= */
+
+        /* ===== Control gyro ===== */
         // Reset gyro
         if ( driveStick2Buttons.releasedButton( 8 ) ) {
             testGyro.Reset();
         }
+
+        if ( driveStick2Buttons.releasedButton( 5 ) ) {
+            gyroEnabled = true;
+        }
+
+        if ( driveStick2Buttons.releasedButton( 6 ) ) {
+            gyroEnabled = false;
+        }
+        /* ======================== */
 
         // Enable encoders with PID loops
         if ( driveStick2Buttons.releasedButton( 3 ) ) {
@@ -110,14 +149,6 @@ void OurRobot::OperatorControl() {
         // Disable encoders with PID loops
         if ( driveStick2Buttons.releasedButton( 4 ) ) {
             //mainDrive.EnableEncoders( false );
-        }
-
-        if ( driveStick2Buttons.releasedButton( 5 ) ) {
-            gyroEnabled = true;
-        }
-
-        if ( driveStick2Buttons.releasedButton( 6 ) ) {
-            gyroEnabled = false;
         }
 
         /*if ( driveStick2Buttons.releasedButton( 8 ) ) {
@@ -163,8 +194,12 @@ void OurRobot::OperatorControl() {
 #endif
 
         // Compensate with gyro angle if that's enabled
-        if ( gyroEnabled ) {
+        if ( gyroEnabled && driveMode != MecanumDrive::Arcade ) {
             joyGyro = testGyro.GetAngle();
+        }
+        // Compensate for ArcadeDrive robot being backwards
+        else if ( driveMode == MecanumDrive::Arcade ) {
+            joyGyro = 270.f;
         }
         else {
             joyGyro = 0.f;
@@ -179,8 +214,14 @@ void OurRobot::OperatorControl() {
         }
 
         // Set X and Y joystick inputs
-        joyX = driveStick2.GetX();
-        joyY = driveStick2.GetY();
+        if ( driveMode != MecanumDrive::Arcade ) {
+            joyX = driveStick2.GetX();
+            joyY = driveStick2.GetY();
+        }
+        else {
+            joyX = driveStick1.GetX();
+            joyY = driveStick2.GetY();
+        }
 
         // Cycle through driving modes
         if ( driveStick2Buttons.releasedButton( 7 ) ) {
@@ -201,7 +242,6 @@ void OurRobot::OperatorControl() {
         /* Pivot around a given wheel, or drive normally if no buttons were
          * pressed
          */
-#if 0
         if ( driveStick2.GetRawButton( 9 ) ) { // FL wheel pivot
             mainDrive.SetDriveMode( MecanumDrive::FLpivot );
         }
@@ -214,7 +254,9 @@ void OurRobot::OperatorControl() {
         else if ( driveStick2.GetRawButton( 12 ) ) { // RR wheel pivot
             mainDrive.SetDriveMode( MecanumDrive::RRpivot );
         }
-#endif
+        else {
+            mainDrive.SetDriveMode( driveMode );
+        }
 
         mainDrive.Drive( joyX , joyY , joyTwist , joyGyro );
 

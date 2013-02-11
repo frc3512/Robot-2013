@@ -10,6 +10,7 @@
 
 void OurRobot::Disabled() {
     mainCompressor.Stop();
+    shooterEncoder.Start();
 
     ButtonTracker driveStick1Buttons( 1 );
     ButtonTracker driveStick2Buttons( 2 );

@@ -15,8 +15,13 @@
 
 #include "AutonContainer.hpp"
 
-#include <Compressor.h>
 #include <Joystick.h>
+
+#include <Compressor.h>
+#include <Solenoid.h>
+
+#include <Encoder.h>
+#include <Counter.h>
 
 #include <Talon.h>
 #include "MecanumDrive.hpp"
@@ -31,8 +36,8 @@
 #include <Gyro.h>
 #include <Servo.h>
 
-// Scales joystick's Z axis values from -1 .. 1 to 0 .. 1, but within same range of movement
-float ScaleZ( Joystick& stick );
+// Scale value from -1 .. 1 to 0 .. 1, but within same range of movement
+float ScaleValue( float value );
 
 // Adds deadband to joystick value
 double deadband( double value );
@@ -56,17 +61,26 @@ public:
 private:
     AutonContainer<OurRobot> autonModes;
 
+    Joystick driveStick1;
+    Joystick driveStick2;
+    Joystick shootStick;
+
     Compressor mainCompressor;
+
+    Solenoid frisbeeFeed;
+    Timer feedTimer;
+
+    Solenoid shooterAngle;
+
+    Counter shooterEncoder;
+    Timer shooterTimer;
+    float shooterRPM;
 
     Talon flMotor;
     Talon rlMotor;
     Talon frMotor;
     Talon rrMotor;
     MecanumDrive mainDrive;
-
-    Joystick driveStick1;
-    Joystick driveStick2;
-    Joystick cameraStick;
 
     Victor shooterMotor1;
     Victor shooterMotor2;

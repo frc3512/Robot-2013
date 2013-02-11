@@ -161,36 +161,64 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
 
     case FLpivot: {
         wheelSpeeds[kFrontLeftMotor] = 0.f;
-        wheelSpeeds[kFrontRightMotor] = hypot2( xIn , yIn ) * -19.f;
-        wheelSpeeds[kRearLeftMotor] = hypot2( xIn , yIn ) * 27.5f;
-        wheelSpeeds[kRearRightMotor] = hypot2( xIn , yIn ) * -33.425f / sin( 3.141592f / 4.f );
+        wheelSpeeds[kFrontRightMotor] = -19.f;
+        wheelSpeeds[kRearLeftMotor] = 27.5f;
+        wheelSpeeds[kRearRightMotor] = -33.425f / sin( 3.141592f / 4.f );
+
+        Normalize( wheelSpeeds );
+
+        wheelSpeeds[kFrontLeftMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kFrontRightMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kRearLeftMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kRearRightMotor] *= hypot2( xIn , yIn );
 
         break;
     }
 
     case FRpivot: {
-        wheelSpeeds[kFrontLeftMotor] = hypot2( xIn , yIn ) * 19.f;
+        wheelSpeeds[kFrontLeftMotor] = 19.f;
         wheelSpeeds[kFrontRightMotor] = 0.f;
-        wheelSpeeds[kRearLeftMotor] = hypot2( xIn , yIn ) * 33.425f / sin( 3.141592f / 4.f );
-        wheelSpeeds[kRearRightMotor] = hypot2( xIn , yIn ) * -27.5f;
+        wheelSpeeds[kRearLeftMotor] = 33.425f / sin( 3.141592f / 4.f );
+        wheelSpeeds[kRearRightMotor] = -27.5f;
+
+        Normalize( wheelSpeeds );
+
+        wheelSpeeds[kFrontLeftMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kFrontRightMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kRearLeftMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kRearRightMotor] *= hypot2( xIn , yIn );
 
         break;
     }
 
     case RLpivot: {
-        wheelSpeeds[kFrontLeftMotor] = hypot2( xIn , yIn ) * -27.5f;
-        wheelSpeeds[kFrontRightMotor] = hypot2( xIn , yIn ) * -33.425f / sin( 3.141592f / 4.f );
+        wheelSpeeds[kFrontLeftMotor] = -27.5f;
+        wheelSpeeds[kFrontRightMotor] = -33.425f / sin( 3.141592f / 4.f );
         wheelSpeeds[kRearLeftMotor] = 0.f;
-        wheelSpeeds[kRearRightMotor] = hypot2( xIn , yIn ) * 19.f;
+        wheelSpeeds[kRearRightMotor] = 19.f;
+
+        Normalize( wheelSpeeds );
+
+        wheelSpeeds[kFrontLeftMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kFrontRightMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kRearLeftMotor] *= hypot2( xIn , yIn );
+        wheelSpeeds[kRearRightMotor] *= hypot2( xIn , yIn );
 
         break;
     }
 
     case RRpivot: {
-        wheelSpeeds[kFrontLeftMotor] = hypot2( xIn , yIn ) * 33.425f / sin( 3.141592f / 4.f );
-        wheelSpeeds[kFrontRightMotor] = hypot2( xIn , yIn ) * -27.5f;
-        wheelSpeeds[kRearLeftMotor] = hypot2( xIn , yIn ) * 19.f;
+        wheelSpeeds[kFrontLeftMotor] = 33.425f / sin( 3.141592f / 4.f );
+        wheelSpeeds[kFrontRightMotor] = -27.5f;
+        wheelSpeeds[kRearLeftMotor] = 19.f;
         wheelSpeeds[kRearRightMotor] = 0.f;
+
+        Normalize( wheelSpeeds );
+
+        wheelSpeeds[kFrontLeftMotor] *= hypot2( xIn , yIn ) / sqrt( 2 );
+        wheelSpeeds[kFrontRightMotor] *= hypot2( xIn , yIn ) / sqrt( 2 );
+        wheelSpeeds[kRearLeftMotor] *= hypot2( xIn , yIn ) / sqrt( 2 );
+        wheelSpeeds[kRearRightMotor] *= hypot2( xIn , yIn ) / sqrt( 2 );
 
         break;
     }
@@ -199,6 +227,7 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
     // Normalize wheel speeds and run PID loop if enabled
     Normalize( wheelSpeeds );
 
+#if 0
     if ( m_pidEnabled ) {
         m_flPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kFrontLeftMotor] * m_invertedMotors[kFrontLeftMotor] * m_maxOutput );
         m_frPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kFrontRightMotor] * m_invertedMotors[kFrontRightMotor] * m_maxOutput );
@@ -217,6 +246,7 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         // TODO Send PID values to DSDisplay for graphing
     }
     else {
+#endif
         UINT8 syncGroup = 0x80;
 
         m_frontLeftMotor->Set( wheelSpeeds[kFrontLeftMotor] * m_invertedMotors[kFrontLeftMotor] * m_maxOutput , syncGroup );
@@ -227,7 +257,7 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         CANJaguar::UpdateSyncGroup( syncGroup );
 
         m_safetyHelper->Feed();
-    }
+    //}
 }
 
 void MecanumDrive::SquareInputs( bool squared ) {
@@ -259,8 +289,8 @@ void MecanumDrive::EnableEncoders( bool pidEnabled ) {
     if ( !m_pidEnabled && pidEnabled ) {
         /* ===== Initialize encoders ===== */
         m_flEncoder = new Encoder( m_flA , m_flB , true );
-        m_rlEncoder = new Encoder( m_rlA , m_rlB , false );
-        m_frEncoder = new Encoder( m_frA , m_frB , true );
+        m_rlEncoder = new Encoder( m_rlA , m_rlB , true );
+        m_frEncoder = new Encoder( m_frA , m_frB , false );
         m_rrEncoder = new Encoder( m_rrA , m_rrB , false );
 
         float dPerP = 3.14159265f * 3.f /* wheel radius */ / 180.f;
@@ -291,10 +321,10 @@ void MecanumDrive::EnableEncoders( bool pidEnabled ) {
         m_frPID->SetOutputRange( -1 , 1 );
         m_rrPID->SetOutputRange( -1 , 1 );
 
-        m_flPID->Enable();
+        /*m_flPID->Enable();
         m_rlPID->Enable();
         m_frPID->Enable();
-        m_rrPID->Enable();
+        m_rrPID->Enable();*/
         /* ====================================== */
 
         m_pidEnabled = pidEnabled;
