@@ -33,13 +33,13 @@
 #include "SFML/Network/Packet.hpp"
 #include "SFML/Network/UdpSocket.hpp"
 
+class DriverStationDisplayInit;
+
 class DriverStationDisplay : public NonCopyable , public sf::Packet {
 public:
     virtual ~DriverStationDisplay();
 
     static DriverStationDisplay* getInstance( unsigned short dsPort );
-
-    static void freeInstance();
 
     /* Sends data currently in packet to Driver Station
      * 'userData' holds the packet to be sent to the Driver Station
@@ -66,6 +66,8 @@ private:
     unsigned short m_recvPort; // stores port temporarily during receive
     char* m_recvBuffer; // buffer for Driver Station requests
     size_t m_recvAmount; // holds number of bytes received from Driver Station
+
+    friend class DriverStationDisplayInit;
 };
 
 #endif // DRIVER_STATION_DISPLAY_HPP

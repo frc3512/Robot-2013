@@ -10,6 +10,21 @@
 
 DriverStationDisplay* DriverStationDisplay::m_dsDisplay = NULL;
 
+class DriverStationDisplayInit {
+public:
+    DriverStationDisplayInit();
+    ~DriverStationDisplayInit();
+};
+
+DriverStationDisplayInit driverStationDisplayInit;
+
+DriverStationDisplayInit::DriverStationDisplayInit() {
+}
+
+DriverStationDisplayInit::~DriverStationDisplayInit() {
+    delete DriverStationDisplay::m_dsDisplay;
+}
+
 DriverStationDisplay::~DriverStationDisplay() {
     m_socket.unbind();
     std::free( m_recvBuffer );
@@ -21,11 +36,6 @@ DriverStationDisplay* DriverStationDisplay::getInstance( unsigned short dsPort )
     }
 
     return m_dsDisplay;
-}
-
-void DriverStationDisplay::freeInstance() {
-    delete m_dsDisplay;
-    m_dsDisplay = NULL;
 }
 
 void DriverStationDisplay::sendToDS( sf::Packet* userData ) {

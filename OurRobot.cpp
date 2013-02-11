@@ -71,8 +71,6 @@ OurRobot::OurRobot() :
 }
 
 OurRobot::~OurRobot() {
-    DriverStationDisplay::freeInstance();
-    driverStation = NULL;
 }
 
 void OurRobot::DS_PrintOut() {
