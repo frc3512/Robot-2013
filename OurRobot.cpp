@@ -30,11 +30,14 @@ OurRobot::OurRobot() :
     shootStick( 3 ),
 
     mainCompressor( 1 , 2 ),
+
     frisbeeFeed( 1 ),
+    frisbeeGuard( 3 ),
 
     shooterAngle( 2 ),
 
     shooterEncoder( 2 ),
+    rpmAverage( 56 ),
 
     flMotor( 3 ),
     rlMotor( 5 ),
@@ -49,7 +52,7 @@ OurRobot::OurRobot() :
     turretKinect( getValueFor( "SBC_IP" ) , atoi( getValueFor( "SBC_Port" ).c_str() ) ),
     testGyro( 1 )
     //camYTilt( 10 ),
-    //camXTilt( 9 )
+    //camXTilt( 2 )
 {
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
@@ -135,21 +138,22 @@ void OurRobot::DS_PrintOut() {
      * period = seconds per tick of gear
      * 1 / period = ticks per second of gear
      * 60 / period = ticks per minute of gear
-     * 57 ticks per revolution therefore: 60 / ( 57 * period ) = revolutions per minute of gear
+     * 56 ticks per revolution therefore: 60 / ( 56 * period ) = revolutions per minute of gear
      * 4 * 60 / ( 56 * period ) = revolutions per minute of shooter wheel
      */
-    //shooterRPM = 4.f * 60.f / ( 56.f * shooterEncoder.GetPeriod() );
-
 #if 1
+    shooterRPM = 4.f * 60.f / ( 56.f * shooterEncoder.GetPeriod() );
+    rpmAverage.addValue( shooterRPM );
+#else
     if ( shooterTimer.HasPeriodPassed( 0.5f ) ) {
-        shooterRPM = 60.f * 2.f /* 2 times as much data in 1 second */ * (shooterEncoder.Get() / 56.f);
+        shooterRPM = 4.f * 60.f * 2.f /* 2 times as much data in 1 second */ * (shooterEncoder.Get() / 56.f);
         shooterEncoder.Reset();
     }
 #endif
 
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , testGyro.GetAngle() );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , shooterRPM );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , rpmAverage.getAverage() );
     //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , -ScaleValue(shootStick.GetAxis(Joystick::kZAxis)) );
 
     if ( mainDrive.GetDriveMode() == MecanumDrive::Omni ) {
@@ -181,7 +185,8 @@ void OurRobot::DS_PrintOut() {
     }
     //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "encFL: %f" , mainDrive.GetFL() );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "encRL: %f" , mainDrive.GetRL() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "ScaleZ: %f" , ScaleValue(shootStick.GetZ()) );
+    //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "encRL: %f" , mainDrive.GetRL() );
 
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line5 , 1 , "encFR: %f" , mainDrive.GetFR() );
 

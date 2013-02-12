@@ -12,7 +12,6 @@
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
     shooterEncoder.Start();
-    shooterTimer.Start();
 
     ButtonTracker driveStick1Buttons( 1 );
     ButtonTracker driveStick2Buttons( 2 );
@@ -105,24 +104,36 @@ void OurRobot::OperatorControl() {
          */
 
         if ( shootStickButtons.releasedButton( 1 ) ) {
-            // Push frisbee into feeder
+            // Pull feeder in for pushing frisbee
             frisbeeFeed.Set( true );
 
-            // Start delay timer
+            // Lower shooter guard so frisbees can leave
+            frisbeeGuard.Set( false );
+
+            // Start the delay timers
             feedTimer.Start();
+            guardTimer.Start();
         }
 
-        // If frisbee was fed into shooter
-        if ( frisbeeFeed.Get() ) {
-            // Wait until acuator is out before retracting it
-            if ( feedTimer.Get() > 0.275 ) {
-                // Retract feed actuator
-                frisbeeFeed.Set( false );
+        /* If frisbee is going to be fed into the shooter and the actuator had
+         * enough time to move completely out from underneath the frisbees
+         */
+        if ( frisbeeFeed.Get() && feedTimer.Get() > 0.3 ) {
+            // Reset feed actuator and push frisbee into shooter
+            frisbeeFeed.Set( false );
 
-                // Reset timer
-                feedTimer.Stop();
-                feedTimer.Reset();
-            }
+            // Reset timer
+            feedTimer.Stop();
+            feedTimer.Reset();
+        }
+
+        // If frisbee guard is down and frisbee has moved past guard
+        if ( frisbeeGuard.Get() && guardTimer.Get() > 0.6 ) {
+            frisbeeGuard.Set( true );
+
+            // Reset timer
+            guardTimer.Stop();
+            guardTimer.Reset();
         }
         /* ========================= */
 

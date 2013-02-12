@@ -22,6 +22,7 @@
 
 #include <Encoder.h>
 #include <Counter.h>
+#include "RollingAverage.hpp"
 
 #include <Talon.h>
 #include "MecanumDrive.hpp"
@@ -69,11 +70,13 @@ private:
 
     Solenoid frisbeeFeed;
     Timer feedTimer;
+    Solenoid frisbeeGuard;
+    Timer guardTimer;
 
     Solenoid shooterAngle;
 
     Counter shooterEncoder;
-    Timer shooterTimer;
+    RollingAverage rpmAverage;
     float shooterRPM;
 
     Talon flMotor;
