@@ -1,21 +1,21 @@
 //=============================================================================
-//File Name: LiveGrapherClient.cpp
+//File Name: LiveGrapherHost.cpp
 //Description: Sends data to a remote location to be graphed
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
-#include "LiveGrapherClient.hpp"
+#include "LiveGrapherHost.hpp"
 
-LiveGrapherClient* LiveGrapherClient::m_instance = NULL;
+LiveGrapherHost* LiveGrapherHost::m_instance = NULL;
 
-LiveGrapherClient* LiveGrapherClient::getInstance() {
+LiveGrapherHost* LiveGrapherHost::getInstance() {
     if ( m_instance == NULL ) {
-        m_instance = new LiveGrapherClient( 1150 );
+        m_instance = new LiveGrapherHost( 1150 );
     }
 
     return m_instance;
 }
 
-LiveGrapherClient::LiveGrapherClient( unsigned short portNumber ) {
+LiveGrapherHost::LiveGrapherHost( unsigned short portNumber ) {
 
 }
