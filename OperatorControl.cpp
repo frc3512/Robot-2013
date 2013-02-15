@@ -11,7 +11,7 @@
 
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
-    shooterEncoder.Start();
+    shooterEncoder.start();
 
     ButtonTracker driveStick1Buttons( 1 );
     ButtonTracker driveStick2Buttons( 2 );
@@ -19,6 +19,7 @@ void OurRobot::OperatorControl() {
 
     bool isShooting = false;
     bool shooterIsManual = true;
+    bool climberMoving = false;
 
     // Field-oriented driving by default
     bool gyroEnabled = true;
@@ -100,19 +101,24 @@ void OurRobot::OperatorControl() {
 
         /* ===== Shoot frisbee ===== */
         /* A delay is used here so the frisbee feed actuator is fully activated
-         * before retracting it again
+         * before retracting it again.
          */
 
-        if ( shootStickButtons.releasedButton( 1 ) ) {
-            // Pull feeder in for pushing frisbee
-            frisbeeFeed.Set( true );
+        /* Don't let a frisbee into the shooter if the shooter wheel isn't
+         * spinning.
+         */
+        if ( shooterEncoder.getRPM() > 700 ) {
+            if ( shootStickButtons.releasedButton( 1 ) ) {
+                // Pull feeder in for pushing frisbee
+                frisbeeFeed.Set( true );
 
-            // Lower shooter guard so frisbees can leave
-            frisbeeGuard.Set( false );
+                // Lower shooter guard so frisbees can leave
+                frisbeeGuard.Set( true );
 
-            // Start the delay timers
-            feedTimer.Start();
-            guardTimer.Start();
+                // Start the delay timers
+                feedTimer.Start();
+                guardTimer.Start();
+            }
         }
 
         /* If frisbee is going to be fed into the shooter and the actuator had
@@ -128,14 +134,86 @@ void OurRobot::OperatorControl() {
         }
 
         // If frisbee guard is down and frisbee has moved past guard
-        if ( frisbeeGuard.Get() && guardTimer.Get() > 0.6 ) {
-            frisbeeGuard.Set( true );
+        if ( frisbeeGuard.Get() == true && guardTimer.Get() > 0.65 ) {
+            frisbeeGuard.Set( false );
 
             // Reset timer
             guardTimer.Stop();
             guardTimer.Reset();
         }
         /* ========================= */
+
+        /* ===== Control climbing mechanism ===== */
+        climberMoving = false;
+
+        // Left arm up
+        if ( shootStick.GetRawButton( 6 ) ) {
+            climberMoving = true;
+            leftClimbArm.Set( Relay::kOn );
+
+            leftClimbArm.Set( Relay::kForward );
+        }
+
+        // Left arm down
+        else if ( shootStick.GetRawButton( 7 ) ) {
+            climberMoving = true;
+            leftClimbArm.Set( Relay::kOn );
+
+            leftClimbArm.Set( Relay::kReverse );
+        }
+
+        // Left arm stop if motors won't both be moving
+        else if ( !shootStick.GetRawButton( 8 ) && !shootStick.GetRawButton( 9 ) ) {
+            leftClimbArm.Set( Relay::kOff );
+        }
+
+        // Right arm up
+        if ( shootStick.GetRawButton( 11 ) ) {
+            climberMoving = true;
+            rightClimbArm.Set( Relay::kOn );
+
+            rightClimbArm.Set( Relay::kForward );
+        }
+
+        // Right arm down
+        else if ( shootStick.GetRawButton( 10 ) ) {
+            climberMoving = true;
+            rightClimbArm.Set( Relay::kOn );
+
+            rightClimbArm.Set( Relay::kReverse );
+        }
+
+        // Right arm stop if motors won't both be moving
+        else if ( !shootStick.GetRawButton( 8 ) && !shootStick.GetRawButton( 9 ) ) {
+            rightClimbArm.Set( Relay::kOff );
+        }
+
+        // Both arms up
+        if ( shootStick.GetRawButton( 8 ) ) {
+            climberMoving = true;
+            leftClimbArm.Set( Relay::kOn );
+            rightClimbArm.Set( Relay::kOn );
+
+            leftClimbArm.Set( Relay::kForward );
+            rightClimbArm.Set( Relay::kForward );
+        }
+
+        // Both arms down
+        else if ( shootStick.GetRawButton( 9 ) ) {
+            climberMoving = true;
+            leftClimbArm.Set( Relay::kOn );
+            rightClimbArm.Set( Relay::kOn );
+
+            leftClimbArm.Set( Relay::kReverse );
+            rightClimbArm.Set( Relay::kReverse );
+        }
+
+        // If climber shouldn't be moving, make the motors stop
+        if ( !climberMoving ) {
+            leftClimbArm.Set( Relay::kOff );
+            rightClimbArm.Set( Relay::kOff );
+        }
+        /* ====================================== */
 
         /* ===== Control gyro ===== */
         // Reset gyro
@@ -268,6 +346,12 @@ void OurRobot::OperatorControl() {
         else {
             mainDrive.SetDriveMode( driveMode );
         }
+
+        // If in lower half, go half speed
+        if ( ScaleValue( driveStick2.GetTwist() ) < 0.5 ) {
+            joyTwist /= 2.f;
+        }
+        // ^ Goes normal speed if in higher half
 
         mainDrive.Drive( joyX , joyY , joyTwist , joyGyro );
 

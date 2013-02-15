@@ -36,8 +36,7 @@ OurRobot::OurRobot() :
 
     shooterAngle( 2 ),
 
-    shooterEncoder( 2 ),
-    rpmAverage( 56 ),
+    shooterEncoder( 2 , 56 , 4.f ),
 
     flMotor( 3 ),
     rlMotor( 5 ),
@@ -47,6 +46,8 @@ OurRobot::OurRobot() :
 
     shooterMotor1( 9 ),
     shooterMotor2( 10 ),
+    leftClimbArm( 4 ),
+    rightClimbArm( 3 ),
 
     // single board computer's IP address and port
     turretKinect( getValueFor( "SBC_IP" ) , atoi( getValueFor( "SBC_Port" ).c_str() ) ),
@@ -67,8 +68,6 @@ OurRobot::OurRobot() :
     mainDrive.SetExpiration( 1.f );
 
     mainDrive.SquareInputs( true );
-
-    shooterRPM = 0;
 
     autonMode = 0;
 }
@@ -134,26 +133,9 @@ void OurRobot::DS_PrintOut() {
 
     DriverStationLCD::GetInstance()->Clear();
 
-    /* Derivation of RPM:
-     * period = seconds per tick of gear
-     * 1 / period = ticks per second of gear
-     * 60 / period = ticks per minute of gear
-     * 56 ticks per revolution therefore: 60 / ( 56 * period ) = revolutions per minute of gear
-     * 4 * 60 / ( 56 * period ) = revolutions per minute of shooter wheel
-     */
-#if 1
-    shooterRPM = 4.f * 60.f / ( 56.f * shooterEncoder.GetPeriod() );
-    rpmAverage.addValue( shooterRPM );
-#else
-    if ( shooterTimer.HasPeriodPassed( 0.5f ) ) {
-        shooterRPM = 4.f * 60.f * 2.f /* 2 times as much data in 1 second */ * (shooterEncoder.Get() / 56.f);
-        shooterEncoder.Reset();
-    }
-#endif
-
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , testGyro.GetAngle() );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , rpmAverage.getAverage() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , shooterEncoder.getRPM() );
     //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , -ScaleValue(shootStick.GetAxis(Joystick::kZAxis)) );
 
     if ( mainDrive.GetDriveMode() == MecanumDrive::Omni ) {

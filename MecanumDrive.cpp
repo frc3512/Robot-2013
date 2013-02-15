@@ -162,7 +162,7 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
     case FLpivot: {
         wheelSpeeds[kFrontLeftMotor] = 0.f;
         wheelSpeeds[kFrontRightMotor] = -19.f;
-        wheelSpeeds[kRearLeftMotor] = 27.5f;
+        wheelSpeeds[kRearLeftMotor] = -27.5f;
         wheelSpeeds[kRearRightMotor] = -33.425f / sin( 3.141592f / 4.f );
 
         Normalize( wheelSpeeds );
@@ -179,7 +179,7 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         wheelSpeeds[kFrontLeftMotor] = 19.f;
         wheelSpeeds[kFrontRightMotor] = 0.f;
         wheelSpeeds[kRearLeftMotor] = 33.425f / sin( 3.141592f / 4.f );
-        wheelSpeeds[kRearRightMotor] = -27.5f;
+        wheelSpeeds[kRearRightMotor] = 27.5f;
 
         Normalize( wheelSpeeds );
 
@@ -195,7 +195,7 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         wheelSpeeds[kFrontLeftMotor] = -27.5f;
         wheelSpeeds[kFrontRightMotor] = -33.425f / sin( 3.141592f / 4.f );
         wheelSpeeds[kRearLeftMotor] = 0.f;
-        wheelSpeeds[kRearRightMotor] = 19.f;
+        wheelSpeeds[kRearRightMotor] = -19.f;
 
         Normalize( wheelSpeeds );
 
@@ -209,7 +209,7 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
 
     case RRpivot: {
         wheelSpeeds[kFrontLeftMotor] = 33.425f / sin( 3.141592f / 4.f );
-        wheelSpeeds[kFrontRightMotor] = -27.5f;
+        wheelSpeeds[kFrontRightMotor] = 27.5f;
         wheelSpeeds[kRearLeftMotor] = 19.f;
         wheelSpeeds[kRearRightMotor] = 0.f;
 

@@ -20,14 +20,14 @@
 #include <Compressor.h>
 #include <Solenoid.h>
 
-#include <Encoder.h>
-#include <Counter.h>
-#include "RollingAverage.hpp"
+#include "GeartoothEncoder.hpp"
 
 #include <Talon.h>
 #include "MecanumDrive.hpp"
 
 #include <Victor.h>
+
+#include <Relay.h>
 
 #include "Kinect/TurretKinect.hpp"
 
@@ -75,9 +75,7 @@ private:
 
     Solenoid shooterAngle;
 
-    Counter shooterEncoder;
-    RollingAverage rpmAverage;
-    float shooterRPM;
+    GeartoothEncoder shooterEncoder;
 
     Talon flMotor;
     Talon rlMotor;
@@ -87,6 +85,9 @@ private:
 
     Victor shooterMotor1;
     Victor shooterMotor2;
+
+    Relay leftClimbArm;
+    Relay rightClimbArm;
 
     TurretKinect turretKinect;
 

@@ -9,6 +9,7 @@
 #define ROLLING_AVERAGE_HPP
 
 #include <list>
+#include <pthread.h>
 
 class RollingAverage {
 public:
@@ -25,6 +26,9 @@ private:
 
     // Number of values to average
     unsigned int m_size;
+
+    // Prevents accessing list from two places at once
+    pthread_mutex_t m_dataMutex;
 };
 
 #endif // ROLLING_AVERAGE_HPP
