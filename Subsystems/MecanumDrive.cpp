@@ -352,7 +352,7 @@ bool MecanumDrive::AreEncodersEnabled() {
 }
 
 // Returns encoder values if the encoders are enabled
-double MecanumDrive::GetFL() {
+double MecanumDrive::GetFLrate() {
     if ( m_pidEnabled ) {
         return m_flEncoder->GetRate();
     }
@@ -361,7 +361,7 @@ double MecanumDrive::GetFL() {
     }
 }
 
-double MecanumDrive::GetRL() {
+double MecanumDrive::GetRLrate() {
     if ( m_pidEnabled ) {
         return m_rlEncoder->GetRate();
     }
@@ -370,7 +370,7 @@ double MecanumDrive::GetRL() {
     }
 }
 
-double MecanumDrive::GetFR() {
+double MecanumDrive::GetFRrate() {
     if ( m_pidEnabled ) {
         return m_frEncoder->GetRate();
     }
@@ -379,9 +379,45 @@ double MecanumDrive::GetFR() {
     }
 }
 
-double MecanumDrive::GetRR() {
+double MecanumDrive::GetRRrate() {
     if ( m_pidEnabled ) {
         return m_rrEncoder->GetRate();
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double MecanumDrive::GetFLdist() {
+    if( m_pidEnabled ) {
+        return m_flEncoder->GetDistance();
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double MecanumDrive::GetRLdist() {
+    if( m_pidEnabled ) {
+        return m_rlEncoder->GetDistance();
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double MecanumDrive::GetFRdist() {
+    if( m_pidEnabled ) {
+        return m_frEncoder->GetDistance();
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double MecanumDrive::GetRRdist() {
+    if( m_pidEnabled ) {
+        return m_rrEncoder->GetDistance();
     }
     else {
         return 0.0;

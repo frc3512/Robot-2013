@@ -31,12 +31,9 @@ OurRobot::OurRobot() :
 
     mainCompressor( 1 , 2 ),
 
-    frisbeeFeed( 1 ),
-    frisbeeGuard( 3 ),
+    frisbeeFeeder( 1 , 3 , 0.3f , 0.65f ),
 
     shooterAngle( 2 ),
-
-    shooterEncoder( 2 , 56 , 4.f ),
 
     flMotor( 3 ),
     rlMotor( 5 ),
@@ -44,21 +41,24 @@ OurRobot::OurRobot() :
     rrMotor( 1 ),
     mainDrive( flMotor , rlMotor , frMotor , rrMotor ),
 
-    shooterMotor1( 9 ),
-    shooterMotor2( 10 ),
+    frisbeeShooter( 9 , 10 , 2 , 56 , 4.f ) ,
+
     leftClimbArm( 4 ),
     rightClimbArm( 3 ),
 
-    // single board computer's IP address and port
-    turretKinect( getValueFor( "SBC_IP" ) , atoi( getValueFor( "SBC_Port" ).c_str() ) ),
-    testGyro( 1 )
-    //camYTilt( 10 ),
-    //camXTilt( 2 )
+    testGyro( 1 ),
+
+    underGlow( 5 ),
+
+    // Field-oriented driving by default
+    isGyroEnabled( true ),
+    slowRotate( false )
 {
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
-    autonModes.addMethod( "Shoot" , &OurRobot::AutonShoot , this );
-    autonModes.addMethod( "Feed" , &OurRobot::AutonFeed , this );
+    autonModes.addMethod( "CenterShoot" , &OurRobot::AutonCenter , this );
+    autonModes.addMethod( "LeftShoot" , &OurRobot::AutonLeftShoot , this );
+    autonModes.addMethod( "RightShoot" , &OurRobot::AutonRightShoot , this );
 
     // Set encoder ports
     mainDrive.SetEncoderPorts( 14 , 13 , 10 , 9 ,
@@ -79,19 +79,15 @@ void OurRobot::DS_PrintOut() {
     /* ===== Print to Driver Station LCD =====
      * Packs the following variables:
      *
-     * std::string: type of data (either "display" or "autonList")
-     * unsigned int: drive1 ScaleZ
-     * unsigned int: drive2 ScaleZ
-     * unsigned int: turret ScaleZ
-     * bool: drivetrain is in low gear
-     * unsigned char: is hammer mechanism deployed
+     * unsigned int: forward drive
+     * unsigned int: rotate drive
+     * bool: isGyroEnabled
+     * bool: slowRotate
+     * unsigned int: manual RPM
+     * unsigned int: target RPM
      * unsigned int: shooter RPM
-     * bool: shooter RPM control is manual
+     * bool: shooterReady
      * bool: isShooting
-     * bool: isAutoAiming
-     * bool: turret is locked on
-     * unsigned char: Kinect is online
-     * unsigned int: distance to target
      */
 
     // floats don't work so " * 100000" saves some precision in a UINT
@@ -100,21 +96,25 @@ void OurRobot::DS_PrintOut() {
 
     *driverStation << static_cast<std::string>( "display" );
 
-    *driverStation << static_cast<unsigned int>(ScaleValue(driveStick1.GetZ()) * 100000.f);
+    *driverStation << static_cast<unsigned int>(ScaleValue(driveStick1.GetX()) * 100000.f);
 
     *driverStation << static_cast<unsigned int>(ScaleValue(driveStick2.GetZ()) * 100000.f);
 
+    *driverStation << static_cast<bool>( isGyroEnabled );
+
     *driverStation << static_cast<unsigned int>(ScaleValue(shootStick.GetZ()) * 100000.f);
 
-    *driverStation << static_cast<bool>( fabs( turretKinect.getPixelOffset() ) < TurretKinect::pxlDeadband
-            && turretKinect.getOnlineStatus() == sf::Socket::Done );
+    *driverStation << static_cast<unsigned int>(frisbeeShooter.getTargetRPM() * 100000.f);
 
-    *driverStation << static_cast<unsigned char>( turretKinect.getOnlineStatus() );
+    *driverStation << static_cast<unsigned int>(frisbeeShooter.getRPM() * 100000.f);
 
-    *driverStation << turretKinect.getDistance();
+    *driverStation << static_cast<bool>( frisbeeShooter.isReady() );
+
+    *driverStation << static_cast<bool>( frisbeeShooter.isShooting() );
 
     driverStation->sendToDS();
 
+    // Gets messages from DS and fills 'autonMode' if it's a connection message
     const std::string& command = driverStation->receiveFromDS( &autonMode );
 
     // If the DS just connected, send it a list of available autonomous modes
@@ -135,7 +135,7 @@ void OurRobot::DS_PrintOut() {
 
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , testGyro.GetAngle() );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , shooterEncoder.getRPM() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , frisbeeShooter.getRPM() );
     //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , -ScaleValue(shootStick.GetAxis(Joystick::kZAxis)) );
 
     if ( mainDrive.GetDriveMode() == MecanumDrive::Omni ) {
@@ -170,9 +170,9 @@ void OurRobot::DS_PrintOut() {
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "ScaleZ: %f" , ScaleValue(shootStick.GetZ()) );
     //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "encRL: %f" , mainDrive.GetRL() );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line5 , 1 , "encFR: %f" , mainDrive.GetFR() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line5 , 1 , "encFR: %f" , mainDrive.GetFRrate() );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "encRR: %f" , mainDrive.GetRR() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "encRR: %f" , mainDrive.GetFLrate() );
 
     DriverStationLCD::GetInstance()->UpdateLCD();
 }

@@ -20,16 +20,16 @@
 #include <Compressor.h>
 #include <Solenoid.h>
 
-#include "GeartoothEncoder.hpp"
+#include "Subsystems/Feeder.hpp"
 
 #include <Talon.h>
-#include "MecanumDrive.hpp"
+#include "Subsystems/MecanumDrive.hpp"
+
+#include "Subsystems/Shooter.hpp"
 
 #include <Victor.h>
 
 #include <Relay.h>
-
-#include "Kinect/TurretKinect.hpp"
 
 #include <Timer.h>
 
@@ -53,8 +53,9 @@ public:
     ~OurRobot();
 
     void Autonomous();
-    void AutonShoot();
-    void AutonFeed();
+    void AutonCenter();
+    void AutonLeftShoot();
+    void AutonRightShoot();
 
     void OperatorControl();
     void Disabled();
@@ -68,14 +69,9 @@ private:
 
     Compressor mainCompressor;
 
-    Solenoid frisbeeFeed;
-    Timer feedTimer;
-    Solenoid frisbeeGuard;
-    Timer guardTimer;
+    Feeder frisbeeFeeder;
 
     Solenoid shooterAngle;
-
-    GeartoothEncoder shooterEncoder;
 
     Talon flMotor;
     Talon rlMotor;
@@ -83,17 +79,18 @@ private:
     Talon rrMotor;
     MecanumDrive mainDrive;
 
-    Victor shooterMotor1;
-    Victor shooterMotor2;
+    Shooter frisbeeShooter;
 
     Relay leftClimbArm;
     Relay rightClimbArm;
 
-    TurretKinect turretKinect;
-
     Gyro testGyro;
-    //Servo camYTilt;
-    //Servo camXTilt;
+
+    Relay underGlow;
+
+    // Misc. control variables
+    bool isGyroEnabled;
+    bool slowRotate; // True when slow robot rotation is enabled
 
     // Determines which autonomous mode is run
     char autonMode;

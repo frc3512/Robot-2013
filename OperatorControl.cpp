@@ -11,18 +11,13 @@
 
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
-    shooterEncoder.start();
 
     ButtonTracker driveStick1Buttons( 1 );
     ButtonTracker driveStick2Buttons( 2 );
     ButtonTracker shootStickButtons( 3 );
 
-    bool isShooting = false;
     bool shooterIsManual = true;
     bool climberMoving = false;
-
-    // Field-oriented driving by default
-    bool gyroEnabled = true;
 
     float joyX = 0.f;
     float joyY = 0.f;
@@ -46,16 +41,15 @@ void OurRobot::OperatorControl() {
         /* ============== Toggle Shooter Motors ============== */
         // turns shooter on/off
         if ( shootStickButtons.releasedButton( 4 ) ) {
-            isShooting = true;
+            frisbeeShooter.start();
         }
         else if ( shootStickButtons.releasedButton( 5 ) ) {
-            isShooting = false;
+            frisbeeShooter.stop();
         }
 
-        if ( isShooting ) {
+        if ( frisbeeShooter.isShooting() ) {
             if ( shooterIsManual ) { // let driver change shooter speed manually
-                shooterMotor1.Set( -ScaleValue( shootStick.GetAxis(Joystick::kZAxis) ) );
-                shooterMotor2.Set( -ScaleValue( shootStick.GetAxis(Joystick::kZAxis) ) );
+                frisbeeShooter.setScale( ScaleValue( shootStick.GetZ() ) );
             }
             else { // else adjust shooter voltage to match RPM
                 //pidControl.SetTargetDistance( 25.f ); // * 0.00328084f
@@ -77,8 +71,7 @@ void OurRobot::OperatorControl() {
             }
         }
         else {
-            shooterMotor1.Set( 0.f );
-            shooterMotor2.Set( 0.f );
+            frisbeeShooter.stop();
         }
 
         // toggle manual RPM setting vs setting with encoder input
@@ -100,47 +93,17 @@ void OurRobot::OperatorControl() {
         /* ========================================== */
 
         /* ===== Shoot frisbee ===== */
-        /* A delay is used here so the frisbee feed actuator is fully activated
-         * before retracting it again.
-         */
-
         /* Don't let a frisbee into the shooter if the shooter wheel isn't
          * spinning.
          */
-        if ( shooterEncoder.getRPM() > 700 ) {
+        if ( frisbeeShooter.getRPM() > 500 ) {
             if ( shootStickButtons.releasedButton( 1 ) ) {
-                // Pull feeder in for pushing frisbee
-                frisbeeFeed.Set( true );
-
-                // Lower shooter guard so frisbees can leave
-                frisbeeGuard.Set( true );
-
-                // Start the delay timers
-                feedTimer.Start();
-                guardTimer.Start();
+                frisbeeFeeder.activate();
             }
         }
 
-        /* If frisbee is going to be fed into the shooter and the actuator had
-         * enough time to move completely out from underneath the frisbees
-         */
-        if ( frisbeeFeed.Get() && feedTimer.Get() > 0.3 ) {
-            // Reset feed actuator and push frisbee into shooter
-            frisbeeFeed.Set( false );
-
-            // Reset timer
-            feedTimer.Stop();
-            feedTimer.Reset();
-        }
-
-        // If frisbee guard is down and frisbee has moved past guard
-        if ( frisbeeGuard.Get() == true && guardTimer.Get() > 0.65 ) {
-            frisbeeGuard.Set( false );
-
-            // Reset timer
-            guardTimer.Stop();
-            guardTimer.Reset();
-        }
+        // Updates state of feed actuators
+        frisbeeFeeder.update();
         /* ========================= */
 
         /* ===== Control climbing mechanism ===== */
@@ -222,11 +185,19 @@ void OurRobot::OperatorControl() {
         }
 
         if ( driveStick2Buttons.releasedButton( 5 ) ) {
-            gyroEnabled = true;
+            isGyroEnabled = true;
+
+            // kForward turns on blue lights
+            underGlow.Set( Relay::kOn );
+            underGlow.Set( Relay::kForward );
         }
 
         if ( driveStick2Buttons.releasedButton( 6 ) ) {
-            gyroEnabled = false;
+            isGyroEnabled = false;
+
+            // kReverse turns on red lights
+            underGlow.Set( Relay::kOn );
+            underGlow.Set( Relay::kReverse );
         }
         /* ======================== */
 
@@ -240,55 +211,13 @@ void OurRobot::OperatorControl() {
             //mainDrive.EnableEncoders( false );
         }
 
-        /*if ( driveStick2Buttons.releasedButton( 8 ) ) {
-            Timer timer;
-            timer.Start();
-
-            while ( timer.Get() < 3 ) {
-                mainDrive.Drive( 0.f , -1.f , 0.f );
-            }
-
-            timer.Stop();
-        }
-
-        if ( driveStick2Buttons.releasedButton( 9 ) ) {
-            Timer timer;
-            timer.Start();
-
-            while ( timer.Get() < 3 ) {
-                mainDrive.Drive( 0.f , 1.f , 0.f );
-            }
-
-            timer.Stop();
-        }*/
-
-#if 0
-        // Aim camera X
-        camXTilt.Set( camXTilt.Get() + cameraStick.GetX() / 25.f );
-
-        // Aim camera Y
-        camYTilt.Set( camYTilt.Get() - cameraStick.GetY() / 25.f );
-
-        // Aim camera to shoot
-        if ( cameraStickButtons.releasedButton( 4 ) ) {
-            camXTilt.Set( 1 );
-            camYTilt.Set( -1 );
-        }
-
-        // Aim camera to feed
-        if ( cameraStickButtons.releasedButton( 5 ) ) {
-            camXTilt.Set( -1 );
-            camYTilt.Set( 1 );
-        }
-#endif
-
         // Compensate with gyro angle if that's enabled
-        if ( gyroEnabled && driveMode != MecanumDrive::Arcade ) {
+        if ( isGyroEnabled && driveMode != MecanumDrive::Arcade ) {
             joyGyro = testGyro.GetAngle();
         }
         // Compensate for ArcadeDrive robot being backwards
         else if ( driveMode == MecanumDrive::Arcade ) {
-            joyGyro = 270.f;
+            joyGyro = 90.f;
         }
         else {
             joyGyro = 0.f;
@@ -349,7 +278,11 @@ void OurRobot::OperatorControl() {
 
         // If in lower half, go half speed
         if ( ScaleValue( driveStick2.GetTwist() ) < 0.5 ) {
+            slowRotate = true;
             joyTwist /= 2.f;
+        }
+        else {
+            slowRotate = false;
         }
         // ^ Goes normal speed if in higher half
 

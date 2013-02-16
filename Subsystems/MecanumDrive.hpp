@@ -56,10 +56,16 @@ public:
     bool AreEncodersEnabled();
 
     // Returns encoder rates if the encoders are enabled
-    double GetFL();
-    double GetRL();
-    double GetFR();
-    double GetRR();
+    double GetFLrate();
+    double GetRLrate();
+    double GetFRrate();
+    double GetRRrate();
+
+    // Returns encoder distances if the encoders are enabled
+    double GetFLdist();
+    double GetRLdist();
+    double GetFRdist();
+    double GetRRdist();
 
 private:
     DISALLOW_COPY_AND_ASSIGN(MecanumDrive);
