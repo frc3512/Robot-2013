@@ -351,6 +351,15 @@ bool MecanumDrive::AreEncodersEnabled() {
     return m_pidEnabled;
 }
 
+void MecanumDrive::ResetEncoders() {
+    if ( m_pidEnabled ) {
+        m_flEncoder->Reset();
+        m_frEncoder->Reset();
+        m_rlEncoder->Reset();
+        m_rrEncoder->Reset();
+    }
+}
+
 // Returns encoder values if the encoders are enabled
 double MecanumDrive::GetFLrate() {
     if ( m_pidEnabled ) {

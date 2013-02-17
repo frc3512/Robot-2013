@@ -10,6 +10,7 @@
 
 void OurRobot::Disabled() {
     mainCompressor.Stop();
+    frisbeeShooter.stop();
 
     ButtonTracker driveStick1Buttons( 1 );
     ButtonTracker driveStick2Buttons( 2 );

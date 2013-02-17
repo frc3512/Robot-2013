@@ -10,6 +10,9 @@
 
 #include <cmath>
 
+#include "LiveGrapherHost/graphhost.h"
+#include <sys/times.h>
+
 #include <SimpleRobot.h>
 #include "Settings.hpp"
 
@@ -61,6 +64,13 @@ public:
     void Disabled();
 
 private:
+    /*struct graphhost_t* pidGraph;
+    timeval rawTime;
+    uint32_t currentTime;
+    uint32_t lastTime;
+    uint32_t startTime;
+    Timer graphTime;*/
+
     AutonContainer<OurRobot> autonModes;
 
     Joystick driveStick1;

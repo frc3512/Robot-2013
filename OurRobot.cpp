@@ -8,6 +8,9 @@
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
 
+//#include "SFMLSystem/VxWorks/SleepImpl.hpp"
+//int gettimeofday (struct timeval *tv_ptr, void *ptr);
+
 float ScaleValue( float value ) {
     // CONSTANT^-1 is step value (now 1/500)
     return floorf( 500.f * ( 1.f - value ) / 2.f ) / 500.f;
@@ -54,6 +57,12 @@ OurRobot::OurRobot() :
     isGyroEnabled( true ),
     slowRotate( false )
 {
+    /*pidGraph = GraphHost_create( 2153 );
+    gettimeofday( &rawTime , NULL );
+    startTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;
+    lastTime = startTime;
+    graphTime.Start();*/
+
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
     autonModes.addMethod( "CenterShoot" , &OurRobot::AutonCenter , this );
@@ -73,9 +82,20 @@ OurRobot::OurRobot() :
 }
 
 OurRobot::~OurRobot() {
+    //GraphHost_destroy( pidGraph );
 }
 
 void OurRobot::DS_PrintOut() {
+    /*gettimeofday( &rawTime , NULL );
+    currentTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;
+
+    if ( currentTime - lastTime > 10 ) {
+        GraphHost_graphData( currentTime - startTime , frisbeeShooter.getRPM() , "PID0" , pidGraph );
+        GraphHost_graphData( currentTime - startTime , frisbeeShooter.getTargetRPM() , "PID1" , pidGraph );
+
+        lastTime = currentTime;
+    }*/
+
     /* ===== Print to Driver Station LCD =====
      * Packs the following variables:
      *
@@ -96,7 +116,7 @@ void OurRobot::DS_PrintOut() {
 
     *driverStation << static_cast<std::string>( "display" );
 
-    *driverStation << static_cast<unsigned int>(ScaleValue(driveStick1.GetX()) * 100000.f);
+    *driverStation << static_cast<unsigned int>(ScaleValue(driveStick2.GetY()) * 100000.f);
 
     *driverStation << static_cast<unsigned int>(ScaleValue(driveStick2.GetZ()) * 100000.f);
 

@@ -7,6 +7,7 @@
 
 #include "Shooter.hpp"
 #include <cmath>
+#include <iostream> // TODO Remove me
 
 float Shooter::m_maxSpeed = 10000.f;
 
@@ -15,9 +16,11 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_shooterMotor1( motor1 ) ,
         m_shooterMotor2( motor2 ) ,
         m_shooterEncoder( encChannel , encTeeth , encGearRatio ) ,
-        m_shooterPID( 0.02f , 0.f , 0.f , 0.f , this , this ) {
+        m_shooterPID( 0xFF , 0.f , 0.f , 0.f , this , this ) {
     m_shooterPID.SetOutputRange( 0.f , 1.f );
     m_shooterPID.SetSetpoint( 0.f );
+    //m_shooterPID.SetAbsoluteTolerance( 50.f );
+    m_shooterEncoder.start();
 }
 
 Shooter::~Shooter() {
@@ -49,10 +52,6 @@ bool Shooter::isReady() {
 
 void Shooter::setRPM( float wheelSpeed ) {
     m_shooterPID.SetSetpoint( wheelSpeed );
-
-    if ( !m_shooterPID.IsEnabled() ) {
-        PIDWrite( wheelSpeed / m_maxSpeed );
-    }
 }
 
 float Shooter::getRPM() {
@@ -64,7 +63,8 @@ void Shooter::setScale( float scaleFactor ) {
         scaleFactor = fabs( scaleFactor );
     }
 
-    setRPM( m_maxSpeed * scaleFactor );
+    //setRPM( m_maxSpeed * scaleFactor );
+    PIDWrite( scaleFactor );
 }
 
 float Shooter::getTargetRPM() {

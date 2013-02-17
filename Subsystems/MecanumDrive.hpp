@@ -55,6 +55,9 @@ public:
     // Returns true if encoders are enabled
     bool AreEncodersEnabled();
 
+    // Set encoder distances to 0
+    void ResetEncoders();
+
     // Returns encoder rates if the encoders are enabled
     double GetFLrate();
     double GetRLrate();

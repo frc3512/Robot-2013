@@ -11,7 +11,7 @@ GeartoothEncoder::GeartoothEncoder( UINT32 channel , UINT32 teeth , float gearRa
 m_rpmAverager( 4 ) ,
 m_gearRatio( gearRatio ) ,
 m_teeth( teeth ) ,
-m_sampleRate( 2.f ) ,
+m_sampleRate( 4.f ) ,
 m_isRunning( true ) {
     pthread_mutex_init( &m_dataMutex , NULL );
     pthread_create( &m_sampleThread , NULL , &GeartoothEncoder::threadFunc , this );

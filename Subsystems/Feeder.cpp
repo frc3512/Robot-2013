@@ -29,6 +29,8 @@ void Feeder::activate() {
         // Start the delay timers
         m_feedTimer.Start();
         m_guardTimer.Start();
+
+        m_isActivated = true;
     }
 }
 
