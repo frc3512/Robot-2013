@@ -7,7 +7,6 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
 #include "list.h"
 #include "queue.h"
 #include <sys/socket.h>

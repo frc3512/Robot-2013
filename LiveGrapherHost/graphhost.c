@@ -130,7 +130,7 @@ GraphHost_destroy(struct graphhost_t *inst)
 	close(inst->ipcfd_r);
 	close(inst->ipcfd_w);
 	free(inst);
-	
+
 	return;
 }
 
@@ -169,7 +169,9 @@ sockets_accept(struct list_t *connlist, int listenfd)
 	struct queue_t *queue;
 	struct sockaddr_in cli_addr;
 	int error;
+#ifndef VxWorks
 	int flags;
+#endif
 
 	clilen = sizeof(struct sockaddr_in);
 
@@ -370,7 +372,7 @@ sockets_writeh(struct list_t *list, struct list_elem_t *elem)
 	int error;
 	struct socketconn_t *conn = elem->data;
 	struct writebuf_t *writebuf;
-	
+
 	while(1) {
 
 		/* Get another buffer to send */
@@ -408,7 +410,7 @@ sockets_writeh(struct list_t *list, struct list_elem_t *elem)
 			/* We haven't finished writing, keep selecting. */
 			return 0;
 		}
-	
+
 	}
 
 	/* We always return from within the loop, this is unreachable */
