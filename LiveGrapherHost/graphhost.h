@@ -1,10 +1,14 @@
 #ifndef _GRAPHHOST_H
 #define _GRAPHHOST_H
 
-#define VxWorks
+/* #define VxWorks */
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifndef VxWorks
+#include <stdint.h>
 #endif
 
 #include "list.h"
@@ -34,10 +38,15 @@ struct socketconn_t {
 	int orphan;
 
 	/* Write buffer currently being written */
-	uint8_t *buf; /* The buffer that needs to be written into the socket */
-	uint32_t buflength; /* The length of the buffer to be written */
-	uint32_t bufoffset; /* How much has been written so far */
-	struct queue_t *queue;
+	uint8_t *writebuf; /* The buffer that needs to be written into the socket */
+	size_t writebuflength; /* The length of the buffer to be written */
+	size_t writebufoffset; /* How much has been written so far */
+	struct queue_t *writequeue;
+
+	/* Read buffer currently being read */
+	uint8_t *readbuf;
+	size_t readbuflength;
+	size_t readbufoffset;
 };
 
 struct writebuf_t {
@@ -87,6 +96,9 @@ sockets_clear_orphans(struct list_t *list);
 
 int
 sockets_readh(struct list_t *list, struct list_elem_t *elem);
+
+int
+sockets_readdoneh(uint8_t *inbuf, size_t bufsize, struct list_t *list, struct list_elem_t *elem);
 
 int
 sockets_writeh(struct list_t *list, struct list_elem_t *elem);
