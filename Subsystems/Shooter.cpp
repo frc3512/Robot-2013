@@ -9,7 +9,7 @@
 #include <cmath>
 #include <iostream> // TODO Remove me
 
-float Shooter::m_maxSpeed = 10000.f;
+const float Shooter::maxSpeed = 9800.f;
 
 Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         UINT32 encChannel , UINT32 encTeeth , float encGearRatio ) :
@@ -19,8 +19,10 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_shooterPID( 0xFF , 0.f , 0.f , 0.f , this , this ) {
     m_shooterPID.SetOutputRange( 0.f , 1.f );
     m_shooterPID.SetSetpoint( 0.f );
-    //m_shooterPID.SetAbsoluteTolerance( 50.f );
+    m_shooterPID.SetTolerance( 0.01f );
     m_shooterEncoder.start();
+
+    m_controlMode = PID;
 }
 
 Shooter::~Shooter() {
@@ -29,14 +31,13 @@ Shooter::~Shooter() {
 
 void Shooter::start() {
     m_isShooting = true;
-    //m_shooterPID.Enable();
-    m_shooterPID.Disable();
+    enableControl();
     m_shooterEncoder.start();
 }
 
 void Shooter::stop() {
     m_isShooting = false;
-    m_shooterPID.Disable();
+    disableControl();
     m_shooterEncoder.stop();
 
     setRPM( 0 );
@@ -47,7 +48,7 @@ bool Shooter::isShooting() {
 }
 
 bool Shooter::isReady() {
-    return m_shooterPID.OnTarget();
+    return m_shooterPID.OnTarget() && m_shooterPID.IsEnabled();
 }
 
 void Shooter::setRPM( float wheelSpeed ) {
@@ -59,16 +60,33 @@ float Shooter::getRPM() {
 }
 
 void Shooter::setScale( float scaleFactor ) {
-    if ( scaleFactor < 0.f || scaleFactor > 1.f ) {
-        scaleFactor = fabs( scaleFactor );
-    }
+    if ( m_isShooting ) {
+        if ( scaleFactor < 0.f || scaleFactor > 1.f ) {
+            scaleFactor = fabs( scaleFactor );
+        }
 
-    //setRPM( m_maxSpeed * scaleFactor );
-    PIDWrite( scaleFactor );
+        PIDWrite( scaleFactor );
+    }
 }
 
 float Shooter::getTargetRPM() {
     return m_shooterPID.GetSetpoint();
+}
+
+void Shooter::enableControl() {
+    m_shooterPID.Enable();
+}
+
+void Shooter::disableControl() {
+    m_shooterPID.Disable();
+}
+
+void Shooter::setControlMode( ControlMode mode ) {
+    m_controlMode = mode;
+}
+
+Shooter::ControlMode Shooter::getControlMode() {
+    return m_controlMode;
 }
 
 double Shooter::PIDGet() {
@@ -79,6 +97,18 @@ void Shooter::PIDWrite( float output ) {
     /* Ouputs are negated because the motor controllers require a negative
      * number to make the shooter wheel spin in the correct direction
      */
-    m_shooterMotor1.Set( -output );
-    m_shooterMotor2.Set( -output );
+    if ( m_controlMode == PID ) {
+        m_shooterMotor1.Set( -output );
+        m_shooterMotor2.Set( -output );
+    }
+    else if ( m_controlMode == BangBang ) {
+        if ( m_shooterEncoder.getRPM() >= getTargetRPM() ) {
+            m_shooterMotor1.Set( 0.f );
+            m_shooterMotor2.Set( 0.f );
+        }
+        else {
+            m_shooterMotor1.Set( -1.f );
+            m_shooterMotor2.Set( -1.f );
+        }
+    }
 }

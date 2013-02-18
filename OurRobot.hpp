@@ -59,6 +59,7 @@ public:
 
     void Autonomous();
     void AutonCenter();
+    void AutonCenterMove();
     void AutonLeftShoot();
     void AutonRightShoot();
 
@@ -99,6 +100,7 @@ private:
     // Misc. control variables
     bool isGyroEnabled;
     bool slowRotate; // True when slow robot rotation is enabled
+    bool isShooterManual;
 
     // Determines which autonomous mode is run
     char autonMode;

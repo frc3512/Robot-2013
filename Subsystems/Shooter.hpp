@@ -16,9 +16,16 @@
 
 class Shooter : public PIDSource , public PIDOutput {
 public:
+    static const float maxSpeed;
+
     Shooter( UINT32 motor1 , UINT32 motor2 ,
             UINT32 encChannel , UINT32 encTeeth , float encGearRatio );
     virtual ~Shooter();
+
+    typedef enum {
+        PID = 0,
+        BangBang
+    } ControlMode;
 
     void start();
     void stop();
@@ -33,15 +40,24 @@ public:
     // Returns current RPM of encoder
     float getRPM();
 
-    // Set shooter to a fraction of the maximum speed [0..1]
+    /* Set shooter to a fraction of the maximum speed [0..1] (overrides control
+     * loops)
+     */
     void setScale( float scaleFactor );
 
     // Get setpoint of PID loop
     float getTargetRPM();
 
-private:
-    static float m_maxSpeed;
+    // Enables control loops like PID
+    void enableControl();
 
+    // Disables control loops like PID
+    void disableControl();
+
+    void setControlMode( ControlMode mode );
+    ControlMode getControlMode();
+
+private:
     Victor m_shooterMotor1;
     Victor m_shooterMotor2;
 
@@ -51,6 +67,8 @@ private:
 
     bool m_isShooting;
     bool m_reversed;
+
+    ControlMode m_controlMode;
 
     // Used by PID controller to get RPM
     double PIDGet();

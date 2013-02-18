@@ -7,16 +7,18 @@
 #include <Timer.h>
 #include "OurRobot.hpp"
 #include "ButtonTracker.hpp"
-#include <iostream> // TODO Remove me
 
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
+
+    // Turn on blue underglow
+    underGlow.Set( Relay::kOn );
+    underGlow.Set( Relay::kForward );
 
     ButtonTracker driveStick1Buttons( 1 );
     ButtonTracker driveStick2Buttons( 2 );
     ButtonTracker shootStickButtons( 3 );
 
-    bool shooterIsManual = true;
     bool climberMoving = false;
 
     float joyX = 0.f;
@@ -31,7 +33,7 @@ void OurRobot::OperatorControl() {
     mainDrive.EnableEncoders( true );
 
     while ( IsEnabled() && IsOperatorControl() ) {
-        DS_PrintOut(); // TODO Fix packet data
+        DS_PrintOut();
 
         // update "new" value of joystick buttons
         driveStick1Buttons.updateButtons();
@@ -48,26 +50,11 @@ void OurRobot::OperatorControl() {
         }
 
         if ( frisbeeShooter.isShooting() ) {
-            if ( shooterIsManual ) { // let driver change shooter speed manually
+            if ( isShooterManual ) { // let driver change shooter speed manually
                 frisbeeShooter.setScale( ScaleValue( shootStick.GetZ() ) );
             }
-            else { // else adjust shooter voltage to match RPM
-                //pidControl.SetTargetDistance( 25.f ); // * 0.00328084f
-                //pidControl.Update();
-
-                /*float encoderRPM = 60.f / ( 16.f * shooterEncoder.GetPeriod() );
-                if ( encoderRPM >= 72.0 * ScaleZ(shootStick) * 60.0 ) {
-                    shooterMotorLeft.Set( 0 );
-                    shooterMotorRight.Set( 0 );
-                }
-                else if ( encoderRPM > 2242.f ) {
-                    shooterMotorLeft.Set( -0.3f );
-                    shooterMotorRight.Set( 0.3f );
-                }
-                else {
-                    shooterMotorLeft.Set( -1 );
-                    shooterMotorRight.Set( 1 );
-                }*/
+            else {
+                frisbeeShooter.setRPM( ScaleValue( shootStick.GetZ() ) * Shooter::maxSpeed );
             }
         }
         else {
@@ -75,8 +62,16 @@ void OurRobot::OperatorControl() {
         }
 
         // toggle manual RPM setting vs setting with encoder input
-        if ( shootStickButtons.releasedButton( 12 ) ) {
-            shooterIsManual = !shooterIsManual;
+        if ( shootStickButtons.releasedButton( 8 ) ) {
+            isShooterManual = false;
+
+            frisbeeShooter.enableControl();
+        }
+
+        if ( shootStickButtons.releasedButton( 9 ) ) {
+            isShooterManual = true;
+
+            frisbeeShooter.disableControl();
         }
         /* =================================================== */
 
@@ -94,9 +89,9 @@ void OurRobot::OperatorControl() {
 
         /* ===== Shoot frisbee ===== */
         /* Don't let a frisbee into the shooter if the shooter wheel isn't
-         * spinning.
+         * spinning, except in the case of a manual override.
          */
-        if ( frisbeeShooter.getRPM() > 500 ) {
+        if ( frisbeeShooter.getRPM() > 500 && !isShooterManual ) {
             if ( shootStickButtons.releasedButton( 1 ) ) {
                 frisbeeFeeder.activate();
             }

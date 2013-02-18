@@ -56,6 +56,7 @@ OurRobot::OurRobot() :
     // Field-oriented driving by default
     isGyroEnabled( true ),
     slowRotate( false ),
+    isShooterManual( false ),
 
     // Create a GraphHost
     pidGraph( 3512 )
@@ -72,6 +73,7 @@ OurRobot::OurRobot() :
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
     autonModes.addMethod( "CenterShoot" , &OurRobot::AutonCenter , this );
+    autonModes.addMethod( "CenterMove" , &OurRobot::AutonCenterMove , this );
     autonModes.addMethod( "LeftShoot" , &OurRobot::AutonLeftShoot , this );
     autonModes.addMethod( "RightShoot" , &OurRobot::AutonRightShoot , this );
 
