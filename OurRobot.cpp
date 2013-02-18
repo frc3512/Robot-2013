@@ -9,7 +9,7 @@
 #include "DriverStationDisplay.hpp"
 
 //#include "SFMLSystem/VxWorks/SleepImpl.hpp"
-//int gettimeofday (struct timeval *tv_ptr, void *ptr);
+int gettimeofday (struct timeval *tv_ptr, void *ptr);
 
 float ScaleValue( float value ) {
     // CONSTANT^-1 is step value (now 1/500)
@@ -55,13 +55,19 @@ OurRobot::OurRobot() :
 
     // Field-oriented driving by default
     isGyroEnabled( true ),
-    slowRotate( false )
+    slowRotate( false ),
+
+    // Create a GraphHost
+    pidGraph( 3512 )
 {
-    /*pidGraph = GraphHost_create( 2153 );
+    struct timeval rawTime;
+
+    /* Store the current time into startTime as the fixed starting point
+     * for our graph.
+     */
     gettimeofday( &rawTime , NULL );
     startTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;
     lastTime = startTime;
-    graphTime.Start();*/
 
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
@@ -82,7 +88,7 @@ OurRobot::OurRobot() :
 }
 
 OurRobot::~OurRobot() {
-    //GraphHost_destroy( pidGraph );
+
 }
 
 void OurRobot::DS_PrintOut() {
@@ -90,8 +96,8 @@ void OurRobot::DS_PrintOut() {
     currentTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;
 
     if ( currentTime - lastTime > 10 ) {
-        GraphHost_graphData( currentTime - startTime , frisbeeShooter.getRPM() , "PID0" , pidGraph );
-        GraphHost_graphData( currentTime - startTime , frisbeeShooter.getTargetRPM() , "PID1" , pidGraph );
+        pidGraph.graphData( currentTime - startTime , frisbeeShooter.getRPM() , "PID0" );
+        pidGraph.graphData( currentTime - startTime , frisbeeShooter.getTargetRPM() , "PID1" );
 
         lastTime = currentTime;
     }*/

@@ -9,10 +9,10 @@ queue_init(int size)
 	/* Create the queue description structure */
 	queue = malloc(sizeof(struct queue_t ));
 	
-	queue->length = 0;
+	queue->list = list_create();
+	queue->last = NULL;
 	queue->size = size;
-	queue->queue = malloc(sizeof(void *)*size);
-	queue->start = 0;
+	queue->length = 0;
 	
 	return queue;
 }
@@ -20,17 +20,14 @@ queue_init(int size)
 int
 queue_dequeue(struct queue_t *queue, void **data)
 {
-	/* There must be at least one element to dequeue */
-	if(queue->length < 1) return -1;
+	struct list_elem_t *elem;
 
-	/* Get its data */
-	if(data != NULL)
-		*data = queue->queue[queue->start];
+	if(queue->last == NULL) return -1;
 
-	/* Remove it */
-    queue->start++;
-    /* Wrap back to the front */
-    if(queue->start >= queue->size) queue->start = 0;
+	*data = queue->last->data;
+	elem = queue->last;
+	queue->last = elem->prev;
+	list_delete(queue->list, elem);
 	queue->length--;
 
 	return 0;
@@ -39,13 +36,16 @@ queue_dequeue(struct queue_t *queue, void **data)
 int
 queue_queue(struct queue_t *queue, void *data)
 {
+	struct list_elem_t *elem;
 
-	/* Make sure that there is space in the queue to
-	 * put a new element */
 	if(queue->length >= queue->size) return -1;
 
-	queue->queue[(queue->start+queue->length) % (queue->size)] = data;
+	elem = list_add_after(queue->list, NULL, data);
 	queue->length++;
+
+	if(queue->last == NULL) {
+		queue->last = elem;
+	}
 
 	return 0;
 }
@@ -53,7 +53,7 @@ queue_queue(struct queue_t *queue, void *data)
 void
 queue_free(struct queue_t *queue)
 {
-	free(queue->queue);
+	list_destroy(queue->list);
 	free(queue);
 
 	return;

@@ -4,16 +4,15 @@
 #include "graphhost.h"
 #include <string.h>
 #include <strings.h>
+#include <errno.h>
+#include <stdio.h>
+#include <pthread.h>
+/* #include <stdint.h> */
 
-/*#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <signal.h>
-#include <sys/select.h>
-#include <stropts.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-#include <fcntl.h>*/
+#ifdef VxWorks
+
+#include <ioLib.h>
+#include <pipeDrv.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -23,10 +22,23 @@
 #include <netdb.h>
 #include <unistd.h>
 
-#include <ioLib.h>
 #include <sockLib.h>
 #include <hostLib.h>
 #include <selectLib.h>
+
+#else
+
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <signal.h>
+#include <sys/select.h>
+#include <stropts.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+#endif
 
 /* Listens on a specified port (listenport), and returns the file
  * descriptor to the listening socket.
@@ -77,7 +89,7 @@ sockets_listen_int(int port, sa_family_t sin_family, uint32_t s_addr)
 struct graphhost_t *
 GraphHost_create(int port)
 {
-	int i;
+	/* int i; */
 	struct graphhost_t *inst;
 	int pipefd[2];
 
@@ -88,7 +100,13 @@ GraphHost_create(int port)
 	inst->port = port;
 
 	/* Create a pipe for IPC with the thread */
+#ifdef VxWorks
+	pipefd[0] = open("/pipe/graphhost", O_RDONLY, 0644);
+	pipefd[1] = open("/pipe/graphhost", O_WRONLY, 0644);
+#else
 	pipe(pipefd);
+#endif
+
 	inst->ipcfd_r = pipefd[0];
 	inst->ipcfd_w = pipefd[1];
 
@@ -112,7 +130,7 @@ GraphHost_destroy(struct graphhost_t *inst)
 	close(inst->ipcfd_r);
 	close(inst->ipcfd_w);
 	free(inst);
-
+	
 	return;
 }
 
@@ -165,18 +183,22 @@ sockets_accept(struct list_t *connlist, int listenfd)
 		return;
 	}
 
-	/* Set the socket non-blocking. */
-	/*flags = fcntl(new_fd, F_GETFL, 0);
-	fcntl(new_fd, F_SETFL, flags | O_NONBLOCK);*/
-
+#ifdef VxWorks
 	/* Set the socket non-blocking. */
 	on = 1;
-	error = ioctl(new_fd, (int)FIONBIO, (char *)&on);
+	error = ioctl(new_fd, (int)FIONBIO, (const int *)&on);
 	if(error == -1){
 		perror("");
 		close(new_fd);
 		return;
 	}
+
+#else
+
+	/* Set the socket non-blocking. */
+	flags = fcntl(new_fd, F_GETFL, 0);
+	fcntl(new_fd, F_SETFL, flags | O_NONBLOCK);
+#endif
 
 	/* Set up the 20-element write queue for the socket */
 	queue = queue_init(20);
@@ -224,6 +246,8 @@ sockets_remove_orphan(struct socketconn_t *conn)
 		free(writebuf->buf);
 		free(writebuf);
 	}
+
+	queue_free(conn->queue);
 
 	for(dataset = conn->datasets->start; dataset != NULL; dataset = dataset->next) {
 		free(dataset->data);
@@ -317,7 +341,7 @@ sockets_readh(struct list_t *list, struct list_elem_t *elem)
 	struct socketconn_t *conn = elem->data;
 	char *buf;
 	char inbuf[16];
-	size_t length;
+	/* size_t length; */
 	int error;
 
 	error = recv(conn->fd, inbuf, 16, 0);
@@ -346,7 +370,7 @@ sockets_writeh(struct list_t *list, struct list_elem_t *elem)
 	int error;
 	struct socketconn_t *conn = elem->data;
 	struct writebuf_t *writebuf;
-
+	
 	while(1) {
 
 		/* Get another buffer to send */
@@ -384,7 +408,7 @@ sockets_writeh(struct list_t *list, struct list_elem_t *elem)
 			/* We haven't finished writing, keep selecting. */
 			return 0;
 		}
-
+	
 	}
 
 	/* We always return from within the loop, this is unreachable */
@@ -537,7 +561,7 @@ sockets_threadmain(void *arg)
 	/* Actually close all the open file descriptors */
 	sockets_clear_orphans(inst->connlist);
 
-	/* Delete the list */
+	/* Free the list */
 	list_destroy(inst->connlist);
 
 	/* Close the listener file descriptor */
@@ -552,17 +576,20 @@ sockets_threadmain(void *arg)
 }
 
 int
-GraphHost_graphData(float x, float y, char *dataset, struct graphhost_t *graphhost)
+GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *graphhost)
 {
 	struct list_elem_t *elem;
 	struct list_elem_t *datasetp;
 	struct socketconn_t *conn;
 	struct graph_payload_t payload;
-	struct graph_payload_t* qpayload;
+	/* struct graph_payload_t* qpayload; */
 	char *dataset_str;
 	uint32_t tmp;
 
 	if(!graphhost->running) return -1;
+
+	/* Zero the payload structure */
+	memset((void *)&payload, 0x00, sizeof(struct graph_payload_t));
 
 	/* Change to network byte order */
 	tmp = htonl(*((int *)&x));
@@ -580,8 +607,8 @@ GraphHost_graphData(float x, float y, char *dataset, struct graphhost_t *graphho
 			dataset_str = datasetp->data;
 			if(dataset_str != NULL && strcmp(dataset_str, dataset) == 0) {
 				/* Send the value off */
-				qpayload = malloc(sizeof(struct graph_payload_t));
-				memcpy(qpayload, &payload, sizeof(struct graph_payload_t));
+				/* qpayload = malloc(sizeof(struct graph_payload_t));
+				memcpy(qpayload, &payload, sizeof(struct graph_payload_t)); */
 				sockets_queuewrite(graphhost, conn, (void *)&payload, sizeof(struct graph_payload_t));
 			}
 		}

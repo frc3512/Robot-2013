@@ -1,11 +1,13 @@
 #ifndef _QUEUE_H
 #define _QUEUE_H
 
+#include "list.h"
+
 struct queue_t {
-	void **queue;
+	struct list_t *list;
+	struct list_elem_t *last;
 	int size;
 	int length;
-	int start;
 };
 
 struct queue_t *

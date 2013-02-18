@@ -40,6 +40,8 @@
 #include <Gyro.h>
 #include <Servo.h>
 
+#include "LiveGrapherHost/graphhost-p.hpp"
+
 // Scale value from -1 .. 1 to 0 .. 1, but within same range of movement
 float ScaleValue( float value );
 
@@ -64,12 +66,8 @@ public:
     void Disabled();
 
 private:
-    /*struct graphhost_t* pidGraph;
-    timeval rawTime;
-    uint32_t currentTime;
     uint32_t lastTime;
     uint32_t startTime;
-    Timer graphTime;*/
 
     AutonContainer<OurRobot> autonModes;
 
@@ -107,6 +105,9 @@ private:
 
     // Used for timing in all Autonomous routines
     Timer autoTime;
+
+    // The LiveGrapher host
+    GraphHost pidGraph;
 
     void DS_PrintOut(); // prints messages to driverStation LCD
 };

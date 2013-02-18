@@ -1,13 +1,15 @@
 #ifndef _GRAPHHOST_H
 #define _GRAPHHOST_H
 
+#define VxWorks
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+#include <stdint.h>
 #include "list.h"
 #include "queue.h"
-#include "stdint.h"
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <pthread.h>
@@ -62,7 +64,7 @@ void
 GraphHost_destroy(struct graphhost_t *inst);
 
 int
-GraphHost_graphData(float x, float y, char *dataset, struct graphhost_t *graphhost);
+GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *graphhost);
 
 /* Internal functions */
 
