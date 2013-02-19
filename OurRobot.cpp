@@ -7,6 +7,7 @@
 
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
+#include <iostream> // TODO Remove me
 
 //#include "SFMLSystem/VxWorks/SleepImpl.hpp"
 int gettimeofday (struct timeval *tv_ptr, void *ptr);
@@ -28,9 +29,8 @@ double deadband( double value ) {
 OurRobot::OurRobot() :
     Settings( "/ni-rt/system/RobotSettings.txt" ),
 
-    driveStick1( 1 ),
-    driveStick2( 2 ),
-    shootStick( 3 ),
+    driveStick( 1 ),
+    shootStick( 2 ),
 
     mainCompressor( 1 , 2 ),
 
@@ -40,7 +40,7 @@ OurRobot::OurRobot() :
 
     flMotor( 3 ),
     rlMotor( 5 ),
-    frMotor( 6 ),
+    frMotor( 7 ),
     rrMotor( 1 ),
     mainDrive( flMotor , rlMotor , frMotor , rrMotor ),
 
@@ -56,10 +56,10 @@ OurRobot::OurRobot() :
     // Field-oriented driving by default
     isGyroEnabled( true ),
     slowRotate( false ),
-    isShooterManual( false ),
+    isShooterManual( false )
 
     // Create a GraphHost
-    pidGraph( 3512 )
+    //pidGraph( 3513 )
 {
     struct timeval rawTime;
 
@@ -72,7 +72,7 @@ OurRobot::OurRobot() :
 
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
-    autonModes.addMethod( "CenterShoot" , &OurRobot::AutonCenter , this );
+    //autonModes.addMethod( "CenterShoot" , &OurRobot::AutonCenter , this );
     autonModes.addMethod( "CenterMove" , &OurRobot::AutonCenterMove , this );
     autonModes.addMethod( "LeftShoot" , &OurRobot::AutonLeftShoot , this );
     autonModes.addMethod( "RightShoot" , &OurRobot::AutonRightShoot , this );
@@ -83,6 +83,7 @@ OurRobot::OurRobot() :
 
     // Let motors run for up to 1 second uncontrolled before shutting them down
     mainDrive.SetExpiration( 1.f );
+    mainDrive.SetSafetyEnabled( false );
 
     mainDrive.SquareInputs( true );
 
@@ -94,21 +95,25 @@ OurRobot::~OurRobot() {
 }
 
 void OurRobot::DS_PrintOut() {
+    struct timeval rawTime;
+    uint32_t currentTime;
+
     /*gettimeofday( &rawTime , NULL );
-    currentTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;
+    currentTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;*/
 
     if ( currentTime - lastTime > 10 ) {
-        pidGraph.graphData( currentTime - startTime , frisbeeShooter.getRPM() , "PID0" );
-        pidGraph.graphData( currentTime - startTime , frisbeeShooter.getTargetRPM() , "PID1" );
+        //pidGraph.graphData( currentTime - startTime , 5000 , "PID0" );
+        //pidGraph.graphData( currentTime - startTime , frisbeeShooter.getRPM() , "PID0" );
+        //pidGraph.graphData( currentTime - startTime , frisbeeShooter.getTargetRPM() , "PID1" );
 
         lastTime = currentTime;
-    }*/
+    }
 
     /* ===== Print to Driver Station LCD =====
      * Packs the following variables:
      *
-     * unsigned int: forward drive
-     * unsigned int: rotate drive
+     * unsigned int: drive mode
+     * int: gyro angle
      * bool: isGyroEnabled
      * bool: slowRotate
      * unsigned int: manual RPM
@@ -124,9 +129,9 @@ void OurRobot::DS_PrintOut() {
 
     *driverStation << static_cast<std::string>( "display" );
 
-    *driverStation << static_cast<unsigned int>(ScaleValue(driveStick2.GetY()) * 100000.f);
+    *driverStation << static_cast<unsigned int>(mainDrive.GetDriveMode());
 
-    *driverStation << static_cast<unsigned int>(ScaleValue(driveStick2.GetZ()) * 100000.f);
+    *driverStation << static_cast<int>(testGyro.GetAngle() * 100000.f);
 
     *driverStation << static_cast<bool>( isGyroEnabled );
 
@@ -139,6 +144,8 @@ void OurRobot::DS_PrintOut() {
     *driverStation << static_cast<bool>( frisbeeShooter.isReady() );
 
     *driverStation << static_cast<bool>( frisbeeShooter.isShooting() );
+
+    *driverStation << static_cast<bool>( isShooterManual );
 
     driverStation->sendToDS();
 
@@ -203,6 +210,8 @@ void OurRobot::DS_PrintOut() {
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "encRR: %f" , mainDrive.GetFLrate() );
 
     DriverStationLCD::GetInstance()->UpdateLCD();
+
+    std::cout << "DS\n";
 }
 
 START_ROBOT_CLASS(OurRobot);

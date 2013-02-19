@@ -64,6 +64,7 @@ private:
     GeartoothEncoder m_shooterEncoder;
 
     PIDController m_shooterPID;
+    float m_setpoint;
 
     bool m_isShooting;
     bool m_reversed;

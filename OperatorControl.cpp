@@ -7,6 +7,7 @@
 #include <Timer.h>
 #include "OurRobot.hpp"
 #include "ButtonTracker.hpp"
+#include <iostream>
 
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
@@ -15,11 +16,8 @@ void OurRobot::OperatorControl() {
     underGlow.Set( Relay::kOn );
     underGlow.Set( Relay::kForward );
 
-    ButtonTracker driveStick1Buttons( 1 );
-    ButtonTracker driveStick2Buttons( 2 );
-    ButtonTracker shootStickButtons( 3 );
-
-    bool climberMoving = false;
+    ButtonTracker driveStickButtons( 1 );
+    ButtonTracker shootStickButtons( 2 );
 
     float joyX = 0.f;
     float joyY = 0.f;
@@ -36,8 +34,7 @@ void OurRobot::OperatorControl() {
         DS_PrintOut();
 
         // update "new" value of joystick buttons
-        driveStick1Buttons.updateButtons();
-        driveStick2Buttons.updateButtons();
+        driveStickButtons.updateButtons();
         shootStickButtons.updateButtons();
 
         /* ============== Toggle Shooter Motors ============== */
@@ -78,11 +75,13 @@ void OurRobot::OperatorControl() {
         /* ===== Change shooter angle and speed ===== */
         // Use high shooter angle
         if ( shootStickButtons.releasedButton( 2 ) ) {
+            std::cout << "shooter angle up\n";
             shooterAngle.Set( true );
         }
 
         // Use low shooter angle
         if ( shootStickButtons.releasedButton( 3 ) ) {
+            std::cout << "shooter angle down\n";
             shooterAngle.Set( false );
         }
         /* ========================================== */
@@ -102,11 +101,8 @@ void OurRobot::OperatorControl() {
         /* ========================= */
 
         /* ===== Control climbing mechanism ===== */
-        climberMoving = false;
-
         // Left arm up
         if ( shootStick.GetRawButton( 6 ) ) {
-            climberMoving = true;
             leftClimbArm.Set( Relay::kOn );
 
             leftClimbArm.Set( Relay::kForward );
@@ -114,20 +110,18 @@ void OurRobot::OperatorControl() {
 
         // Left arm down
         else if ( shootStick.GetRawButton( 7 ) ) {
-            climberMoving = true;
             leftClimbArm.Set( Relay::kOn );
 
             leftClimbArm.Set( Relay::kReverse );
         }
 
         // Left arm stop if motors won't both be moving
-        else if ( !shootStick.GetRawButton( 8 ) && !shootStick.GetRawButton( 9 ) ) {
+        else {
             leftClimbArm.Set( Relay::kOff );
         }
 
         // Right arm up
         if ( shootStick.GetRawButton( 11 ) ) {
-            climberMoving = true;
             rightClimbArm.Set( Relay::kOn );
 
             rightClimbArm.Set( Relay::kForward );
@@ -135,51 +129,24 @@ void OurRobot::OperatorControl() {
 
         // Right arm down
         else if ( shootStick.GetRawButton( 10 ) ) {
-            climberMoving = true;
             rightClimbArm.Set( Relay::kOn );
 
             rightClimbArm.Set( Relay::kReverse );
         }
 
         // Right arm stop if motors won't both be moving
-        else if ( !shootStick.GetRawButton( 8 ) && !shootStick.GetRawButton( 9 ) ) {
-            rightClimbArm.Set( Relay::kOff );
-        }
-
-        // Both arms up
-        if ( shootStick.GetRawButton( 8 ) ) {
-            climberMoving = true;
-            leftClimbArm.Set( Relay::kOn );
-            rightClimbArm.Set( Relay::kOn );
-
-            leftClimbArm.Set( Relay::kForward );
-            rightClimbArm.Set( Relay::kForward );
-        }
-
-        // Both arms down
-        else if ( shootStick.GetRawButton( 9 ) ) {
-            climberMoving = true;
-            leftClimbArm.Set( Relay::kOn );
-            rightClimbArm.Set( Relay::kOn );
-
-            leftClimbArm.Set( Relay::kReverse );
-            rightClimbArm.Set( Relay::kReverse );
-        }
-
-        // If climber shouldn't be moving, make the motors stop
-        if ( !climberMoving ) {
-            leftClimbArm.Set( Relay::kOff );
+        else {
             rightClimbArm.Set( Relay::kOff );
         }
         /* ====================================== */
 
         /* ===== Control gyro ===== */
         // Reset gyro
-        if ( driveStick2Buttons.releasedButton( 8 ) ) {
+        if ( driveStickButtons.releasedButton( 8 ) ) {
             testGyro.Reset();
         }
 
-        if ( driveStick2Buttons.releasedButton( 5 ) ) {
+        if ( driveStickButtons.releasedButton( 5 ) ) {
             isGyroEnabled = true;
 
             // kForward turns on blue lights
@@ -187,7 +154,7 @@ void OurRobot::OperatorControl() {
             underGlow.Set( Relay::kForward );
         }
 
-        if ( driveStick2Buttons.releasedButton( 6 ) ) {
+        if ( driveStickButtons.releasedButton( 6 ) ) {
             isGyroEnabled = false;
 
             // kReverse turns on red lights
@@ -197,12 +164,12 @@ void OurRobot::OperatorControl() {
         /* ======================== */
 
         // Enable encoders with PID loops
-        if ( driveStick2Buttons.releasedButton( 3 ) ) {
+        if ( driveStickButtons.releasedButton( 3 ) ) {
             //mainDrive.EnableEncoders( true );
         }
 
         // Disable encoders with PID loops
-        if ( driveStick2Buttons.releasedButton( 4 ) ) {
+        if ( driveStickButtons.releasedButton( 4 ) ) {
             //mainDrive.EnableEncoders( false );
         }
 
@@ -219,25 +186,18 @@ void OurRobot::OperatorControl() {
         }
 
         // While the thumb button is pressed, don't allow rotation
-        if ( driveStick2.GetRawButton( 2 ) ) {
+        if ( driveStick.GetRawButton( 2 ) ) {
             joyTwist = 0.f;
         }
         else {
-            joyTwist = driveStick2.GetZ();
+            joyTwist = driveStick.GetZ();
         }
 
-        // Set X and Y joystick inputs
-        if ( driveMode != MecanumDrive::Arcade ) {
-            joyX = driveStick2.GetX();
-            joyY = driveStick2.GetY();
-        }
-        else {
-            joyX = driveStick1.GetX();
-            joyY = driveStick2.GetY();
-        }
+        joyX = driveStick.GetX();
+        joyY = driveStick.GetY();
 
         // Cycle through driving modes
-        if ( driveStick2Buttons.releasedButton( 7 ) ) {
+        if ( driveStickButtons.releasedButton( 7 ) ) {
             if ( driveMode == MecanumDrive::Omni ) {
                 driveMode = MecanumDrive::Strafe;
             }
@@ -255,16 +215,16 @@ void OurRobot::OperatorControl() {
         /* Pivot around a given wheel, or drive normally if no buttons were
          * pressed
          */
-        if ( driveStick2.GetRawButton( 9 ) ) { // FL wheel pivot
+        if ( driveStick.GetRawButton( 9 ) ) { // FL wheel pivot
             mainDrive.SetDriveMode( MecanumDrive::FLpivot );
         }
-        else if ( driveStick2.GetRawButton( 10 ) ) { // FR wheel pivot
+        else if ( driveStick.GetRawButton( 10 ) ) { // FR wheel pivot
             mainDrive.SetDriveMode( MecanumDrive::FRpivot );
         }
-        else if ( driveStick2.GetRawButton( 11 ) ) { // RL wheel pivot
+        else if ( driveStick.GetRawButton( 11 ) ) { // RL wheel pivot
             mainDrive.SetDriveMode( MecanumDrive::RLpivot );
         }
-        else if ( driveStick2.GetRawButton( 12 ) ) { // RR wheel pivot
+        else if ( driveStick.GetRawButton( 12 ) ) { // RR wheel pivot
             mainDrive.SetDriveMode( MecanumDrive::RRpivot );
         }
         else {
@@ -272,7 +232,7 @@ void OurRobot::OperatorControl() {
         }
 
         // If in lower half, go half speed
-        if ( ScaleValue( driveStick2.GetTwist() ) < 0.5 ) {
+        if ( ScaleValue( driveStick.GetTwist() ) < 0.5 ) {
             slowRotate = true;
             joyTwist /= 2.f;
         }

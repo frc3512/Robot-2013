@@ -22,8 +22,8 @@ void OurRobot::AutonCenterMove() {
         frisbeeShooter.setScale( 1.f );
 
         // Move robot 5 meters forward
-        while ( IsAutonomous() && mainDrive.GetFLdist() / std::sqrt( 2 ) < 9.f ) {
-            mainDrive.Drive( 1.f , 0.f , 0.f , 17.f );
+        while ( IsAutonomous() && mainDrive.GetFLdist() / std::sqrt( 2 ) < 27.f ) {
+            mainDrive.Drive( 1.f , 0.f , 0.f , 7.f );
             frisbeeShooter.setScale( 1.f );
         }
 
@@ -36,7 +36,7 @@ void OurRobot::AutonCenterMove() {
         while ( shot < 3 && IsAutonomous() ) {
             frisbeeShooter.setScale( 1.f );
 
-            if ( autoTime.HasPeriodPassed( 3.f ) ) {
+            if ( autoTime.HasPeriodPassed( 1.f ) ) {
                 frisbeeFeeder.activate();
                 shot++;
             }

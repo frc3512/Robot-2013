@@ -12,17 +12,15 @@ void OurRobot::Disabled() {
     mainCompressor.Stop();
     frisbeeShooter.stop();
 
-    ButtonTracker driveStick1Buttons( 1 );
-    ButtonTracker driveStick2Buttons( 2 );
-    ButtonTracker turretStickButtons( 3 );
+    ButtonTracker driveStickButtons( 1 );
+    ButtonTracker shootStickButtons( 2 );
 
     while ( IsDisabled() ) {
         DS_PrintOut();
 
         // update "new" value of joystick buttons
-        driveStick1Buttons.updateButtons();
-        driveStick2Buttons.updateButtons();
-        turretStickButtons.updateButtons();
+        driveStickButtons.updateButtons();
+        shootStickButtons.updateButtons();
 
         Wait( 0.1 );
     }

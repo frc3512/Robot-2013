@@ -10,7 +10,6 @@
 
 #include <cmath>
 
-#include "LiveGrapherHost/graphhost.h"
 #include <sys/times.h>
 
 #include <SimpleRobot.h>
@@ -72,8 +71,7 @@ private:
 
     AutonContainer<OurRobot> autonModes;
 
-    Joystick driveStick1;
-    Joystick driveStick2;
+    Joystick driveStick;
     Joystick shootStick;
 
     Compressor mainCompressor;
@@ -109,7 +107,7 @@ private:
     Timer autoTime;
 
     // The LiveGrapher host
-    GraphHost pidGraph;
+    //GraphHost pidGraph;
 
     void DS_PrintOut(); // prints messages to driverStation LCD
 };

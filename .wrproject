@@ -254,12 +254,10 @@
                 <file name="/Discobolus/Disabled.cpp"/>
                 <file name="/Discobolus/DriverStationDisplay.cpp"/>
                 <file name="/Discobolus/GeartoothEncoder.cpp"/>
-                <file name="/Discobolus/LiveGrapherHost.cpp"/>
                 <file name="/Discobolus/OperatorControl.cpp"/>
                 <file name="/Discobolus/OurRobot.cpp"/>
                 <file name="/Discobolus/RollingAverage.cpp"/>
                 <file name="/Discobolus/Settings.cpp"/>
-                <folder name="/Discobolus/LiveGrapherHost" recursive="true"/>
             </contents>
         </buildtarget>
     </buildtargets>

@@ -7,7 +7,7 @@
 
 #include "Shooter.hpp"
 #include <cmath>
-#include <iostream> // TODO Remove me
+#include <cfloat>
 
 const float Shooter::maxSpeed = 9800.f;
 
@@ -16,10 +16,11 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_shooterMotor1( motor1 ) ,
         m_shooterMotor2( motor2 ) ,
         m_shooterEncoder( encChannel , encTeeth , encGearRatio ) ,
-        m_shooterPID( 0xFF , 0.f , 0.f , 0.f , this , this ) {
+        m_shooterPID( FLT_MAX , 0.f , 0.f , 0.f , this , this ) ,
+        m_setpoint( 0.f ) {
     m_shooterPID.SetOutputRange( 0.f , 1.f );
     m_shooterPID.SetSetpoint( 0.f );
-    m_shooterPID.SetTolerance( 0.01f );
+    //m_shooterPID.SetTolerance( 0.001f );
     m_shooterEncoder.start();
 
     m_controlMode = PID;
@@ -48,10 +49,11 @@ bool Shooter::isShooting() {
 }
 
 bool Shooter::isReady() {
-    return m_shooterPID.OnTarget() && m_shooterPID.IsEnabled();
+    return false;
 }
 
 void Shooter::setRPM( float wheelSpeed ) {
+    m_setpoint = wheelSpeed;
     m_shooterPID.SetSetpoint( wheelSpeed );
 }
 
@@ -60,6 +62,8 @@ float Shooter::getRPM() {
 }
 
 void Shooter::setScale( float scaleFactor ) {
+    PIDWrite( scaleFactor );
+
     if ( m_isShooting ) {
         if ( scaleFactor < 0.f || scaleFactor > 1.f ) {
             scaleFactor = fabs( scaleFactor );
@@ -70,7 +74,7 @@ void Shooter::setScale( float scaleFactor ) {
 }
 
 float Shooter::getTargetRPM() {
-    return m_shooterPID.GetSetpoint();
+    return m_setpoint;
 }
 
 void Shooter::enableControl() {
@@ -94,15 +98,22 @@ double Shooter::PIDGet() {
 }
 
 void Shooter::PIDWrite( float output ) {
+    m_shooterMotor1.Set( -output );
+    m_shooterMotor2.Set( -output );
+
+    return;
+
     /* Ouputs are negated because the motor controllers require a negative
      * number to make the shooter wheel spin in the correct direction
      */
-    if ( m_controlMode == PID ) {
+    switch ( m_controlMode ) {
+    case PID: {
         m_shooterMotor1.Set( -output );
         m_shooterMotor2.Set( -output );
     }
-    else if ( m_controlMode == BangBang ) {
-        if ( m_shooterEncoder.getRPM() >= getTargetRPM() ) {
+
+    case BangBang: {
+        if ( m_shooterEncoder.getRPM() >= m_setpoint ) {
             m_shooterMotor1.Set( 0.f );
             m_shooterMotor2.Set( 0.f );
         }
@@ -110,5 +121,6 @@ void Shooter::PIDWrite( float output ) {
             m_shooterMotor1.Set( -1.f );
             m_shooterMotor2.Set( -1.f );
         }
+    }
     }
 }
