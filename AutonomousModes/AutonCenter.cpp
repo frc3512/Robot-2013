@@ -11,29 +11,26 @@
 void OurRobot::AutonCenter() {
     mainDrive.EnableEncoders( true );
     mainDrive.ResetEncoders();
-    frisbeeShooter.setControlMode( Shooter::BangBang );
 
     shooterAngle.Set( true );
 
-    while ( IsEnabled() && IsAutonomous() ) {
+    // Start shooter
+    frisbeeShooter.start();
+    frisbeeShooter.setRPM( 2300.f );
+
+    // Feed frisbees into shooter with a small delay between each
+    autoTime.Reset();
+    unsigned int shot = 0;
+    while ( shot <= 3 && IsAutonomous() ) {
         DS_PrintOut();
 
-        // Start shooter
-        frisbeeShooter.start();
         frisbeeShooter.setRPM( 2300.f );
 
-        // Feed frisbees into shooter with a small delay between each
-        autoTime.Reset();
-        unsigned int shot = 0;
-        while ( shot < 3 && IsAutonomous() ) {
-            frisbeeShooter.setRPM( 2300.f );
-
-            if ( autoTime.HasPeriodPassed( 3.f ) ) {
-                frisbeeFeeder.activate();
-                shot++;
-            }
-
-            frisbeeFeeder.update();
+        if ( autoTime.HasPeriodPassed( 1.f ) ) {
+            frisbeeFeeder.activate();
+            shot++;
         }
+
+        frisbeeFeeder.update();
     }
 }

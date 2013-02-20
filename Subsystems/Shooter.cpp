@@ -9,18 +9,18 @@
 #include <cmath>
 #include <cfloat>
 
-const float Shooter::maxSpeed = 9800.f;
+const float Shooter::maxSpeed = 5000.f;
 
 Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         UINT32 encChannel , UINT32 encTeeth , float encGearRatio ) :
         m_shooterMotor1( motor1 ) ,
         m_shooterMotor2( motor2 ) ,
         m_shooterEncoder( encChannel , encTeeth , encGearRatio ) ,
-        m_shooterPID( FLT_MAX , 0.f , 0.f , 0.f , this , this ) ,
+        m_shooterPID( 0.001f , 0.f , 0.f , 0.f , this , this ) , // 0.01f , 0.1f , 0.005f
         m_setpoint( 0.f ) {
-    m_shooterPID.SetOutputRange( 0.f , 1.f );
+    m_shooterPID.SetOutputRange( 0.f , 100.f );
     m_shooterPID.SetSetpoint( 0.f );
-    //m_shooterPID.SetTolerance( 0.001f );
+    m_shooterPID.SetTolerance( 0.f );
     m_shooterEncoder.start();
 
     m_controlMode = PID;
@@ -62,8 +62,6 @@ float Shooter::getRPM() {
 }
 
 void Shooter::setScale( float scaleFactor ) {
-    PIDWrite( scaleFactor );
-
     if ( m_isShooting ) {
         if ( scaleFactor < 0.f || scaleFactor > 1.f ) {
             scaleFactor = fabs( scaleFactor );
@@ -78,11 +76,15 @@ float Shooter::getTargetRPM() {
 }
 
 void Shooter::enableControl() {
-    m_shooterPID.Enable();
+    //if ( getControlMode() == PID ) {
+        m_shooterPID.Enable();
+    //}
 }
 
 void Shooter::disableControl() {
-    m_shooterPID.Disable();
+    //if ( getControlMode() == PID ) {
+        m_shooterPID.Disable();
+    //}
 }
 
 void Shooter::setControlMode( ControlMode mode ) {
@@ -98,11 +100,6 @@ double Shooter::PIDGet() {
 }
 
 void Shooter::PIDWrite( float output ) {
-    m_shooterMotor1.Set( -output );
-    m_shooterMotor2.Set( -output );
-
-    return;
-
     /* Ouputs are negated because the motor controllers require a negative
      * number to make the shooter wheel spin in the correct direction
      */
@@ -110,6 +107,8 @@ void Shooter::PIDWrite( float output ) {
     case PID: {
         m_shooterMotor1.Set( -output );
         m_shooterMotor2.Set( -output );
+
+        break;
     }
 
     case BangBang: {
@@ -121,6 +120,8 @@ void Shooter::PIDWrite( float output ) {
             m_shooterMotor1.Set( -1.f );
             m_shooterMotor2.Set( -1.f );
         }
+
+        break;
     }
     }
 }

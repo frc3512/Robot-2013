@@ -258,6 +258,7 @@
                 <file name="/Discobolus/OurRobot.cpp"/>
                 <file name="/Discobolus/RollingAverage.cpp"/>
                 <file name="/Discobolus/Settings.cpp"/>
+                <folder name="/Discobolus/LiveGrapherHost" recursive="true"/>
             </contents>
         </buildtarget>
     </buildtargets>

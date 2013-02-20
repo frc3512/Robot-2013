@@ -107,7 +107,7 @@ private:
     Timer autoTime;
 
     // The LiveGrapher host
-    //GraphHost pidGraph;
+    GraphHost pidGraph;
 
     void DS_PrintOut(); // prints messages to driverStation LCD
 };

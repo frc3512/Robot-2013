@@ -11,7 +11,8 @@ Feeder::Feeder( UINT32 feedSolenoid , UINT32 guardSolenoid ,
         m_frisbeeFeed( feedSolenoid ) ,
         m_feedDelay( feedDelay ) ,
         m_frisbeeGuard( guardSolenoid ) ,
-        m_guardDelay( guardDelay ) {
+        m_guardDelay( guardDelay ) ,
+        m_isActivated( false ) {
 }
 
 Feeder::~Feeder() {

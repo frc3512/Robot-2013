@@ -8,7 +8,7 @@
 #include <Timer.h>
 
 GeartoothEncoder::GeartoothEncoder( UINT32 channel , UINT32 teeth , float gearRatio ) : m_counter( channel ) ,
-m_rpmAverager( 4 ) ,
+m_rpmAverager( 2 ) ,
 m_gearRatio( gearRatio ) ,
 m_teeth( teeth ) ,
 m_sampleRate( 4.f ) ,

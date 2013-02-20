@@ -7,7 +7,6 @@
 
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
-#include <iostream> // TODO Remove me
 
 //#include "SFMLSystem/VxWorks/SleepImpl.hpp"
 int gettimeofday (struct timeval *tv_ptr, void *ptr);
@@ -56,10 +55,10 @@ OurRobot::OurRobot() :
     // Field-oriented driving by default
     isGyroEnabled( true ),
     slowRotate( false ),
-    isShooterManual( false )
+    isShooterManual( false ),
 
     // Create a GraphHost
-    //pidGraph( 3513 )
+    pidGraph( 3513 )
 {
     struct timeval rawTime;
 
@@ -98,13 +97,13 @@ void OurRobot::DS_PrintOut() {
     struct timeval rawTime;
     uint32_t currentTime;
 
-    /*gettimeofday( &rawTime , NULL );
-    currentTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;*/
+    gettimeofday( &rawTime , NULL );
+    currentTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;
 
-    if ( currentTime - lastTime > 10 ) {
-        //pidGraph.graphData( currentTime - startTime , 5000 , "PID0" );
-        //pidGraph.graphData( currentTime - startTime , frisbeeShooter.getRPM() , "PID0" );
-        //pidGraph.graphData( currentTime - startTime , frisbeeShooter.getTargetRPM() , "PID1" );
+    if ( currentTime - lastTime > 5 ) {
+        //pidGraph.graphData( currentTime - startTime , 5000.f , "PID0" );
+        pidGraph.graphData( currentTime - startTime , frisbeeShooter.getRPM() , "PID0" );
+        pidGraph.graphData( currentTime - startTime , frisbeeShooter.getTargetRPM() , "PID1" );
 
         lastTime = currentTime;
     }
@@ -121,6 +120,7 @@ void OurRobot::DS_PrintOut() {
      * unsigned int: shooter RPM
      * bool: shooterReady
      * bool: isShooting
+     * bool: isShooterManual
      */
 
     // floats don't work so " * 100000" saves some precision in a UINT
@@ -131,15 +131,15 @@ void OurRobot::DS_PrintOut() {
 
     *driverStation << static_cast<unsigned int>(mainDrive.GetDriveMode());
 
-    *driverStation << static_cast<int>(testGyro.GetAngle() * 100000.f);
+    *driverStation << static_cast<int>(testGyro.GetAngle() * 1000.f);
 
     *driverStation << static_cast<bool>( isGyroEnabled );
 
-    *driverStation << static_cast<unsigned int>(ScaleValue(shootStick.GetZ()) * 100000.f);
+    *driverStation << static_cast<unsigned int>( ScaleValue(shootStick.GetZ()) * 1000.f );
 
-    *driverStation << static_cast<unsigned int>(frisbeeShooter.getTargetRPM() * 100000.f);
+    *driverStation << static_cast<unsigned int>( frisbeeShooter.getTargetRPM() * 1000.f );
 
-    *driverStation << static_cast<unsigned int>(frisbeeShooter.getRPM() * 100000.f);
+    *driverStation << static_cast<unsigned int>( frisbeeShooter.getRPM() * 1000.f );
 
     *driverStation << static_cast<bool>( frisbeeShooter.isReady() );
 
@@ -210,8 +210,6 @@ void OurRobot::DS_PrintOut() {
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "encRR: %f" , mainDrive.GetFLrate() );
 
     DriverStationLCD::GetInstance()->UpdateLCD();
-
-    std::cout << "DS\n";
 }
 
 START_ROBOT_CLASS(OurRobot);

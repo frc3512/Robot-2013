@@ -152,7 +152,7 @@ GraphHost_destroy(struct graphhost_t *inst)
 	close(inst->ipcfd_r);
 	close(inst->ipcfd_w);
 	free(inst);
-	
+
 	return;
 }
 
@@ -439,7 +439,7 @@ sockets_writeh(struct list_t *list, struct list_elem_t *elem)
 	int error;
 	struct socketconn_t *conn = elem->data;
 	struct writebuf_t *writebuf;
-	
+
 	while(1) {
 
 		/* Get another buffer to send */
@@ -477,7 +477,7 @@ sockets_writeh(struct list_t *list, struct list_elem_t *elem)
 			/* We haven't finished writing, keep selecting. */
 			return 0;
 		}
-	
+
 	}
 
 	/* We always return from within the loop, this is unreachable */
@@ -674,31 +674,12 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
 	memset((void *)&payload, 0x00, sizeof(struct graph_payload_t));
 
 	/* Change to network byte order */
-	memcpy(&tmp, &x, sizeof(float));
-	tmp = htonl(tmp);
-	memcpy(&payload.x, &tmp, sizeof(float));
-
-	memcpy(&tmp, &y, sizeof(float));
-	tmp = htonl(tmp);
-	memcpy(&payload.y, &tmp, sizeof(float));
-
-	/*
-	floatint.f = x;
-	floatint.i = htonl(floatint.i);
-	payload.x = floatint.f;
-
-	floatint.f = y;
-	floatint.i = htonl(floatint.i);
-	payload.y = floatint.f;
-	*/
-
-	/*
-	tmp = htonl(*((uint32_t *)&x));
+	payload.x = x;
+	payload.y = y;
+	/*tmp = htonl(*((uint32_t *)&x));
 	payload.x = *((float *)&tmp);
 	tmp = htonl(*((uint32_t *)&y));
-	payload.y = *((float *)&tmp);
-	*/
-
+	payload.y = *((float *)&tmp);*/
 	strncpy(payload.dataset, dataset, 15);
 
 	/* Giant lock approach */

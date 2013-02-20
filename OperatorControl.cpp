@@ -7,7 +7,7 @@
 #include <Timer.h>
 #include "OurRobot.hpp"
 #include "ButtonTracker.hpp"
-#include <iostream>
+#include <iostream> // TODO Remove me
 
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
@@ -75,13 +75,11 @@ void OurRobot::OperatorControl() {
         /* ===== Change shooter angle and speed ===== */
         // Use high shooter angle
         if ( shootStickButtons.releasedButton( 2 ) ) {
-            std::cout << "shooter angle up\n";
             shooterAngle.Set( true );
         }
 
         // Use low shooter angle
         if ( shootStickButtons.releasedButton( 3 ) ) {
-            std::cout << "shooter angle down\n";
             shooterAngle.Set( false );
         }
         /* ========================================== */
@@ -90,7 +88,7 @@ void OurRobot::OperatorControl() {
         /* Don't let a frisbee into the shooter if the shooter wheel isn't
          * spinning, except in the case of a manual override.
          */
-        if ( frisbeeShooter.getRPM() > 500 && !isShooterManual ) {
+        if ( (frisbeeShooter.getRPM() > 500 && !isShooterManual) || isShooterManual ) {
             if ( shootStickButtons.releasedButton( 1 ) ) {
                 frisbeeFeeder.activate();
             }
