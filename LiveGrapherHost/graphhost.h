@@ -61,6 +61,13 @@ struct graph_payload_t {
 	float y;
 };
 
+/*
+union floatint_t {
+	float f;
+	uint32_t i;
+};
+*/
+
 #define SOCKET_READ 1
 #define SOCKET_WRITE 2
 #define SOCKET_ERROR 4

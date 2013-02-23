@@ -367,6 +367,7 @@ sockets_readh(struct list_t *list, struct list_elem_t *elem)
 		/* Clean up the socket here */
 		free(buf);
 		sockets_close(list, elem);
+
 		return 0;
 	}
 
@@ -659,9 +660,14 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
 	struct list_elem_t *datasetp;
 	struct socketconn_t *conn;
 	struct graph_payload_t payload;
+	/* union floatint_t floatint; */
+
 	/* struct graph_payload_t* qpayload; */
 	char *dataset_str;
 	uint32_t tmp;
+
+	/* Safety first */
+	assert(sizeof(float) == sizeof(uint32_t));
 
 	if(!graphhost->running) return -1;
 
@@ -669,10 +675,31 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
 	memset((void *)&payload, 0x00, sizeof(struct graph_payload_t));
 
 	/* Change to network byte order */
-	tmp = htonl(*((int *)&x));
+	memcpy(&tmp, &x, sizeof(float));
+	tmp = htonl(tmp);
+	memcpy(&payload.x, &tmp, sizeof(float));
+
+	memcpy(&tmp, &y, sizeof(float));
+	tmp = htonl(tmp);
+	memcpy(&payload.y, &tmp, sizeof(float));
+
+	/*
+	floatint.f = x;
+	floatint.i = htonl(floatint.i);
+	payload.x = floatint.f;
+
+	floatint.f = y;
+	floatint.i = htonl(floatint.i);
+	payload.y = floatint.f;
+	*/
+
+	/*
+	tmp = htonl(*((uint32_t *)&x));
 	payload.x = *((float *)&tmp);
-	tmp = htonl(*((int *)&y));
+	tmp = htonl(*((uint32_t *)&y));
 	payload.y = *((float *)&tmp);
+	*/
+
 	strncpy(payload.dataset, dataset, 15);
 
 	/* Giant lock approach */
