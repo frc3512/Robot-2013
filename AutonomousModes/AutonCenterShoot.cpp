@@ -1,6 +1,6 @@
 //=============================================================================
-//File Name: AutonCenter.cpp
-//Description: Drives around left side of pyramid towards the goal and shoots
+//File Name: AutonCenterShoot.cpp
+//Description: Shoots at goals from back of pyramid
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
@@ -8,7 +8,7 @@
 
 // autoTime is handled from within the main Autonomous call in Autonomous.cpp
 
-void OurRobot::AutonCenter() {
+void OurRobot::AutonCenterShoot() {
     mainDrive.EnableEncoders( true );
     mainDrive.ResetEncoders();
 

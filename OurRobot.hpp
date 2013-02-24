@@ -57,7 +57,7 @@ public:
     ~OurRobot();
 
     void Autonomous();
-    void AutonCenter();
+    void AutonCenterShoot();
     void AutonCenterMove();
     void AutonLeftShoot();
     void AutonRightShoot();

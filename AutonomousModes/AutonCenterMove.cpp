@@ -1,6 +1,6 @@
 //=============================================================================
 //File Name: AutonCenterMove.cpp
-//Description: Drives around left side of pyramid towards the goal and shoots
+//Description: Drives through pyramid towards the goal and shoots
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
