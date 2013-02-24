@@ -8,7 +8,6 @@
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
 
-//#include "SFMLSystem/VxWorks/SleepImpl.hpp"
 int gettimeofday (struct timeval *tv_ptr, void *ptr);
 
 float ScaleValue( float value ) {
@@ -48,7 +47,7 @@ OurRobot::OurRobot() :
     leftClimbArm( 4 ),
     rightClimbArm( 3 ),
 
-    testGyro( 1 ),
+    fieldGyro( 1 ),
 
     underGlow( 5 ),
 
@@ -82,7 +81,6 @@ OurRobot::OurRobot() :
 
     // Let motors run for up to 1 second uncontrolled before shutting them down
     mainDrive.SetExpiration( 1.f );
-    mainDrive.SetSafetyEnabled( false );
 
     mainDrive.SquareInputs( true );
 
@@ -131,7 +129,7 @@ void OurRobot::DS_PrintOut() {
 
     *driverStation << static_cast<unsigned int>(mainDrive.GetDriveMode());
 
-    *driverStation << static_cast<int>(testGyro.GetAngle() * 1000.f);
+    *driverStation << static_cast<int>(fieldGyro.GetAngle() * 1000.f);
 
     *driverStation << static_cast<bool>( isGyroEnabled );
 
@@ -168,7 +166,7 @@ void OurRobot::DS_PrintOut() {
 
     DriverStationLCD::GetInstance()->Clear();
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , testGyro.GetAngle() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , fieldGyro.GetAngle() );
 
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , frisbeeShooter.getRPM() );
     //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , -ScaleValue(shootStick.GetAxis(Joystick::kZAxis)) );

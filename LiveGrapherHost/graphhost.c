@@ -95,7 +95,9 @@ GraphHost_create(int port)
 	/* int i; */
 	struct graphhost_t *inst;
 	int pipefd[2];
+#ifndef VxWorks
 	int error;
+#endif
 
 	/* Allocate memory for the graphhost_t structure */
 	inst = malloc(sizeof(struct graphhost_t));
@@ -190,7 +192,9 @@ sockets_accept(struct list_t *connlist, int listenfd)
 	struct socketconn_t *conn;
 	struct sockaddr_in cli_addr;
 	int error;
+#ifndef VxWorks
 	int flags;
+#endif
 
 	clilen = sizeof(struct sockaddr_in);
 
@@ -207,7 +211,7 @@ sockets_accept(struct list_t *connlist, int listenfd)
 #ifdef VxWorks
 	/* Set the socket non-blocking. */
 	on = 1;
-	error = ioctl(new_fd, (int)FIONBIO, (const int *)&on);
+	error = ioctl(new_fd, (int)FIONBIO, on);
 	if(error == -1){
 		perror("");
 		close(new_fd);
@@ -271,7 +275,7 @@ sockets_close(struct list_t *list, struct list_elem_t *elem)
 void
 sockets_remove_orphan(struct socketconn_t *conn)
 {
-	struct writebuf_t *writebuf;
+	struct writebuf_t *writebuf = NULL;
 	struct list_elem_t *dataset;
 
 	/* Give up on the current write buffer */
@@ -285,7 +289,7 @@ sockets_remove_orphan(struct socketconn_t *conn)
 	}
 
 	/* Give up on all other queued buffers too */
-	while(queue_dequeue(conn->writequeue, (void **)&writebuf) == 0) {
+	while(queue_dequeue(conn->writequeue, (void **)writebuf) == 0) {
 		free(writebuf->buf);
 		free(writebuf);
 	}
@@ -439,12 +443,13 @@ sockets_writeh(struct list_t *list, struct list_elem_t *elem)
 	int error;
 	struct socketconn_t *conn = elem->data;
 	struct writebuf_t *writebuf;
+	struct writebuf_t **writebufPtr = &writebuf;
 
 	while(1) {
 
 		/* Get another buffer to send */
 		if(conn->writebuflength == 0) {
-			error = queue_dequeue(conn->writequeue, (void **)&writebuf);
+			error = queue_dequeue(conn->writequeue, (void **)writebufPtr);
 			/* There are no more buffers in the queue */
 			if(error != 0) {
 				/* Call the write finished callback in the upper layer */
@@ -663,7 +668,6 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
 
 	/* struct graph_payload_t* qpayload; */
 	char *dataset_str;
-	uint32_t tmp;
 
 	/* Safety first */
 	assert(sizeof(float) == sizeof(uint32_t));

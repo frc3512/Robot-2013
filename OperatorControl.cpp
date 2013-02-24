@@ -62,13 +62,13 @@ void OurRobot::OperatorControl() {
         if ( shootStickButtons.releasedButton( 8 ) ) {
             isShooterManual = false;
 
-            frisbeeShooter.enableControl();
+            frisbeeShooter.setControlMode( Shooter::PID );
         }
 
         if ( shootStickButtons.releasedButton( 9 ) ) {
             isShooterManual = true;
 
-            frisbeeShooter.disableControl();
+            frisbeeShooter.setControlMode( Shooter::Manual );
         }
         /* =================================================== */
 
@@ -141,7 +141,7 @@ void OurRobot::OperatorControl() {
         /* ===== Control gyro ===== */
         // Reset gyro
         if ( driveStickButtons.releasedButton( 8 ) ) {
-            testGyro.Reset();
+            fieldGyro.Reset();
         }
 
         if ( driveStickButtons.releasedButton( 5 ) ) {
@@ -173,7 +173,7 @@ void OurRobot::OperatorControl() {
 
         // Compensate with gyro angle if that's enabled
         if ( isGyroEnabled && driveMode != MecanumDrive::Arcade ) {
-            joyGyro = testGyro.GetAngle();
+            joyGyro = fieldGyro.GetAngle();
         }
         // Compensate for ArcadeDrive robot being backwards
         else if ( driveMode == MecanumDrive::Arcade ) {

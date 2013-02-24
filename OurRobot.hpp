@@ -91,7 +91,7 @@ private:
     Relay leftClimbArm;
     Relay rightClimbArm;
 
-    Gyro testGyro;
+    Gyro fieldGyro;
 
     Relay underGlow;
 

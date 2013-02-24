@@ -18,19 +18,23 @@ void OurRobot::AutonCenter() {
     frisbeeShooter.start();
     frisbeeShooter.setRPM( 2300.f );
 
-    // Feed frisbees into shooter with a small delay between each
-    autoTime.Reset();
+    // Initialize variables needed for feeding frisbees properly
+    double feedTimeStart = autoTime.Get();
     unsigned int shot = 0;
+
+    // Feed frisbees into shooter with a small delay between each
     while ( shot <= 3 && IsAutonomous() ) {
         DS_PrintOut();
 
-        frisbeeShooter.setRPM( 2300.f );
-
-        if ( autoTime.HasPeriodPassed( 1.f ) ) {
+        if ( autoTime.Get() - feedTimeStart > 1.4 && !frisbeeFeeder.isFeeding() ) {
             frisbeeFeeder.activate();
             shot++;
+
+            feedTimeStart = autoTime.Get();
         }
 
         frisbeeFeeder.update();
+
+        Wait( 0.1 );
     }
 }

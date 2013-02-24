@@ -32,6 +32,12 @@ public:
     // Starts process of pushing frisbee into shooter
     void activate();
 
+    // Continues transition of feeder state
+    void update();
+
+    // Returns true if this instance is in the middle of feeding a frisbee
+    bool isFeeding();
+
     /* Sets delay for which the plunging actuator stays retracted (to give the
      * actuator time to complete its transit and to wait for frisbees to fall
      * into position)
@@ -42,9 +48,6 @@ public:
      * pass into the shooter)
      */
     void setGuardDelay( double time );
-
-    // Continues transition of feeder state
-    void update();
 
 private:
     Solenoid m_frisbeeFeed;

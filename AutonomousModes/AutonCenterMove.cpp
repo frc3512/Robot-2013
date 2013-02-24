@@ -16,16 +16,14 @@ void OurRobot::AutonCenterMove() {
 
     // Start shooter
     frisbeeShooter.start();
-    //frisbeeShooter.setRPM( 5000.f );
-    frisbeeShooter.setScale( 1.f );
+    frisbeeShooter.setControlMode( Shooter::Manual );
+    frisbeeShooter.setRPM( Shooter::maxSpeed );
 
     // Move robot 5 meters forward
     while ( IsAutonomous() && mainDrive.GetFLdist() / std::sqrt( 2 ) < 35.f ) {
         DS_PrintOut();
 
         mainDrive.Drive( 0.8f , 0.f , 0.f , 0.f );
-        //frisbeeShooter.setRPM( 5000.f );
-        frisbeeShooter.setScale( 1.f );
 
         Wait( 0.1 );
     }
@@ -38,25 +36,24 @@ void OurRobot::AutonCenterMove() {
         DS_PrintOut();
 
         mainDrive.Drive( 0.f , 0.f , -0.5f , 0.f );
-        //frisbeeShooter.setRPM( 5000 );
-        frisbeeShooter.setScale( 1.f );
     }
 
     // Stop and start shooting
     mainDrive.Drive( 0.f , 0.f , 0.f , 0.f );
 
-    // Feed frisbees into shooter with a small delay between each
-    autoTime.Reset();
+    // Initialize variables needed for feeding frisbees properly
+    double feedTimeStart = autoTime.Get();
     unsigned int shot = 0;
+
+    // Feed frisbees into shooter with a small delay between each
     while ( shot <= 3 && IsAutonomous() ) {
         DS_PrintOut();
 
-        //frisbeeShooter.setRPM( 5000.f );
-        frisbeeShooter.setScale( 1.f );
-
-        if ( autoTime.HasPeriodPassed( 1.4f ) ) {
+        if ( autoTime.Get() - feedTimeStart > 1.4 && !frisbeeFeeder.isFeeding() ) {
             frisbeeFeeder.activate();
             shot++;
+
+            feedTimeStart = autoTime.Get();
         }
 
         frisbeeFeeder.update();

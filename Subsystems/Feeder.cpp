@@ -35,14 +35,6 @@ void Feeder::activate() {
     }
 }
 
-void Feeder::setFeedDelay( double time ) {
-    m_feedDelay = time;
-}
-
-void Feeder::setGuardDelay( double time ) {
-    m_guardDelay = time;
-}
-
 void Feeder::update() {
     /* If frisbee is going to be fed into the shooter and the actuator had
      * enough time to move completely out from underneath the frisbees
@@ -69,4 +61,16 @@ void Feeder::update() {
             m_isActivated = false;
         }
     }
+}
+
+bool Feeder::isFeeding() {
+    return m_isActivated;
+}
+
+void Feeder::setFeedDelay( double time ) {
+    m_feedDelay = time;
+}
+
+void Feeder::setGuardDelay( double time ) {
+    m_guardDelay = time;
 }
