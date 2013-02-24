@@ -86,25 +86,12 @@ float Shooter::getRPM() {
     return m_shooterEncoder.getRPM();
 }
 
-<<<<<<< HEAD
 float Shooter::getTargetRPM() {
     return m_setpoint;
 }
 
 bool Shooter::negativeOutputAllowed() {
     return m_negativeOutputAllowed;
-=======
-void Shooter::enableControl() {
-    //if ( getControlMode() == PID ) {
-        m_shooterPID.Enable();
-    //}
-}
-
-void Shooter::disableControl() {
-    //if ( getControlMode() == PID ) {
-        m_shooterPID.Disable();
-    //}
->>>>>>> Commit before 2013 bag-up
 }
 
 void Shooter::setControlMode( ControlMode mode ) {
@@ -167,7 +154,6 @@ void Shooter::PIDWrite( float output ) {
         }
 
         break;
-<<<<<<< HEAD
     }
 
     /* The only non-zero term in "Manual" is F, which turns off error
@@ -178,8 +164,16 @@ void Shooter::PIDWrite( float output ) {
         m_shooterMotor2.Set( -output );
 
         break;
-=======
->>>>>>> Commit before 2013 bag-up
+    }
+
+    /* The only non-zero term in "Manual" is F, which turns off error
+     * correction and responds only to the input given by the user.
+     */
+    case Manual: {
+        m_shooterMotor1.Set( -output );
+        m_shooterMotor2.Set( -output );
+
+        break;
     }
     }
 }
