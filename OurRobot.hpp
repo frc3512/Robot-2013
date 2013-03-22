@@ -57,10 +57,10 @@ public:
     ~OurRobot();
 
     void Autonomous();
-    void AutonCenterShoot();
     void AutonCenterMove();
-    void AutonLeftShoot();
-    void AutonRightShoot();
+    void AutonLeftMove();
+    void AutonTwoDisc();
+    void AutonCenterShoot();
 
     void OperatorControl();
     void Disabled();

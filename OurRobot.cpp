@@ -8,6 +8,18 @@
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
 
+#include <fstream>
+
+#include <sstream>
+namespace std {
+typedef basic_stringstream<wchar_t, char_traits<wchar_t>,
+    allocator<wchar_t> > wstringstream;
+
+typedef std::basic_ifstream<wchar_t, std::char_traits<wchar_t> > wifstream;
+}
+
+#include <string>
+
 int gettimeofday (struct timeval *tv_ptr, void *ptr);
 
 float ScaleValue( float value ) {
@@ -70,10 +82,10 @@ OurRobot::OurRobot() :
 
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
-    //autonModes.addMethod( "CenterShoot" , &OurRobot::AutonCenter , this );
     autonModes.addMethod( "CenterMove" , &OurRobot::AutonCenterMove , this );
-    autonModes.addMethod( "LeftShoot" , &OurRobot::AutonLeftShoot , this );
-    autonModes.addMethod( "RightShoot" , &OurRobot::AutonRightShoot , this );
+    autonModes.addMethod( "LeftMove" , &OurRobot::AutonLeftMove , this );
+    autonModes.addMethod( "TwoDisc" , &OurRobot::AutonTwoDisc , this );
+    //autonModes.addMethod( "CenterShoot" , &OurRobot::AutonCenterShoot , this );
 
     // Set encoder ports
     mainDrive.SetEncoderPorts( 14 , 13 , 10 , 9 ,
@@ -81,10 +93,11 @@ OurRobot::OurRobot() :
 
     // Let motors run for up to 1 second uncontrolled before shutting them down
     mainDrive.SetExpiration( 1.f );
-
+    frisbeeShooter.setPID( atof( getValueFor( "PID_P" ).c_str() ) , atof( getValueFor( "PID_I" ).c_str() ) , atof( getValueFor( "PID_D" ).c_str() ) );
+    frisbeeShooter.stop();
     mainDrive.SquareInputs( true );
 
-    autonMode = 0;
+    autonMode = 2;
 }
 
 OurRobot::~OurRobot() {
@@ -106,6 +119,7 @@ void OurRobot::DS_PrintOut() {
         lastTime = currentTime;
     }
 
+#if 0
     /* ===== Print to Driver Station LCD =====
      * Packs the following variables:
      *
@@ -127,31 +141,92 @@ void OurRobot::DS_PrintOut() {
 
     *driverStation << static_cast<std::string>( "display" );
 
-    *driverStation << static_cast<unsigned int>(mainDrive.GetDriveMode());
+    unsigned int driveMode = mainDrive.GetDriveMode();
+    std::wstring strDriveMode;
+    if ( driveMode == MecanumDrive::Omni ) {
+        strDriveMode = L"Omni";
+    }
+    else if ( driveMode == MecanumDrive::Strafe ) {
+        strDriveMode = L"Strafe";
+    }
+    else if ( driveMode == MecanumDrive::Arcade ) {
+        strDriveMode = L"Arcade";
+    }
+    else if ( driveMode == MecanumDrive::FLpivot ) {
+        strDriveMode = L"FLpivot";
+    }
+    else if ( driveMode == MecanumDrive::FRpivot ) {
+        strDriveMode = L"FRpivot";
+    }
+    else if ( driveMode == MecanumDrive::RLpivot ) {
+        strDriveMode = L"RLpivot";
+    }
+    else if ( driveMode == MecanumDrive::RRpivot ) {
+        strDriveMode = L"RRpivot";
+    }
+    driverStation->addElementData( 's' , L"MODE" , strDriveMode );
 
-    *driverStation << static_cast<int>(fieldGyro.GetAngle() * 1000.f);
+    driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int>( fieldGyro.GetAngle() ) );
 
-    *driverStation << static_cast<bool>( isGyroEnabled );
+    driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( isGyroEnabled ) );
 
-    *driverStation << static_cast<unsigned int>( ScaleValue(shootStick.GetZ()) * 1000.f );
+    driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( slowRotate ) );
 
-    *driverStation << static_cast<unsigned int>( frisbeeShooter.getTargetRPM() * 1000.f );
+    {
+    std::wstringstream ss;
+    ss << ScaleValue(shootStick.GetZ());
+    driverStation->addElementData( 's' , L"RPM_MAN_DISP" , ss.str() );
+    }
 
-    *driverStation << static_cast<unsigned int>( frisbeeShooter.getRPM() * 1000.f );
+    driverStation->addElementData( 'c' , L"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
 
-    *driverStation << static_cast<bool>( frisbeeShooter.isReady() );
+    {
+    std::wstringstream ss;
+    ss << frisbeeShooter.getTargetRPM();
+    *driverStation << ss.str();
+    driverStation->addElementData( 's' , L"RPM_SET_DISP" , ss.str() );
+    }
 
-    *driverStation << static_cast<bool>( frisbeeShooter.isShooting() );
+    driverStation->addElementData( 'c' , L"RPM_SET" , static_cast<unsigned char>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
 
-    *driverStation << static_cast<bool>( isShooterManual );
+    {
+    std::wstringstream ss;
+    ss << frisbeeShooter.getRPM();
+    *driverStation << ss.str();
+    driverStation->addElementData( 's' , L"RPM_REAL_DISP" , ss.str() );
+    }
+
+    driverStation->addElementData( 'c' , L"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
+
+    driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( frisbeeShooter.isReady() ) );
+
+    driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( frisbeeShooter.isShooting() ) );
+
+    driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( isShooterManual ) );
 
     driverStation->sendToDS();
+#endif
 
     // Gets messages from DS and fills 'autonMode' if it's a connection message
     const std::string& command = driverStation->receiveFromDS( &autonMode );
 
-    // If the DS just connected, send it a list of available autonomous modes
     if ( std::strcmp( command.c_str() , "connect\r\n" ) == 0 ) {
+        // Send GUI element file to DS
+        driverStation->clear();
+
+        *driverStation << static_cast<std::string>( "guiCreate" );
+
+        std::wifstream guiFile( "GUISettings.txt" );
+        std::wstring guiString;
+
+        while ( guiFile.is_open() && !guiFile.eof() ) {
+            std::getline( guiFile , guiString );
+            *driverStation << guiString;
+        }
+
+        driverStation->sendToDS();
+
+        // Send a list of available autonomous modes
         driverStation->clear();
 
         *driverStation << static_cast<std::string>( "autonList" );
@@ -159,6 +234,14 @@ void OurRobot::DS_PrintOut() {
         for ( unsigned int i = 0 ; i < autonModes.size() ; i++ ) {
             *driverStation << autonModes.name( i );
         }
+
+        driverStation->sendToDS();
+    }
+    else if ( std::strcmp( command.c_str() , "autonSelect\r\n" ) == 0 ) {
+        driverStation->clear();
+
+        *driverStation << static_cast<std::string>( "autonConfirmed" );
+        *driverStation << autonModes.name( autonMode );
 
         driverStation->sendToDS();
     }

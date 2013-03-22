@@ -16,16 +16,17 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_shooterMotor1( motor1 ) ,
         m_shooterMotor2( motor2 ) ,
         m_shooterEncoder( encChannel , encTeeth , encGearRatio ) ,
-        m_shooterPID( 0.f , 0.f , 0.f , 1.f / maxSpeed , this , this ) ,
+        m_shooterPID( 0.f , 0.f , 0.f , 0.f /*1.f / maxSpeed*/ , this , this , 0.5f ) ,
         m_setpoint( 0.f ) ,
         m_isShooting( false ) ,
         m_controlMode( PID ) ,
+        m_negativeOutputAllowed( true ) ,
         m_P( m_shooterPID.GetP() ) ,
         m_I( m_shooterPID.GetI() ) ,
         m_D( m_shooterPID.GetD() ) ,
         m_F( m_shooterPID.GetF() ) {
-    m_shooterPID.SetOutputRange( 0.f , 1.f );
-    m_shooterPID.SetTolerance( 0.001f );
+    m_shooterPID.SetOutputRange( -1.f , 1.f );
+    m_shooterPID.SetTolerance( 0.f );
 
     m_shooterPID.SetSetpoint( m_setpoint );
 
@@ -39,14 +40,14 @@ Shooter::~Shooter() {
 }
 
 void Shooter::start() {
+    m_shooterPID.Enable();
     m_shooterPID.SetSetpoint( m_setpoint );
 
     m_isShooting = true;
 }
 
 void Shooter::stop() {
-    m_setpoint = 0.f;
-    m_shooterPID.SetSetpoint( m_setpoint );
+    m_shooterPID.Reset();
 
     m_isShooting = false;
 }
@@ -89,6 +90,10 @@ float Shooter::getTargetRPM() {
     return m_setpoint;
 }
 
+bool Shooter::negativeOutputAllowed() {
+    return m_negativeOutputAllowed;
+}
+
 void Shooter::setControlMode( ControlMode mode ) {
     m_controlMode = mode;
 
@@ -96,7 +101,7 @@ void Shooter::setControlMode( ControlMode mode ) {
         m_shooterPID.SetPID( 0.f , 0.f , 0.f , m_F );
     }
     else {
-        m_shooterPID.SetPID( m_P , m_I , m_D , m_F );
+        m_shooterPID.SetPID( m_P , m_I , m_D , 0.f ); // TODO
     }
 }
 
@@ -104,7 +109,25 @@ Shooter::ControlMode Shooter::getControlMode() {
     return m_controlMode;
 }
 
+void Shooter::setPID( float p , float i , float d ) {
+    m_P = p;
+    m_I = i;
+    m_D = d;
+
+    // Updates PID constants for PIDController object internally
+    setControlMode( getControlMode() );
+}
+
 double Shooter::PIDGet() {
+    if ( m_shooterEncoder.getRPM() < 100.f && m_negativeOutputAllowed ) {
+        m_shooterPID.SetOutputRange( 0.f , 1.f );
+        m_negativeOutputAllowed = false;
+    }
+    else if ( m_shooterEncoder.getRPM() >= 500.f && !m_negativeOutputAllowed ) {
+        m_shooterPID.SetOutputRange( -1.f , 1.f );
+        m_negativeOutputAllowed = true;
+    }
+
     return m_shooterEncoder.getRPM();
 }
 

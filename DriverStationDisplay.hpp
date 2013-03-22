@@ -52,6 +52,10 @@ public:
      */
     const std::string receiveFromDS( void* userData );
 
+    // Add UI element data to packet
+    template <class T>
+    void addElementData( unsigned char type , std::wstring ID , T data );
+
 private:
     DriverStationDisplay( unsigned short portNumber );
 
@@ -69,5 +73,12 @@ private:
 
     friend class DriverStationDisplayInit;
 };
+
+template <class T>
+void DriverStationDisplay::addElementData( unsigned char type , std::wstring ID , T data ) {
+    *this << type;
+    *this << ID;
+    *this << data;
+}
 
 #endif // DRIVER_STATION_DISPLAY_HPP

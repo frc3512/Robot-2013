@@ -1,6 +1,6 @@
 //=============================================================================
-//File Name: AutonCenterMove.cpp
-//Description: Drives through pyramid towards the goal and shoots
+//File Name: AutonLeftMove.cpp
+//Description: Drives around left side of pyramid towards the goal and shoots
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
@@ -8,7 +8,7 @@
 
 // autoTime is handled from within the main Autonomous call in Autonomous.cpp
 
-void OurRobot::AutonCenterMove() {
+void OurRobot::AutonLeftMove() {
     mainDrive.EnableEncoders( true );
     mainDrive.ResetEncoders();
 
@@ -32,10 +32,10 @@ void OurRobot::AutonCenterMove() {
     mainDrive.Drive( 0.f , 0.f , 0.f , 0.f );
 
     float turnTimeStart = autoTime.Get();
-    while ( autoTime.Get() - turnTimeStart < 0.23f ) {
+    while ( autoTime.Get() - turnTimeStart < 0.1f ) {
         DS_PrintOut();
 
-        mainDrive.Drive( 0.f , 0.f , -0.5f , 0.f );
+        mainDrive.Drive( 0.f , 0.f , 0.5f , 0.f );
     }
 
     // Stop and start shooting
@@ -44,6 +44,8 @@ void OurRobot::AutonCenterMove() {
     // Initialize variables needed for feeding frisbees properly
     double feedTimeStart = autoTime.Get();
     unsigned int shot = 0;
+
+    Wait( 3.f );
 
     // Feed frisbees into shooter with a small delay between each
     while ( shot <= 3 && IsAutonomous() ) {
@@ -60,4 +62,6 @@ void OurRobot::AutonCenterMove() {
 
         Wait( 0.1 );
     }
+
+    frisbeeFeeder.update();
 }

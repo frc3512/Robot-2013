@@ -58,11 +58,15 @@ void OurRobot::OperatorControl() {
             frisbeeShooter.stop();
         }
 
-        // toggle manual RPM setting vs setting with encoder input
+        // Toggle manual RPM setting vs setting with encoder input
         if ( shootStickButtons.releasedButton( 8 ) ) {
             isShooterManual = false;
 
             frisbeeShooter.setControlMode( Shooter::PID );
+
+            // Reset PID constants
+            Settings::update();
+            frisbeeShooter.setPID( atof( getValueFor( "PID_P" ).c_str() ) , atof( getValueFor( "PID_I" ).c_str() ) , atof( getValueFor( "PID_D" ).c_str() ) );
         }
 
         if ( shootStickButtons.releasedButton( 9 ) ) {

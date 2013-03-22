@@ -78,9 +78,16 @@ public:
     // Get setpoint of PID loop
     float getTargetRPM();
 
+    /* Returns true if the motor value is allowed to be negative
+     * (the RPM is above 500)
+     */
+    bool negativeOutputAllowed();
+
     // Change and get with what control method the target RPM is to be reached
     void setControlMode( ControlMode mode );
     ControlMode getControlMode();
+
+    void setPID( float p , float i , float d );
 
 private:
     Victor m_shooterMotor1;
@@ -95,8 +102,7 @@ private:
 
     ControlMode m_controlMode;
 
-    // Flips between true and false after every setRPM(1) call
-    bool m_setpointStatus;
+    bool m_negativeOutputAllowed;
 
     // PID constants
     float m_P;
