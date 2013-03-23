@@ -16,10 +16,10 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_shooterMotor1( motor1 ) ,
         m_shooterMotor2( motor2 ) ,
         m_shooterEncoder( encChannel , encTeeth , encGearRatio ) ,
-        m_shooterPID( 0.f , 0.f , 0.f , 0.f /*1.f / maxSpeed*/ , this , this , 0.5f ) ,
+        m_shooterPID( 0.f , 0.f , 0.f , 1.f / maxSpeed , this , this , 0.5f ) ,
         m_setpoint( 0.f ) ,
         m_isShooting( false ) ,
-        m_controlMode( PID ) ,
+        m_controlMode( Manual ) ,
         m_negativeOutputAllowed( true ) ,
         m_P( m_shooterPID.GetP() ) ,
         m_I( m_shooterPID.GetI() ) ,
@@ -57,7 +57,7 @@ bool Shooter::isShooting() {
 }
 
 bool Shooter::isReady() {
-    return m_shooterPID.OnTarget() && m_isShooting;
+    return std::fabs(getRPM() - m_setpoint) < 100 && m_isShooting;
 }
 
 void Shooter::setRPM( float wheelSpeed ) {
@@ -101,7 +101,7 @@ void Shooter::setControlMode( ControlMode mode ) {
         m_shooterPID.SetPID( 0.f , 0.f , 0.f , m_F );
     }
     else {
-        m_shooterPID.SetPID( m_P , m_I , m_D , 0.f ); // TODO
+        m_shooterPID.SetPID( m_P , m_I , m_D , 0.f );
     }
 }
 

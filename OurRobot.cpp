@@ -9,8 +9,8 @@
 #include "DriverStationDisplay.hpp"
 
 #include <fstream>
-
 #include <sstream>
+
 namespace std {
 typedef basic_stringstream<wchar_t, char_traits<wchar_t>,
     allocator<wchar_t> > wstringstream;
@@ -119,7 +119,7 @@ void OurRobot::DS_PrintOut() {
         lastTime = currentTime;
     }
 
-#if 0
+#if 1
     /* ===== Print to Driver Station LCD =====
      * Packs the following variables:
      *
@@ -134,8 +134,6 @@ void OurRobot::DS_PrintOut() {
      * bool: isShooting
      * bool: isShooterManual
      */
-
-    // floats don't work so " * 100000" saves some precision in a UINT
 
     driverStation->clear();
 
@@ -219,9 +217,11 @@ void OurRobot::DS_PrintOut() {
         std::wifstream guiFile( "GUISettings.txt" );
         std::wstring guiString;
 
-        while ( guiFile.is_open() && !guiFile.eof() ) {
-            std::getline( guiFile , guiString );
-            *driverStation << guiString;
+        if ( guiFile.is_open() ) {
+            while ( !guiFile.eof() ) {
+                std::getline( guiFile , guiString );
+                *driverStation << guiString;
+            }
         }
 
         driverStation->sendToDS();
@@ -251,44 +251,50 @@ void OurRobot::DS_PrintOut() {
 
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , fieldGyro.GetAngle() );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , frisbeeShooter.getRPM() );
-    //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "Shoot: %f" , -ScaleValue(shootStick.GetAxis(Joystick::kZAxis)) );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "RPM: %f" , frisbeeShooter.getRPM() );
+
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Target: %f" , frisbeeShooter.getTargetRPM() );
 
     if ( mainDrive.GetDriveMode() == MecanumDrive::Omni ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: Omni" );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: Omni" );
     }
 
     else if ( mainDrive.GetDriveMode() == MecanumDrive::Strafe ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: Strafe" );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: Strafe" );
     }
 
     else if ( mainDrive.GetDriveMode() == MecanumDrive::Arcade ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: Arcade" );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: Arcade" );
     }
 
     else if ( mainDrive.GetDriveMode() == MecanumDrive::FLpivot ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: FLpivot" );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: FLpivot" );
     }
 
     else if ( mainDrive.GetDriveMode() == MecanumDrive::FRpivot ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: FRpivot" );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: FRpivot" );
     }
 
     else if ( mainDrive.GetDriveMode() == MecanumDrive::RLpivot ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: RLpivot" );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: RLpivot" );
     }
 
     else if ( mainDrive.GetDriveMode() == MecanumDrive::RRpivot ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Drive: RRpivot" );
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: RRpivot" );
     }
-    //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "encFL: %f" , mainDrive.GetFL() );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "ScaleZ: %f" , ScaleValue(shootStick.GetZ()) );
-    //DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "encRL: %f" , mainDrive.GetRL() );
+    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line5 , 1 , "ScaleZ: %f" , ScaleValue(shootStick.GetZ()) );
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line5 , 1 , "encFR: %f" , mainDrive.GetFRrate() );
+    if ( frisbeeShooter.isShooting() ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "Shooter ON" );
+    }
+    else {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "Shooter OFF" );
+    }
 
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "encRR: %f" , mainDrive.GetFLrate() );
+    if ( frisbeeShooter.isReady() ) {
+        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 13 , "READY" );
+    }
 
     DriverStationLCD::GetInstance()->UpdateLCD();
 }

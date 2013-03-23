@@ -11,6 +11,7 @@
 
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
+    frisbeeShooter.setControlMode( Shooter::PID );
 
     // Turn on blue underglow
     underGlow.Set( Relay::kOn );
