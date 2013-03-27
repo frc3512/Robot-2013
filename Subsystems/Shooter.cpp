@@ -165,15 +165,5 @@ void Shooter::PIDWrite( float output ) {
 
         break;
     }
-
-    /* The only non-zero term in "Manual" is F, which turns off error
-     * correction and responds only to the input given by the user.
-     */
-    case Manual: {
-        m_shooterMotor1.Set( -output );
-        m_shooterMotor2.Set( -output );
-
-        break;
-    }
     }
 }
