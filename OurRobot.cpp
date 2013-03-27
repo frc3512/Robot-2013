@@ -181,7 +181,6 @@ void OurRobot::DS_PrintOut() {
     {
     std::wstringstream ss;
     ss << frisbeeShooter.getTargetRPM();
-    *driverStation << ss.str();
     driverStation->addElementData( 's' , L"RPM_SET_DISP" , ss.str() );
     }
 
@@ -190,7 +189,6 @@ void OurRobot::DS_PrintOut() {
     {
     std::wstringstream ss;
     ss << frisbeeShooter.getRPM();
-    *driverStation << ss.str();
     driverStation->addElementData( 's' , L"RPM_REAL_DISP" , ss.str() );
     }
 
