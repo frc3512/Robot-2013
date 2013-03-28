@@ -37,7 +37,6 @@
 
 #include <DriverStationLCD.h>
 #include <Gyro.h>
-#include <Servo.h>
 
 #include "LiveGrapherHost/graphhost-p.hpp"
 
@@ -87,8 +86,7 @@ private:
 
     Shooter frisbeeShooter;
 
-    Relay leftClimbArm;
-    Relay rightClimbArm;
+    Solenoid climbArms;
 
     Gyro fieldGyro;
 

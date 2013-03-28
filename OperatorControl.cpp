@@ -104,42 +104,14 @@ void OurRobot::OperatorControl() {
         /* ========================= */
 
         /* ===== Control climbing mechanism ===== */
-        // Left arm up
-        if ( shootStick.GetRawButton( 6 ) ) {
-            leftClimbArm.Set( Relay::kOn );
-
-            leftClimbArm.Set( Relay::kForward );
+        // Arms up
+        if ( shootStickButtons.releasedButton( 6 ) ) {
+            climbArms.Set( true );
         }
 
-        // Left arm down
-        else if ( shootStick.GetRawButton( 7 ) ) {
-            leftClimbArm.Set( Relay::kOn );
-
-            leftClimbArm.Set( Relay::kReverse );
-        }
-
-        // Left arm stop if motors won't both be moving
-        else {
-            leftClimbArm.Set( Relay::kOff );
-        }
-
-        // Right arm up
-        if ( shootStick.GetRawButton( 11 ) ) {
-            rightClimbArm.Set( Relay::kOn );
-
-            rightClimbArm.Set( Relay::kForward );
-        }
-
-        // Right arm down
-        else if ( shootStick.GetRawButton( 10 ) ) {
-            rightClimbArm.Set( Relay::kOn );
-
-            rightClimbArm.Set( Relay::kReverse );
-        }
-
-        // Right arm stop if motors won't both be moving
-        else {
-            rightClimbArm.Set( Relay::kOff );
+        // Arms down
+        if ( shootStickButtons.releasedButton( 7 ) ) {
+            climbArms.Set( false );
         }
         /* ====================================== */
 

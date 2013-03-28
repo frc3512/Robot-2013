@@ -56,8 +56,7 @@ OurRobot::OurRobot() :
 
     frisbeeShooter( 9 , 10 , 2 , 56 , 4.f ) ,
 
-    leftClimbArm( 4 ),
-    rightClimbArm( 3 ),
+    climbArms( 8 ),
 
     fieldGyro( 1 ),
 
@@ -198,6 +197,8 @@ void OurRobot::DS_PrintOut() {
     driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( frisbeeShooter.isShooting() ) );
 
     driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( isShooterManual ) );
+
+    driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( !climbArms.Get() ) );
 
     driverStation->sendToDS();
 #endif
