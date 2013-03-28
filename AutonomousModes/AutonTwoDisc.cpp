@@ -1,6 +1,6 @@
 //=============================================================================
 //File Name: AutonTwoDisc.cpp
-//Description: Shoots two discs at the goal (doesn't drive in Autonomous)
+//Description: Shoots two discs at the goal (doesn't move in Autonomous)
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
@@ -9,7 +9,6 @@
 // autoTime is handled from within the main Autonomous call in Autonomous.cpp
 
 void OurRobot::AutonTwoDisc() {
-
     shooterAngle.Set( true );
 
     // Start shooter
@@ -24,10 +23,10 @@ void OurRobot::AutonTwoDisc() {
     unsigned int shot = 0;
 
     // Feed frisbees into shooter with a small delay between each
-    while ( shot <= 2 && IsAutonomous() ) {
+    while ( IsAutonomous() ) {
         DS_PrintOut();
 
-        if ( autoTime.Get() - feedTimeStart > 1.4 && !frisbeeFeeder.isFeeding() ) {
+        if ( autoTime.Get() - feedTimeStart > 1.4 && shot <= 2 && !frisbeeFeeder.isFeeding() ) {
             frisbeeFeeder.activate();
             shot++;
 

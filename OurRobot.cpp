@@ -82,10 +82,9 @@ OurRobot::OurRobot() :
 
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
-    autonModes.addMethod( "CenterMove" , &OurRobot::AutonCenterMove , this );
+    autonModes.addMethod( "RightShoot" , &OurRobot::AutonRightShoot , this );
     autonModes.addMethod( "LeftMove" , &OurRobot::AutonLeftMove , this );
     autonModes.addMethod( "TwoDisc" , &OurRobot::AutonTwoDisc , this );
-    //autonModes.addMethod( "CenterShoot" , &OurRobot::AutonCenterShoot , this );
 
     // Set encoder ports
     mainDrive.SetEncoderPorts( 14 , 13 , 10 , 9 ,
@@ -210,7 +209,7 @@ void OurRobot::DS_PrintOut() {
         // Send GUI element file to DS
         driverStation->clear();
 
-        *driverStation << static_cast<std::string>( "guiCreate" );
+        *driverStation << static_cast<std::string>( "guiCreate\r\n" );
 
         std::wifstream guiFile( "GUISettings.txt" );
         std::wstring guiString;
@@ -227,18 +226,26 @@ void OurRobot::DS_PrintOut() {
         // Send a list of available autonomous modes
         driverStation->clear();
 
-        *driverStation << static_cast<std::string>( "autonList" );
+        *driverStation << static_cast<std::string>( "autonList\r\n" );
 
         for ( unsigned int i = 0 ; i < autonModes.size() ; i++ ) {
             *driverStation << autonModes.name( i );
         }
 
         driverStation->sendToDS();
+
+        // Make sure driver knows which autonomous mode is selected
+        driverStation->clear();
+
+        *driverStation << static_cast<std::string>( "autonConfirmed\r\n" );
+        *driverStation << autonModes.name( autonMode );
+
+        driverStation->sendToDS();
     }
     else if ( std::strcmp( command.c_str() , "autonSelect\r\n" ) == 0 ) {
         driverStation->clear();
 
-        *driverStation << static_cast<std::string>( "autonConfirmed" );
+        *driverStation << static_cast<std::string>( "autonConfirmed\r\n" );
         *driverStation << autonModes.name( autonMode );
 
         driverStation->sendToDS();

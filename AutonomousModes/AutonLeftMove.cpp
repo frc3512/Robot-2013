@@ -28,7 +28,7 @@ void OurRobot::AutonLeftMove() {
         Wait( 0.1 );
     }
 
-    // Stop and start rotating
+    // Stop and start rotating to the right
     mainDrive.Drive( 0.f , 0.f , 0.f , 0.f );
 
     float turnTimeStart = autoTime.Get();
@@ -48,10 +48,10 @@ void OurRobot::AutonLeftMove() {
     Wait( 3.f );
 
     // Feed frisbees into shooter with a small delay between each
-    while ( shot <= 3 && IsAutonomous() ) {
+    while ( IsAutonomous() ) {
         DS_PrintOut();
 
-        if ( autoTime.Get() - feedTimeStart > 1.4 && !frisbeeFeeder.isFeeding() ) {
+        if ( autoTime.Get() - feedTimeStart > 1.4 && shot <= 3 && !frisbeeFeeder.isFeeding() ) {
             frisbeeFeeder.activate();
             shot++;
 
@@ -62,6 +62,4 @@ void OurRobot::AutonLeftMove() {
 
         Wait( 0.1 );
     }
-
-    frisbeeFeeder.update();
 }
