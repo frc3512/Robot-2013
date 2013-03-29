@@ -20,7 +20,7 @@ void OurRobot::AutonCenterMove() {
     frisbeeShooter.setRPM( Shooter::maxSpeed );
 
     // Move robot 5 meters forward
-    while ( IsAutonomous() && mainDrive.GetFLdist() / std::sqrt( 2 ) < 45.f ) {
+    while ( IsAutonomous() && mainDrive.GetFLdist() / std::sqrt( 2 ) < 35.f ) {
         DS_PrintOut();
 
         mainDrive.Drive( 0.8f , 0.f , 0.f , 0.f );

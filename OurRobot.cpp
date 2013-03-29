@@ -137,121 +137,126 @@ void OurRobot::DS_PrintOut() {
         lastTime = currentTime;
     }
 
-#if 1
-    /* ===== Print to Driver Station LCD =====
-     * Packs the following variables:
-     *
-     * unsigned int: drive mode
-     * int: gyro angle
-     * bool: isGyroEnabled
-     * bool: slowRotate
-     * unsigned int: manual RPM
-     * unsigned int: target RPM
-     * unsigned int: shooter RPM
-     * bool: shooterReady
-     * bool: isShooting
-     * bool: isShooterManual
-     */
+    static bool shouldSend = false;
 
-    driverStation->clear();
+    if ( shouldSend ) {
+        /* ===== Print to Driver Station LCD =====
+         * Packs the following variables:
+         *
+         * unsigned int: drive mode
+         * int: gyro angle
+         * bool: isGyroEnabled
+         * bool: slowRotate
+         * unsigned int: manual RPM
+         * unsigned int: target RPM
+         * unsigned int: shooter RPM
+         * bool: shooterReady
+         * bool: isShooting
+         * bool: isShooterManual
+         */
 
-    *driverStation << static_cast<std::string>( "display\r\n" );
+        driverStation->clear();
 
-    unsigned int driveMode = mainDrive.GetDriveMode();
-    std::wstring strDriveMode;
-    if ( driveMode == MecanumDrive::Omni ) {
-        strDriveMode = L"Omni";
-    }
-    else if ( driveMode == MecanumDrive::Strafe ) {
-        strDriveMode = L"Strafe";
-    }
-    else if ( driveMode == MecanumDrive::Arcade ) {
-        strDriveMode = L"Arcade";
-    }
-    else if ( driveMode == MecanumDrive::FLpivot ) {
-        strDriveMode = L"FLpivot";
-    }
-    else if ( driveMode == MecanumDrive::FRpivot ) {
-        strDriveMode = L"FRpivot";
-    }
-    else if ( driveMode == MecanumDrive::RLpivot ) {
-        strDriveMode = L"RLpivot";
-    }
-    else if ( driveMode == MecanumDrive::RRpivot ) {
-        strDriveMode = L"RRpivot";
-    }
-    driverStation->addElementData( 's' , L"MODE" , strDriveMode );
+        *driverStation << static_cast<std::string>( "display\r\n" );
 
-    driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int>( fieldGyro.GetAngle() ) );
+        unsigned int driveMode = mainDrive.GetDriveMode();
+        std::wstring strDriveMode;
+        if ( driveMode == MecanumDrive::Omni ) {
+            strDriveMode = L"Omni";
+        }
+        else if ( driveMode == MecanumDrive::Strafe ) {
+            strDriveMode = L"Strafe";
+        }
+        else if ( driveMode == MecanumDrive::Arcade ) {
+            strDriveMode = L"Arcade";
+        }
+        else if ( driveMode == MecanumDrive::FLpivot ) {
+            strDriveMode = L"FLpivot";
+        }
+        else if ( driveMode == MecanumDrive::FRpivot ) {
+            strDriveMode = L"FRpivot";
+        }
+        else if ( driveMode == MecanumDrive::RLpivot ) {
+            strDriveMode = L"RLpivot";
+        }
+        else if ( driveMode == MecanumDrive::RRpivot ) {
+            strDriveMode = L"RRpivot";
+        }
+        driverStation->addElementData( 's' , L"MODE" , strDriveMode );
 
-    if ( isGyroEnabled ) {
-        driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 0 ) );
-    }
-    else {
-        driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 2 ) );
+        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int>( fieldGyro.GetAngle() ) );
+
+        if ( isGyroEnabled ) {
+            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 0 ) );
+        }
+        else {
+            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 2 ) );
+        }
+
+        if ( slowRotate ) {
+            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( 0 ) );
+        }
+        else {
+            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( 2 ) );
+        }
+
+        {
+        std::wstringstream ss;
+        ss << ScaleValue(shootStick.GetZ());
+        driverStation->addElementData( 's' , L"RPM_MAN_DISP" , ss.str() );
+        }
+
+        driverStation->addElementData( 'c' , L"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
+
+        {
+        std::wstringstream ss;
+        ss << frisbeeShooter.getTargetRPM();
+        driverStation->addElementData( 's' , L"RPM_SET_DISP" , ss.str() );
+        }
+
+        driverStation->addElementData( 'c' , L"RPM_SET" , static_cast<unsigned char>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
+
+        {
+        std::wstringstream ss;
+        ss << frisbeeShooter.getRPM();
+        driverStation->addElementData( 's' , L"RPM_REAL_DISP" , ss.str() );
+        }
+
+        driverStation->addElementData( 'c' , L"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
+
+        if ( frisbeeShooter.isReady() ) {
+            driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 0 ) );
+        }
+        else {
+            driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 2 ) );
+        }
+
+        if ( frisbeeShooter.isShooting() ) {
+            driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 0 ) );
+        }
+        else {
+            driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 2 ) );
+        }
+
+        if ( isShooterManual ) {
+            driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 0 ) );
+        }
+        else {
+            driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 2 ) );
+        }
+
+        if ( !climbArms.Get() ) {
+            driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 0 ) );
+        }
+        else {
+            driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 2 ) );
+        }
+
+        driverStation->sendToDS();
     }
 
-    if ( slowRotate ) {
-        driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( 0 ) );
-    }
-    else {
-        driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( 2 ) );
-    }
-
-    {
-    std::wstringstream ss;
-    ss << ScaleValue(shootStick.GetZ());
-    driverStation->addElementData( 's' , L"RPM_MAN_DISP" , ss.str() );
-    }
-
-    driverStation->addElementData( 'c' , L"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
-
-    {
-    std::wstringstream ss;
-    ss << frisbeeShooter.getTargetRPM();
-    driverStation->addElementData( 's' , L"RPM_SET_DISP" , ss.str() );
-    }
-
-    driverStation->addElementData( 'c' , L"RPM_SET" , static_cast<unsigned char>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
-
-    {
-    std::wstringstream ss;
-    ss << frisbeeShooter.getRPM();
-    driverStation->addElementData( 's' , L"RPM_REAL_DISP" , ss.str() );
-    }
-
-    driverStation->addElementData( 'c' , L"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
-
-    if ( frisbeeShooter.isReady() ) {
-        driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 0 ) );
-    }
-    else {
-        driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 2 ) );
-    }
-
-    if ( frisbeeShooter.isShooting() ) {
-        driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 0 ) );
-    }
-    else {
-        driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 2 ) );
-    }
-
-    if ( isShooterManual ) {
-        driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 0 ) );
-    }
-    else {
-        driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 2 ) );
-    }
-
-    if ( !climbArms.Get() ) {
-        driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 0 ) );
-    }
-    else {
-        driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 2 ) );
-    }
-
-    driverStation->sendToDS();
-#endif
+    // Skip sending every other set of data
+    shouldSend = !shouldSend;
 
     // Gets messages from DS and fills 'autonMode' if it's a connection message
     const std::string& command = driverStation->receiveFromDS( &autonMode );
@@ -322,6 +327,7 @@ void OurRobot::DS_PrintOut() {
     }
     /* ====================================== */
 
+#if 0
     DriverStationLCD::GetInstance()->Clear();
 
     DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , fieldGyro.GetAngle() );
@@ -372,6 +378,7 @@ void OurRobot::DS_PrintOut() {
     }
 
     DriverStationLCD::GetInstance()->UpdateLCD();
+#endif
 }
 
 START_ROBOT_CLASS(OurRobot);
