@@ -56,6 +56,7 @@ public:
     ~OurRobot();
 
     void Autonomous();
+    void AutonCenterMove();
     void AutonRightShoot();
     void AutonLeftMove();
     void AutonTwoDisc();

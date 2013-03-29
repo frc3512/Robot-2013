@@ -1,6 +1,6 @@
 //=============================================================================
-//File Name: AutonRightShoot.cpp
-//Description: Moves to the right and shoots at goals from back of pyramid
+//File Name: AutonCenterMove.cpp
+//Description: Drives through pyramid towards the goal and shoots
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
@@ -8,36 +8,35 @@
 
 // autoTime is handled from within the main Autonomous call in Autonomous.cpp
 
-void OurRobot::AutonRightShoot() {
+void OurRobot::AutonCenterMove() {
     mainDrive.EnableEncoders( true );
     mainDrive.ResetEncoders();
 
-    shooterAngle.Set( false );
+    shooterAngle.Set( true );
 
     // Start shooter
     frisbeeShooter.start();
-    frisbeeShooter.setRPM( 2300.f );
+    frisbeeShooter.setControlMode( Shooter::Manual );
+    frisbeeShooter.setRPM( Shooter::maxSpeed );
 
     // Move robot 5 meters forward
-    while ( IsAutonomous() && mainDrive.GetFLdist() < 35.f ) {
+    while ( IsAutonomous() && mainDrive.GetFLdist() / std::sqrt( 2 ) < 45.f ) {
         DS_PrintOut();
 
-        mainDrive.Drive( 0.f , -0.8f , 0.f , 0.f );
+        mainDrive.Drive( 0.8f , 0.f , 0.f , 0.f );
 
         Wait( 0.1 );
     }
 
-#if 0
-    // Stop and start rotating to the left
+    // Stop and start rotating
     mainDrive.Drive( 0.f , 0.f , 0.f , 0.f );
 
     float turnTimeStart = autoTime.Get();
-    while ( autoTime.Get() - turnTimeStart < 0.1f ) {
+    while ( autoTime.Get() - turnTimeStart < 0.23f ) {
         DS_PrintOut();
 
-        mainDrive.Drive( 0.f , 0.f , 0.5f , 0.f );
+        mainDrive.Drive( 0.f , 0.f , -0.5f , 0.f );
     }
-#endif
 
     // Stop and start shooting
     mainDrive.Drive( 0.f , 0.f , 0.f , 0.f );
@@ -47,10 +46,10 @@ void OurRobot::AutonRightShoot() {
     unsigned int shot = 0;
 
     // Feed frisbees into shooter with a small delay between each
-    while ( IsAutonomous() ) {
+    while ( shot <= 3 && IsAutonomous() ) {
         DS_PrintOut();
 
-        if ( autoTime.Get() - feedTimeStart > 1.4 && shot <= 3 && !frisbeeFeeder.isFeeding() ) {
+        if ( autoTime.Get() - feedTimeStart > 1.4 && !frisbeeFeeder.isFeeding() ) {
             frisbeeFeeder.activate();
             shot++;
 

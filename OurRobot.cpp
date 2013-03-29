@@ -56,7 +56,7 @@ OurRobot::OurRobot() :
 
     frisbeeShooter( 9 , 10 , 2 , 56 , 4.f ) ,
 
-    climbArms( 8 ),
+    climbArms( 4 ),
 
     fieldGyro( 1 ),
 
@@ -81,6 +81,7 @@ OurRobot::OurRobot() :
 
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
+    autonModes.addMethod( "CenterMove" , &OurRobot::AutonCenterMove , this );
     autonModes.addMethod( "RightShoot" , &OurRobot::AutonRightShoot , this );
     autonModes.addMethod( "LeftMove" , &OurRobot::AutonLeftMove , this );
     autonModes.addMethod( "TwoDisc" , &OurRobot::AutonTwoDisc , this );
@@ -91,7 +92,26 @@ OurRobot::OurRobot() :
 
     // Let motors run for up to 1 second uncontrolled before shutting them down
     mainDrive.SetExpiration( 1.f );
-    frisbeeShooter.setPID( atof( getValueFor( "PID_P" ).c_str() ) , atof( getValueFor( "PID_I" ).c_str() ) , atof( getValueFor( "PID_D" ).c_str() ) );
+    frisbeeShooter.setPID( atof( getValueFor( "PID_CLOSE_P" ).c_str() ) , atof( getValueFor( "PID_CLOSE_I" ).c_str() ) , atof( getValueFor( "PID_CLOSE_D" ).c_str() ) );
+
+#if 0
+    PIDConst constants;
+
+    constants.P = 0.f;
+    constants.I = 0.f;
+    constants.D = 0.f;
+    constants.F = 1.f / Shooter::maxSpeed;
+    constants.setpoint = 0.f;
+    frisbeeShooter.addPIDConst( constants );
+
+    constants.P = atof( getValueFor( "PID_CLOSE_P" ).c_str() );
+    constants.I = atof( getValueFor( "PID_CLOSE_I" ).c_str() );
+    constants.D = atof( getValueFor( "PID_CLOSE_D" ).c_str() );
+    constants.F = 0.f;
+    constants.setpoint = 0.f;
+    frisbeeShooter.addPIDConst( constants );
+#endif
+
     frisbeeShooter.stop();
     mainDrive.SquareInputs( true );
 
@@ -135,7 +155,7 @@ void OurRobot::DS_PrintOut() {
 
     driverStation->clear();
 
-    *driverStation << static_cast<std::string>( "display" );
+    *driverStation << static_cast<std::string>( "display\r\n" );
 
     unsigned int driveMode = mainDrive.GetDriveMode();
     std::wstring strDriveMode;
@@ -164,9 +184,19 @@ void OurRobot::DS_PrintOut() {
 
     driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int>( fieldGyro.GetAngle() ) );
 
-    driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( isGyroEnabled ) );
+    if ( isGyroEnabled ) {
+        driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 0 ) );
+    }
+    else {
+        driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 2 ) );
+    }
 
-    driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( slowRotate ) );
+    if ( slowRotate ) {
+        driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( 0 ) );
+    }
+    else {
+        driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( 2 ) );
+    }
 
     {
     std::wstringstream ss;
@@ -192,13 +222,33 @@ void OurRobot::DS_PrintOut() {
 
     driverStation->addElementData( 'c' , L"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
 
-    driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( frisbeeShooter.isReady() ) );
+    if ( frisbeeShooter.isReady() ) {
+        driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 0 ) );
+    }
+    else {
+        driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 2 ) );
+    }
 
-    driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( frisbeeShooter.isShooting() ) );
+    if ( frisbeeShooter.isShooting() ) {
+        driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 0 ) );
+    }
+    else {
+        driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 2 ) );
+    }
 
-    driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( isShooterManual ) );
+    if ( isShooterManual ) {
+        driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 0 ) );
+    }
+    else {
+        driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 2 ) );
+    }
 
-    driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( !climbArms.Get() ) );
+    if ( !climbArms.Get() ) {
+        driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 0 ) );
+    }
+    else {
+        driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 2 ) );
+    }
 
     driverStation->sendToDS();
 #endif
@@ -212,14 +262,33 @@ void OurRobot::DS_PrintOut() {
 
         *driverStation << static_cast<std::string>( "guiCreate\r\n" );
 
-        std::wifstream guiFile( "GUISettings.txt" );
-        std::wstring guiString;
+        FILE *fp;
+        unsigned char *tmpbuf;
+        size_t bytesread;
+        unsigned int filesize;
 
-        if ( guiFile.is_open() ) {
-            while ( !guiFile.eof() ) {
-                std::getline( guiFile , guiString );
-                *driverStation << guiString;
-            }
+        // Open the file
+        fp = fopen("/ni-rt/system/GUISettings.txt", "rb");
+
+        if(fp != NULL) {
+            // Get its length
+            fseek(fp, 0, SEEK_END);
+            filesize = ftell(fp);
+            filesize++;
+            fseek(fp, 0, SEEK_SET);
+
+            // Send the length
+            *driverStation << filesize;
+
+            // Allocate a buffer for the file
+            tmpbuf = (unsigned char *)malloc(filesize);
+
+            // Send the data TODO: htonl() the data before it's sent
+            bytesread = fread(tmpbuf, 1, filesize, fp);
+            driverStation->append(tmpbuf, bytesread);
+
+            fclose(fp);
+            free(tmpbuf);
         }
 
         driverStation->sendToDS();
