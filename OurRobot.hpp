@@ -57,7 +57,7 @@ public:
 
     void Autonomous();
     void AutonCenterMove();
-    void AutonRightShoot();
+    void AutonRightMove();
     void AutonLeftMove();
     void AutonTwoDisc();
 

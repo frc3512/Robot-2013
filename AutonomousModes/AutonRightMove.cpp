@@ -1,6 +1,6 @@
 //=============================================================================
 //File Name: AutonRightShoot.cpp
-//Description: Moves to the right and shoots at goals from back of pyramid
+//Description: Moves forward from right of pyramid and shoots at goals
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
@@ -8,7 +8,7 @@
 
 // autoTime is handled from within the main Autonomous call in Autonomous.cpp
 
-void OurRobot::AutonRightShoot() {
+void OurRobot::AutonRightMove() {
     mainDrive.EnableEncoders( true );
     mainDrive.ResetEncoders();
 
@@ -16,28 +16,26 @@ void OurRobot::AutonRightShoot() {
 
     // Start shooter
     frisbeeShooter.start();
-    frisbeeShooter.setRPM( 2300.f );
+    frisbeeShooter.setRPM( Shooter::maxSpeed );
 
-    // Move robot 5 meters forward
+    // Move robot 5 meters sideways
     while ( IsAutonomous() && mainDrive.GetFLdist() < 35.f ) {
         DS_PrintOut();
 
-        mainDrive.Drive( 0.f , -0.8f , 0.f , 0.f );
+        mainDrive.Drive( 0.8f , 0.f , 0.f , 0.f );
 
         Wait( 0.1 );
     }
 
-#if 0
     // Stop and start rotating to the left
     mainDrive.Drive( 0.f , 0.f , 0.f , 0.f );
 
     float turnTimeStart = autoTime.Get();
-    while ( autoTime.Get() - turnTimeStart < 0.1f ) {
+    while ( autoTime.Get() - turnTimeStart < 0.53f ) {
         DS_PrintOut();
 
-        mainDrive.Drive( 0.f , 0.f , 0.5f , 0.f );
+        mainDrive.Drive( 0.f , 0.f , -0.5f , 0.f );
     }
-#endif
 
     // Stop and start shooting
     mainDrive.Drive( 0.f , 0.f , 0.f , 0.f );

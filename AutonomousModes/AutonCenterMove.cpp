@@ -28,7 +28,7 @@ void OurRobot::AutonCenterMove() {
         Wait( 0.1 );
     }
 
-    // Stop and start rotating
+    // Stop and start rotating to the left
     mainDrive.Drive( 0.f , 0.f , 0.f , 0.f );
 
     float turnTimeStart = autoTime.Get();

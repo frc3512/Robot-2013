@@ -82,7 +82,7 @@ OurRobot::OurRobot() :
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
     autonModes.addMethod( "CenterMove" , &OurRobot::AutonCenterMove , this );
-    autonModes.addMethod( "RightShoot" , &OurRobot::AutonRightShoot , this );
+    autonModes.addMethod( "RightMove" , &OurRobot::AutonRightMove , this );
     autonModes.addMethod( "LeftMove" , &OurRobot::AutonLeftMove , this );
     autonModes.addMethod( "TwoDisc" , &OurRobot::AutonTwoDisc , this );
 
