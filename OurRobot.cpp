@@ -115,7 +115,7 @@ OurRobot::OurRobot() :
     frisbeeShooter.stop();
     mainDrive.SquareInputs( true );
 
-    autonMode = 2;
+    autonMode = 3;
 }
 
 OurRobot::~OurRobot() {

@@ -36,7 +36,11 @@
 #include <Timer.h>
 
 #include <DriverStationLCD.h>
+#ifdef NEW_GYRO
+#include "Gyro.h"
+#else
 #include <Gyro.h>
+#endif
 
 #include "LiveGrapherHost/graphhost-p.hpp"
 

@@ -18,6 +18,13 @@ void OurRobot::Disabled() {
     while ( IsDisabled() ) {
         DS_PrintOut();
 
+#ifdef NEW_GYRO
+        // Recalibrate gyro
+        if ( driveStickButtons.releasedButton( 8 ) ) {
+            fieldGyro.Recalibrate();
+        }
+#endif
+
         // update "new" value of joystick buttons
         driveStickButtons.updateButtons();
         shootStickButtons.updateButtons();
