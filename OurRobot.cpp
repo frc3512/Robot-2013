@@ -11,6 +11,9 @@
 #include <fstream>
 #include <sstream>
 
+/* Declare typedefs for wide C++ streams since the VxWorks 6.3 headers usually
+ * fail to define them
+ */
 namespace std {
 typedef basic_stringstream<wchar_t, char_traits<wchar_t>,
     allocator<wchar_t> > wstringstream;
@@ -19,8 +22,6 @@ typedef std::basic_ifstream<wchar_t, std::char_traits<wchar_t> > wifstream;
 }
 
 #include <string>
-
-int gettimeofday (struct timeval *tv_ptr, void *ptr);
 
 float ScaleValue( float value ) {
     // CONSTANT^-1 is step value (now 1/500)
@@ -70,14 +71,8 @@ OurRobot::OurRobot() :
     // Create a GraphHost
     pidGraph( 3513 )
 {
-    struct timeval rawTime;
-
-    /* Store the current time into startTime as the fixed starting point
-     * for our graph.
-     */
-    gettimeofday( &rawTime , NULL );
-    startTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;
-    lastTime = startTime;
+    pidGraph.resetTime();
+    pidGraph.setSendInterval( 5 );
 
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
@@ -123,18 +118,12 @@ OurRobot::~OurRobot() {
 }
 
 void OurRobot::DS_PrintOut() {
-    struct timeval rawTime;
-    uint32_t currentTime;
+    if ( pidGraph.hasIntervalPassed() ) {
+        //pidGraph.graphData( 5000.f , "PID0" );
+        pidGraph.graphData( frisbeeShooter.getRPM() , "PID0" );
+        pidGraph.graphData( frisbeeShooter.getTargetRPM() , "PID1" );
 
-    gettimeofday( &rawTime , NULL );
-    currentTime = rawTime.tv_usec / 1000 + rawTime.tv_sec * 1000;
-
-    if ( currentTime - lastTime > 5 ) {
-        //pidGraph.graphData( currentTime - startTime , 5000.f , "PID0" );
-        pidGraph.graphData( currentTime - startTime , frisbeeShooter.getRPM() , "PID0" );
-        pidGraph.graphData( currentTime - startTime , frisbeeShooter.getTargetRPM() , "PID1" );
-
-        lastTime = currentTime;
+        pidGraph.resetInterval();
     }
 
     static bool shouldSend = false;

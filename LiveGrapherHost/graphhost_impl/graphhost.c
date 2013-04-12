@@ -158,23 +158,6 @@ GraphHost_destroy(struct graphhost_t *inst)
 	return;
 }
 
-/*
-struct socketconn_t *
-sockets_listaddsocket(struct list_t *list, struct socketconn_t *conn)
-{
-	struct socketconn_t *conn;
-
-	conn = malloc(sizeof(struct socketconn_t));
-	conn->fd = fd;
-
-	conn->selectflags = 0;
-	conn->dataset = NULL;
-	conn->elem = list_add_after(conn, NULL, conn);
-
-	return conn;
-}
-*/
-
 void
 sockets_listremovesocket(struct list_t *list, struct socketconn_t *conn)
 {
@@ -337,52 +320,6 @@ sockets_clear_orphans(struct list_t *list)
 	return;
 }
 
-#if 0
-int
-sockets_readh(struct list_t *list, struct list_elem_t *elem)
-{
-	struct socketconn_t *conn = elem->data;
-	char *buf;
-	size_t length;
-	int error;
-
-	error = recv(conn->fd, &length, 4, 0);
-	if(error < 1) {
-		/* Clean up the socket here */
-		sockets_close(list, elem);
-		return 0;
-	}
-
-	/* Swap byte order */
-	length = ntohl(length);
-
-	/* Sanity check on the size */
-	if(length > 64) {
-		/* Clean up the socket here */
-		sockets_close(list, elem);
-		return 0;
-	}
-
-	buf = malloc(length+1);
-
-	error = recv(conn->fd, buf, length, 0);
-	if(error < 1) {
-		/* Clean up the socket here */
-		free(buf);
-		sockets_close(list, elem);
-
-		return 0;
-	}
-
-	buf[length] = '\0';
-
-	conn->dataset = buf;
-
-	return 0;
-}
-
-#endif
-
 int
 sockets_readh(struct list_t *list, struct list_elem_t *elem)
 {
@@ -422,16 +359,11 @@ sockets_readdoneh(uint8_t *inbuf, size_t bufsize, struct list_t *list, struct li
 	struct socketconn_t *conn = elem->data;
 	char *buf;
 
-	assert(bufsize == 16);
-
 	inbuf[15] = 0;
 
 	buf = strdup((char *)inbuf);
-	/* buf = malloc(strlen(inbuf)+1);
-	strcpy(buf, inbuf); */
 
 	list_add_after(conn->datasets, NULL, buf);
-	/* conn->dataset = buf; */
 
 	return 0;
 }
@@ -657,6 +589,7 @@ sockets_threadmain(void *arg)
 	return NULL;
 }
 
+/* We assume that a float is 32 bits long */
 int
 GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *graphhost)
 {
@@ -664,13 +597,8 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
 	struct list_elem_t *datasetp;
 	struct socketconn_t *conn;
 	struct graph_payload_t payload;
-	/* union floatint_t floatint; */
 
-	/* struct graph_payload_t* qpayload; */
 	char *dataset_str;
-
-	/* Safety first */
-	assert(sizeof(float) == sizeof(uint32_t));
 
 	if(!graphhost->running) return -1;
 

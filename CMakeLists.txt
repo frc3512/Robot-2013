@@ -1,30 +1,14 @@
 cmake_minimum_required(VERSION 2.8)
+include(FRCDeploy)
 
 project(Discobolus)
+find_package(WPILib)
+include_directories(${WPILib_INCLUDE_DIRS})
 
-include_directories( "${WIND_BASE}/target/h/WPILib" )
+file(GLOB_RECURSE SRC *.cpp *.c)
 
-add_subdirectory(SFMLNetwork)
-add_subdirectory(SFMLSystem)
+add_executable(Discobolus.out ${SRC})
 
-set(SRC
-    AutonomousModes/AutonFeed.cpp
-    AutonomousModes/AutonShoot.cpp
+target_link_libraries(Discobolus.out ${WPILib_LIBRARY})
 
-    Kinect/DriveKinect.cpp
-    Kinect/TurretKinect.cpp
-    Kinect/KinectBase.cpp
-
-    AutonContainer.cpp
-    Autonomous.cpp
-    ButtonTracker.cpp
-    Disabled.cpp
-    DriverStationDisplay.cpp
-    OperatorControl.cpp
-    OurRobot.cpp
-    Settings.cpp
-)
-
-add_executable(FRC_UserProgram.out ${SRC})
-
-target_link_libraries(FRC_UserProgram.out SFMLNetwork SFMLSystem)
+add_make_deploy(Discobolus.out 10.35.12.2)

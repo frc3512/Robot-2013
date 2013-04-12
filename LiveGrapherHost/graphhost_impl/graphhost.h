@@ -2,7 +2,6 @@
 #define _GRAPHHOST_H
 
 #define VxWorks
-#define assert(a)
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,13 +60,6 @@ struct graph_payload_t {
 	float x;
 	float y;
 };
-
-/*
-union floatint_t {
-	float f;
-	uint32_t i;
-};
-*/
 
 #define SOCKET_READ 1
 #define SOCKET_WRITE 2

@@ -19,7 +19,6 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_shooterMotor2( motor2 ) ,
         m_shooterEncoder( encChannel , encTeeth , encGearRatio ) ,
         m_shooterPID( 0.f , 0.f , 0.f , 1.f / maxSpeed , this , this , 0.5f ) ,
-        m_setpoint( 0.f ) ,
         //m_currentPID( 0 ) ,
         m_isShooting( false ) ,
         m_controlMode( Manual ) ,
@@ -27,7 +26,8 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_P( m_shooterPID.GetP() ) ,
         m_I( m_shooterPID.GetI() ) ,
         m_D( m_shooterPID.GetD() ) ,
-        m_F( m_shooterPID.GetF() ) {
+        m_F( m_shooterPID.GetF() ) ,
+        m_setpoint( 0.f ) {
     m_shooterPID.SetOutputRange( -1.f , 1.f );
     m_shooterPID.SetTolerance( 0.f );
 
@@ -232,12 +232,15 @@ void Shooter::PIDWrite( float output ) {
         break;
     }
 
-    /*case BangBang: {
+    case BangBang: {
+#if 0
         m_constantsMutex.lock();
         float sSetPoint = m_constants[m_currentPID]->setPoint;
         m_constantsMutex.unlock();
+#endif
 
-        if ( m_shooterEncoder.getRPM() >= sSetPoint ) {
+        if ( m_shooterEncoder.getRPM() >= m_setpoint ) {
+        //if ( m_shooterEncoder.getRPM() >= sSetPoint ) {
             m_shooterMotor1.Set( 0.f );
             m_shooterMotor2.Set( 0.f );
         }
@@ -247,7 +250,7 @@ void Shooter::PIDWrite( float output ) {
         }
 
         break;
-    }*/
+    }
 
     /* The only non-zero term in "Manual" is F, which turns off error
      * correction and responds only to the input given by the user.

@@ -10,8 +10,6 @@
 
 #include <cmath>
 
-#include <sys/times.h>
-
 #include <SimpleRobot.h>
 #include "Settings.hpp"
 
@@ -42,7 +40,7 @@
 #include <Gyro.h>
 #endif
 
-#include "LiveGrapherHost/graphhost-p.hpp"
+#include "LiveGrapherHost/GraphHost.hpp"
 
 // Scale value from -1 .. 1 to 0 .. 1, but within same range of movement
 float ScaleValue( float value );
@@ -69,9 +67,6 @@ public:
     void Disabled();
 
 private:
-    uint32_t lastTime;
-    uint32_t startTime;
-
     AutonContainer<OurRobot> autonModes;
 
     Joystick driveStick;
