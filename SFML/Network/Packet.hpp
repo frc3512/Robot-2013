@@ -29,7 +29,12 @@
 // Headers
 ////////////////////////////////////////////////////////////
 #include "Export.hpp"
+
 #include <string>
+namespace std {
+typedef basic_string<wchar_t> wstring;
+}
+
 #include <vector>
 
 uint64_t htonll( uint64_t value );

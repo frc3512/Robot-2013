@@ -8,6 +8,9 @@
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
 
+#include <cstdlib>
+#include <cstring>
+
 #include <fstream>
 #include <sstream>
 
@@ -262,27 +265,27 @@ void OurRobot::DS_PrintOut() {
         unsigned int filesize;
 
         // Open the file
-        fp = fopen("/ni-rt/system/GUISettings.txt", "rb");
+        fp = std::fopen("/ni-rt/system/GUISettings.txt", "rb");
 
         if(fp != NULL) {
             // Get its length
-            fseek(fp, 0, SEEK_END);
-            filesize = ftell(fp);
+            std::fseek(fp, 0, SEEK_END);
+            filesize = std::ftell(fp);
             filesize++;
-            fseek(fp, 0, SEEK_SET);
+            std::fseek(fp, 0, SEEK_SET);
 
             // Send the length
             *driverStation << filesize;
 
             // Allocate a buffer for the file
-            tmpbuf = (unsigned char *)malloc(filesize);
+            tmpbuf = (unsigned char *)std::malloc(filesize);
 
             // Send the data TODO: htonl() the data before it's sent
-            bytesread = fread(tmpbuf, 1, filesize, fp);
+            bytesread = std::fread(tmpbuf, 1, filesize, fp);
             driverStation->append(tmpbuf, bytesread);
 
-            fclose(fp);
-            free(tmpbuf);
+            std::fclose(fp);
+            std::free(tmpbuf);
         }
 
         driverStation->sendToDS();
