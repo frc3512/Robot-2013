@@ -23,7 +23,7 @@
  *
  * BangBang:
  *     * When PIDWrite(1) is called, the value computed with the PID loop is
- *       ignored and the correct value is calculated in during the function
+ *       ignored and the correct value is calculated during the function
  *       call.
  *     * If the current RPM is above the target RPM, the motors are shut off.
  *       When the current RPM drifts to below the target RPM, the motors are
