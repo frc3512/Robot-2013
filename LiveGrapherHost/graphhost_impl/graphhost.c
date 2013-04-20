@@ -171,7 +171,7 @@ sockets_accept(struct list_t *connlist, int listenfd)
 {
 	int new_fd;
 	int on;
-	socklen_t clilen;
+	int clilen;
 	struct socketconn_t *conn;
 	struct sockaddr_in cli_addr;
 	int error;
@@ -332,7 +332,7 @@ sockets_readh(struct list_t *list, struct list_elem_t *elem)
 		conn->readbuf = malloc(conn->readbuflength);
 	}
 
-	error = recv(conn->fd, conn->readbuf, conn->readbuflength - conn->readbufoffset, 0);
+	error = recv(conn->fd, (char*)conn->readbuf, conn->readbuflength - conn->readbufoffset, 0);
 	if(error < 1) {
 		/* Clean up the socket here */
 		sockets_close(list, elem);
@@ -400,7 +400,7 @@ sockets_writeh(struct list_t *list, struct list_elem_t *elem)
 		}
 
 		/* These descriptors are ready for writing */
-		conn->writebufoffset += send(conn->fd, conn->writebuf, conn->writebuflength - conn->writebufoffset, 0);
+		conn->writebufoffset += send(conn->fd, (char*)conn->writebuf, conn->writebuflength - conn->writebufoffset, 0);
 
 		/* Have we finished writing the buffer? */
 		if(conn->writebufoffset == conn->writebuflength) {
@@ -553,7 +553,7 @@ sockets_threadmain(void *arg)
 
 		/* Handle IPC commands */
 		if(FD_ISSET(inst->ipcfd_r, &readfds)) {
-			read(inst->ipcfd_r, &ipccmd, 1);
+			read(inst->ipcfd_r,(char*)&ipccmd, 1);
 			if(ipccmd == 'x') {
 				break;
 			}
