@@ -5,7 +5,20 @@ project(Discobolus)
 find_package(WPILib)
 include_directories(${WPILib_INCLUDE_DIRS})
 
-file(GLOB_RECURSE SRC *.cpp *.c)
+set(DIRS
+    AutonomousModes/*
+    LiveGrapherHost/*
+    Subsystems/*
+    SFMLNetwork/*
+    SFMLSystem/*
+)
+
+file(GLOB SRC *.cpp *.c)
+
+foreach(ELEM ${DIRS})
+    file(GLOB_RECURSE FILES ${ELEM}.cpp ${ELEM}.c)
+    list(APPEND SRC ${FILES})
+endforeach(ELEM)
 
 add_executable(Discobolus.out ${SRC})
 
