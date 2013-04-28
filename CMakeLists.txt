@@ -7,6 +7,7 @@ include_directories(${WPILib_INCLUDE_DIRS})
 
 set(DIRS
     AutonomousModes/*
+    KalmanGyro/*
     LiveGrapherHost/*
     Subsystems/*
     SFMLNetwork/*
