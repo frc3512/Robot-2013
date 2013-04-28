@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 include(FRCDeploy)
 
-project(Discobolus)
+project(Cynisca)
 find_package(WPILib)
 include_directories(${WPILib_INCLUDE_DIRS})
 
@@ -21,8 +21,8 @@ foreach(ELEM ${DIRS})
     list(APPEND SRC ${FILES})
 endforeach(ELEM)
 
-add_executable(Discobolus.out ${SRC})
+add_executable(Cynisca.out ${SRC})
 
-target_link_libraries(Discobolus.out ${WPILib_LIBRARY})
+target_link_libraries(Cynisca.out ${WPILib_LIBRARY})
 
-add_make_deploy(Discobolus.out 10.35.12.2)
+add_make_deploy(Cynisca.out 10.35.12.2)
