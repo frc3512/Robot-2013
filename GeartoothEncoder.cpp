@@ -1,27 +1,22 @@
 //=============================================================================
 //File Name: GeartoothEncoder.cpp
-//Description:
+//Description: Counts the number of gear teeth which have passed using a Hall's
+//             Effect sensor plugged into a DIO channel and returns the RPM.
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
 #include "GeartoothEncoder.hpp"
-#include <Timer.h>
 
 GeartoothEncoder::GeartoothEncoder( UINT32 channel , UINT32 teeth , float gearRatio ) : m_counter( channel ) ,
 m_rpmAverager( 2 ) ,
 m_gearRatio( gearRatio ) ,
-m_teeth( teeth ) ,
-m_sampleRate( 4.f ) ,
-m_isRunning( true ) {
-    pthread_mutex_init( &m_dataMutex , NULL );
-    pthread_create( &m_sampleThread , NULL , &GeartoothEncoder::threadFunc , this );
+m_teeth( teeth ) {
+    m_sampleThread = new Notifier( &GeartoothEncoder::threadFunc , this );
+    m_sampleThread->StartPeriodic( 0.25f );
 }
 
 GeartoothEncoder::~GeartoothEncoder() {
-    m_isRunning = false;
-
-    pthread_join( m_sampleThread , NULL );
-    pthread_mutex_destroy( &m_dataMutex );
+    delete m_sampleThread;
 }
 
 void GeartoothEncoder::start() {
@@ -33,11 +28,19 @@ void GeartoothEncoder::stop() {
 }
 
 void GeartoothEncoder::setTeethPerRevolution( UINT32 teeth ) {
+    m_dataMutex.take();
+
     m_teeth = teeth;
+
+    m_dataMutex.give();
 }
 
 void GeartoothEncoder::setGearRatio( float ratio ) {
+    m_dataMutex.take();
+
     m_gearRatio = ratio;
+
+    m_dataMutex.give();
 }
 
 void GeartoothEncoder::setAverageSize( UINT32 size ) {
@@ -49,14 +52,10 @@ float GeartoothEncoder::getRPM() {
 }
 
 void GeartoothEncoder::setSampleRate( UINT32 sampleRate ) {
-    pthread_mutex_lock( &m_dataMutex );
-
-    m_sampleRate = sampleRate;
-
-    pthread_mutex_unlock( &m_dataMutex );
+    m_sampleThread->StartPeriodic( 1.f / sampleRate );
 }
 
-void* GeartoothEncoder::threadFunc( void* object ) {
+void GeartoothEncoder::threadFunc( void* object ) {
     GeartoothEncoder* encoderObj = static_cast<GeartoothEncoder*>( object );
 
     /* Derivation of RPM:
@@ -69,22 +68,11 @@ void* GeartoothEncoder::threadFunc( void* object ) {
      * shooterRPM = 4.f * 60.f / ( 56.f * shooterEncoder.GetPeriod() );
      */
 
-    // Safe copy of sample rate at which to collect data
-    float sampleRate = 0.f;
+    encoderObj->m_dataMutex.take();
 
-    while ( encoderObj->m_isRunning ) {
-        pthread_mutex_lock( &encoderObj->m_dataMutex );
+    // Add RPM value to rolling average filter
+    encoderObj->m_rpmAverager.addValue( encoderObj->m_gearRatio * 60.f /
+            ( encoderObj->m_teeth * encoderObj->m_counter.GetPeriod() ) );
 
-        // Add RPM value to rolling average filter
-        encoderObj->m_rpmAverager.addValue( encoderObj->m_gearRatio * 60.f /
-                ( encoderObj->m_teeth * encoderObj->m_counter.GetPeriod() ) );
-
-        sampleRate = encoderObj->m_sampleRate;
-
-        pthread_mutex_unlock( &encoderObj->m_dataMutex );
-
-        Wait( 1.f / sampleRate );
-    }
-
-    return NULL;
+    encoderObj->m_dataMutex.give();
 }

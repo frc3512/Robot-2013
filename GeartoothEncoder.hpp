@@ -1,6 +1,7 @@
 //=============================================================================
 //File Name: GeartoothEncoder.hpp
-//Description:
+//Description: Counts the number of gear teeth which have passed using a Hall's
+//             Effect sensor plugged into a DIO channel and returns the RPM.
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
@@ -15,7 +16,8 @@
  */
 
 #include <Counter.h>
-#include <pthread.h>
+#include <Notifier.h>
+#include <Synchronized.h>
 #include "RollingAverage.hpp"
 
 class GeartoothEncoder {
@@ -55,22 +57,17 @@ private:
     // Number of teeth per revolution of gear
     UINT32 m_teeth;
 
-    // Rate at which data collection thread retrieves data from counter
-    float m_sampleRate;
-
     /* ===== Thread variables ===== */
     // Samples values from encoder at given time interval for averaging
-    pthread_t m_sampleThread;
-
+    Notifier* m_sampleThread;
+    
     // Used for getting and setting variables between main and sampling thread
-    pthread_mutex_t m_dataMutex;
-
-    volatile bool m_isRunning;
+    ReentrantSemaphore m_dataMutex;
 
     /* Function ran by sampling thread; takes pointer to current class
      * instance as first argument
      */
-    static void* threadFunc( void* object );
+    static void threadFunc( void* object );
     /* ============================ */
 };
 
