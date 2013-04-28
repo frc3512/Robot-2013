@@ -62,6 +62,8 @@ void sleepImpl(Time time)
 
     // get the current time
     timeval tv;
+    tv.tv_sec = 0;
+    tv.tv_usec = 0;
     gettimeofday(&tv, NULL);
 
     // construct the time limit (current time + time to wait)
