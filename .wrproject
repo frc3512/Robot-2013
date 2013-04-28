@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <wrxml>
     <properties platform="VxWorks" platform_name="vxworks-6.3" root="1" type="DownloadableKernelModuleProject"/>
     <attributes>
@@ -237,28 +237,14 @@
         </mapAttribute>
     </attributes>
     <buildtargets>
-        <buildtarget buildtool="Linker" name="Discobolus" passed="false" targetname="Discobolus">
+        <buildtarget buildtool="Linker" name="Cynisca" passed="false" targetname="Cynisca">
             <contents>
-                <buildtargetreference name="/Discobolus/Discobolus_partialImage"/>
+                <buildtargetreference name="/Cynisca/Cynisca_partialImage"/>
             </contents>
         </buildtarget>
-        <buildtarget buildtool="Partial Image Linker" name="Discobolus_partialImage" passed="true" targetname="Discobolus_partialImage">
+        <buildtarget buildtool="Partial Image Linker" name="Cynisca_partialImage" passed="true" targetname="Cynisca_partialImage">
             <contents>
-                <folder name="/Discobolus/AutonomousModes" recursive="true"/>
-                <folder name="/Discobolus/SFML" recursive="true"/>
-                <folder name="/Discobolus/SFMLNetwork" recursive="true"/>
-                <folder name="/Discobolus/SFMLSystem" recursive="true"/>
-                <folder name="/Discobolus/Subsystems" recursive="true"/>
-                <file name="/Discobolus/Autonomous.cpp"/>
-                <file name="/Discobolus/ButtonTracker.cpp"/>
-                <file name="/Discobolus/Disabled.cpp"/>
-                <file name="/Discobolus/DriverStationDisplay.cpp"/>
-                <file name="/Discobolus/GeartoothEncoder.cpp"/>
-                <file name="/Discobolus/OperatorControl.cpp"/>
-                <file name="/Discobolus/OurRobot.cpp"/>
-                <file name="/Discobolus/RollingAverage.cpp"/>
-                <file name="/Discobolus/Settings.cpp"/>
-                <folder name="/Discobolus/LiveGrapherHost" recursive="true"/>
+                <folder name="/Cynisca" recursive="true"/>
             </contents>
         </buildtarget>
     </buildtargets>
