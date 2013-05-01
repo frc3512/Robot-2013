@@ -161,19 +161,27 @@ void KalmanGyro::calcAngle( double newAngle , double newRate , double dt ) {
 }
 
 double KalmanGyro::getAccelXangle() {
-  double accelXval = static_cast<double>(readAccelX()) - getAccelXzero();
-  double accelZval = static_cast<double>(readAccelZ()) - getAccelZzero();
+    double accelXval = static_cast<double>(readAccelX()) - getAccelXzero();
+    double accelZval = static_cast<double>(readAccelZ()) - getAccelZzero();
 
-  // ( std::atan2( accelXval , accelZval ) + 3.14159265 ) * 180.0 / 3.14159265;
-  return 180.0 * std::atan2( accelXval , accelZval ) / 3.14159265 + 180.0;
+    // ( std::atan2( accelXval , accelZval ) + 3.14159265 ) * 180.0 / 3.14159265;
+    return 180.0 * std::atan2( accelXval , accelZval ) / 3.14159265 + 180.0;
 }
 
 double KalmanGyro::getAccelYangle() {
-  double accelYval = static_cast<double>(readAccelY()) - getAccelYzero();
-  double accelZval = static_cast<double>(readAccelZ()) - getAccelZzero();
+    double accelYval = static_cast<double>(readAccelY()) - getAccelYzero();
+    double accelZval = static_cast<double>(readAccelZ()) - getAccelZzero();
 
-  // ( std::atan2( accelYval , accelZval ) + 3.14159265 ) * 180.0 / 3.14159265
-  return 180.0 * std::atan2( accelYval , accelZval ) / 3.14159265 + 180.0;
+    // ( std::atan2( accelYval , accelZval ) + 3.14159265 ) * 180.0 / 3.14159265
+    return 180.0 * std::atan2( accelYval , accelZval ) / 3.14159265 + 180.0;
+}
+
+double KalmanGyro::getAccelZangle() { // TODO: correct order of atan2 args?
+    double accelXval = static_cast<double>(readAccelX()) - getAccelXzero();
+    double accelYval = static_cast<double>(readAccelY()) - getAccelYzero();
+
+    // ( std::atan2( accelXval , accelYval ) + 3.14159265 ) * 180.0 / 3.14159265
+    return 180.0 * std::atan2( accelXval , accelYval ) / 3.14159265 + 180.0;
 }
 
 double KalmanGyro::getGyroXrate() {
@@ -182,6 +190,10 @@ double KalmanGyro::getGyroXrate() {
 
 double KalmanGyro::getGyroYrate() {
     return (static_cast<double>(readGyroY()) - getGyroYzero()) / getGyroLSBsPerUnit();
+}
+
+double KalmanGyro::getGyroZrate() { // TODO: negate return value?
+    return (static_cast<double>(readGyroZ()) - getGyroZzero()) / getGyroLSBsPerUnit();
 }
 
 void KalmanGyro::threadFunc( void* object ) {

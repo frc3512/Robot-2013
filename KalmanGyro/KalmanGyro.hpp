@@ -78,10 +78,12 @@ protected:
     // Return angle calculated with accelerometer data (returns degrees)
     double getAccelXangle();
     double getAccelYangle();
+    double getAccelZangle();
 
     // Return rate calculated with gyro data
     double getGyroXrate();
     double getGyroYrate();
+    double getGyroZrate();
 
     // The angle should be in degrees and the rate should be in degrees per second and the delta time in seconds
     void calcAngle( double newAngle , double newRate , double dt );
