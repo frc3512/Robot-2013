@@ -21,7 +21,7 @@ public:
     virtual ~ITG3200_ADXL345();
 
 private:
-    // ITG3205 3-axis gyro
+    // ITG3200 3-axis gyro
     I2C* m_gyro;
 
     // ADXL345 3-axis accelerometer
@@ -45,15 +45,18 @@ private:
     int readAccelY();
     int readAccelZ();
 
-    // Return zero points for accelerometer and gyro
+    // Return zero points for gyro
+    double getGyroXzero();
+    double getGyroYzero();
+    double getGyroZzero();
+
+    // Return zero points for accelerometer
     double getAccelXzero();
     double getAccelYzero();
     double getAccelZzero();
-    double getGyroXzero();
-    double getGyroYzero();
 
     // Return sensitivity of gyro in least significant bits per degree/second
-    double getGyroLSBWeight();
+    double getGyroLSBsPerUnit();
 
     void callCalcAngle( double dt );
 };

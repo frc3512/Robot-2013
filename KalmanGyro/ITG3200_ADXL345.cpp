@@ -10,17 +10,6 @@
 #include <DigitalModule.h>
 #include <I2C.h>
 
-// Found by experimenting
-double gZeroValue[5] = {
-        -200, // Accelerometer X
-        44,   // Accelerometer Y
-        660,  // Accelerometer Z
-        52.3, // Gyro X
-        -18.5 // Gyro Y
-};
-
-const double gGyroLSBWeight = 14.375;
-
 ITG3200_ADXL345::ITG3200_ADXL345( UINT32 slot , UINT32 gyroAddress , UINT32 accelAddress )
 : m_gyro( NULL ) , m_accel( NULL ) {
     DigitalModule* module = DigitalModule::GetInstance( slot );
@@ -96,28 +85,32 @@ int ITG3200_ADXL345::readAccelZ() {
     return data[0] | (data[1] << 8);
 }
 
-double ITG3200_ADXL345::getAccelXzero() {
-    return gZeroValue[0];
-}
-
-double ITG3200_ADXL345::getAccelYzero() {
-    return gZeroValue[1];
-}
-
-double ITG3200_ADXL345::getAccelZzero() {
-    return gZeroValue[2];
-}
-
 double ITG3200_ADXL345::getGyroXzero() {
-    return gZeroValue[3];
+    return 52.3;
 }
 
 double ITG3200_ADXL345::getGyroYzero() {
-    return gZeroValue[4];
+    return -18.5;
 }
 
-double ITG3200_ADXL345::getGyroLSBWeight() {
-    return gGyroLSBWeight;
+double ITG3200_ADXL345::getGyroZzero() {
+    return 0.0; // TODO Find gyro's real z-axis zero
+}
+
+double ITG3200_ADXL345::getAccelXzero() {
+    return -200;
+}
+
+double ITG3200_ADXL345::getAccelYzero() {
+    return 44;
+}
+
+double ITG3200_ADXL345::getAccelZzero() {
+    return 660;
+}
+
+double ITG3200_ADXL345::getGyroLSBsPerUnit() {
+    return 14.375;
 }
 
 void ITG3200_ADXL345::callCalcAngle( double dt ) {
