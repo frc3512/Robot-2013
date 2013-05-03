@@ -28,7 +28,6 @@
 #include "ThreadImpl.hpp"
 #include "../../SFML/System/Thread.hpp"
 #include <iostream>
-#include <cassert>
 
 
 namespace sf
@@ -51,7 +50,12 @@ void ThreadImpl::wait()
 {
     if (m_isActive)
     {
-        assert(pthread_equal(pthread_self(), m_thread) == 0); // A thread cannot wait for itself!
+        // A thread cannot wait for itself!
+        if (pthread_equal(pthread_self(), m_thread) != 0)
+        {
+            std::cerr << "A thread cannot wait for itself! (ThreadImpl.cpp:56)" << "\n";
+            abort();
+        }
         pthread_join(m_thread, NULL);
     }
 }

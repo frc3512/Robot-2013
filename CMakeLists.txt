@@ -5,6 +5,8 @@ project(Cynisca)
 find_package(WPILib)
 include_directories(${WPILib_INCLUDE_DIRS})
 
+set(CMAKE_CXX_FLAGS "-O3 -s -std=c++11")
+
 set(DIRS
     AutonomousModes/*
     KalmanGyro/*
