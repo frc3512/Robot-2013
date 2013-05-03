@@ -8,8 +8,12 @@
 #ifndef ROLLING_AVERAGE_HPP
 #define ROLLING_AVERAGE_HPP
 
-#include <list>
+//#include <list>
 #include <pthread.h>
+#include <atomic>
+//#include <mutex>
+
+#include "ReadWriteProtector.hpp"
 
 class RollingAverage {
 public:
@@ -17,17 +21,27 @@ public:
     virtual ~RollingAverage();
 
     void addValue( float value );
-    void setSize( unsigned int size );
+    void setSize( unsigned int newSize );
     float getAverage();
 
 private:
     // Holds values to be averaged
-    std::list<float> m_values;
+    //std::list<float> m_values;
+    std::atomic<std::atomic<float>*> m_values;
+
+    // Determines oldest value in array
+    std::atomic<unsigned int> m_index;
 
     // Number of values to average
-    unsigned int m_size;
+    std::atomic<unsigned int> m_size;
+
+    // Total number of slots available in array (may be larger than m_size)
+    std::atomic<unsigned int> m_maxSize;
+
+    ReadWriteProtector m_protectArray;
 
     // Prevents accessing list from two places at once
+    //std::mutex m_dataMutex;
     pthread_mutex_t m_dataMutex;
 };
 

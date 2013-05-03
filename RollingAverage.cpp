@@ -8,52 +8,90 @@
 #include "RollingAverage.hpp"
 
 RollingAverage::RollingAverage( unsigned int size ) :
-m_size( size ) {
+m_size( 0 ) ,
+m_maxSize( size ) {
+    m_values = new std::atomic<float>[m_maxSize];
     pthread_mutex_init( &m_dataMutex , NULL );
 }
 
 RollingAverage::~RollingAverage() {
+    delete[] m_values;
     pthread_mutex_destroy( &m_dataMutex );
 }
 
 void RollingAverage::addValue( float value ) {
-    pthread_mutex_lock( &m_dataMutex );
+    m_protectArray.startWriting();
 
-    m_values.push_back( value );
+    /* Advance to next slot. If the next slot is past the end of the array, set
+     * index to the beginning
+     */
+    m_index = (m_index + 1) % m_maxSize;
 
-    while ( m_values.size() > m_size ) {
-        m_values.pop_front();
+    m_protectArray.stopWriting();
+
+    /* Other assignments are atomic and don't negatively affect getAverage() */
+
+    // Set oldest value to new value
+    m_values[m_index] = value;
+
+    if ( m_size < m_maxSize ) {
+        m_size++;
     }
 
-    pthread_mutex_unlock( &m_dataMutex );
+    m_protectArray.stopWriting();
 }
 
-void RollingAverage::setSize( unsigned int size ) {
-    pthread_mutex_lock( &m_dataMutex );
+void RollingAverage::setSize( unsigned int newSize ) {
+    std::atomic<float>* tempVals = new std::atomic<float>[newSize];
 
-    // While the new size is less than old size, remove values
-    while ( size < m_size ) {
-        m_values.pop_front();
+    unsigned int oldPos = m_index;
+    unsigned int count = 0;
+    while ( count < newSize ) {
+        if ( oldPos < 0 ) {
+            oldPos = m_size - 1;
+        }
+
+        tempVals[count] = m_values[oldPos].load();
+
+        oldPos--;
+        count++;
     }
 
-    m_size = size;
+    // Every operation before here was only reading
+    m_protectArray.startWriting();
 
-    pthread_mutex_unlock( &m_dataMutex );
+    m_maxSize = newSize;
+    m_size = count;
+    m_index = 0;
+
+    // Swap buffers, then delete the old one
+    m_values.exchange( tempVals );
+    delete[] tempVals;
+
+    m_protectArray.stopWriting();
 }
 
 float RollingAverage::getAverage() {
-    float count = 0;
+    float sum = 0;
 
-    pthread_mutex_lock( &m_dataMutex );
+    m_protectArray.startReading();
 
-    std::list<float>::iterator i;
-    for ( i = m_values.begin() ; i != m_values.end() ; i++ ) {
-        count += *i;
+    // Store values from atomic variables
+    unsigned int index = m_index;
+    unsigned int size = m_size;
+    unsigned int maxSize = m_maxSize;
+
+    for ( unsigned int count = 0 ; count < size ; count++ ) {
+        sum += m_values[(index + count) % maxSize];
     }
 
-    float returnVal = count / m_values.size();
+    m_protectArray.stopReading();
 
-    pthread_mutex_unlock( &m_dataMutex );
-
-    return returnVal;
+    // Prevent divide by zero
+    if ( size != 0 ) {
+        return sum / size;
+    }
+    else {
+        return 0.f;
+    }
 }
