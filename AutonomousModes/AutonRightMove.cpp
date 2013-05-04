@@ -57,6 +57,6 @@ void OurRobot::AutonRightMove() {
 
         frisbeeFeeder.update();
 
-        Wait( 0.1 );
+        Wait( 0.05 );
     }
 }

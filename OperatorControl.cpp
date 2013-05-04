@@ -260,6 +260,6 @@ void OurRobot::OperatorControl() {
 
         mainDrive.Drive( joyX , joyY , joyTwist , joyGyro );
 
-        Wait( 0.1 );
+        Wait( 0.05 );
     }
 }

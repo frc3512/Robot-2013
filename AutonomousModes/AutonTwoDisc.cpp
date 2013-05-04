@@ -35,6 +35,6 @@ void OurRobot::AutonTwoDisc() {
 
         frisbeeFeeder.update();
 
-        Wait( 0.1 );
+        Wait( 0.05 );
     }
 }
