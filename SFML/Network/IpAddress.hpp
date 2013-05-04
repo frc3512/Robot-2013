@@ -42,52 +42,20 @@
 namespace sf {
 class IpAddress {
 public:
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    /// This constructor creates an empty (invalid) address
-    ///
-    ////////////////////////////////////////////////////////////
     IpAddress();
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Construct the address from a string
-    ///
-    /// Here \a address can be either a decimal address
-    /// (ex: "192.168.1.56") or a network name (ex: "localhost").
-    ///
-    /// \param address IP address or network name
-    ///
-    ////////////////////////////////////////////////////////////
+    /* The address can be either a decimal address (192.168.1.56) or a network
+     * name ("localhost")
+     */
     IpAddress(const std::string& address);
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Construct the address from a string
-    ///
-    /// Here \a address can be either a decimal address
-    /// (ex: "192.168.1.56") or a network name (ex: "localhost").
-    /// This is equivalent to the constructor taking a std::string
-    /// parameter, it is defined for convenience so that the
-    /// implicit conversions from literal strings to IpAddress work.
-    ///
-    /// \param address IP address or network name
-    ///
-    ////////////////////////////////////////////////////////////
     IpAddress(const char* address);
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Construct the address from 4 bytes
-    ///
-    /// Calling IpAddress(a, b, c, d) is equivalent to calling
-    /// IpAddress("a.b.c.d"), but safer as it doesn't have to
-    /// parse a string to get the address components.
-    ///
-    /// \param byte0 First byte of the address
-    /// \param byte1 Second byte of the address
-    /// \param byte2 Third byte of the address
-    /// \param byte3 Fourth byte of the address
-    ///
-    ////////////////////////////////////////////////////////////
+    /* Construct the address from 4 bytes
+     *
+     * Calling IpAddress(a, b, c, d) is equivalent to calling
+     * IpAddress("a.b.c.d"), but safer as it doesn't have to
+     * parse a string to get the address components.
+     */
     IpAddress(Uint8 byte0, Uint8 byte1, Uint8 byte2, Uint8 byte3);
 
     ////////////////////////////////////////////////////////////
@@ -151,9 +119,6 @@ public:
     ////////////////////////////////////////////////////////////
     static IpAddress getLocalAddress();
 
-    ////////////////////////////////////////////////////////////
-    // Static member data
-    ////////////////////////////////////////////////////////////
     static const IpAddress None;      ///< Value representing an empty/invalid address
     static const IpAddress LocalHost; ///< The "localhost" address (for connecting a computer to itself locally)
     static const IpAddress Broadcast; ///< The "broadcast" address (for sending UDP messages to everyone on a local network)
@@ -162,92 +127,20 @@ private:
     Uint32 m_address;
 };
 
-////////////////////////////////////////////////////////////
-/// \brief Overload of == operator to compare two IP addresses
-///
-/// \param left  Left operand (a IP address)
-/// \param right Right operand (a IP address)
-///
-/// \return True if both addresses are equal
-///
-////////////////////////////////////////////////////////////
 bool operator ==(const IpAddress& left, const IpAddress& right);
 
-////////////////////////////////////////////////////////////
-/// \brief Overload of != operator to compare two IP addresses
-///
-/// \param left  Left operand (a IP address)
-/// \param right Right operand (a IP address)
-///
-/// \return True if both addresses are different
-///
-////////////////////////////////////////////////////////////
 bool operator !=(const IpAddress& left, const IpAddress& right);
 
-////////////////////////////////////////////////////////////
-/// \brief Overload of < operator to compare two IP addresses
-///
-/// \param left  Left operand (a IP address)
-/// \param right Right operand (a IP address)
-///
-/// \return True if \a left is lesser than \a right
-///
-////////////////////////////////////////////////////////////
 bool operator <(const IpAddress& left, const IpAddress& right);
 
-////////////////////////////////////////////////////////////
-/// \brief Overload of > operator to compare two IP addresses
-///
-/// \param left  Left operand (a IP address)
-/// \param right Right operand (a IP address)
-///
-/// \return True if \a left is greater than \a right
-///
-////////////////////////////////////////////////////////////
 bool operator >(const IpAddress& left, const IpAddress& right);
 
-////////////////////////////////////////////////////////////
-/// \brief Overload of <= operator to compare two IP addresses
-///
-/// \param left  Left operand (a IP address)
-/// \param right Right operand (a IP address)
-///
-/// \return True if \a left is lesser or equal than \a right
-///
-////////////////////////////////////////////////////////////
 bool operator <=(const IpAddress& left, const IpAddress& right);
 
-////////////////////////////////////////////////////////////
-/// \brief Overload of >= operator to compare two IP addresses
-///
-/// \param left  Left operand (a IP address)
-/// \param right Right operand (a IP address)
-///
-/// \return True if \a left is greater or equal than \a right
-///
-////////////////////////////////////////////////////////////
 bool operator >=(const IpAddress& left, const IpAddress& right);
 
-////////////////////////////////////////////////////////////
-/// \brief Overload of >> operator to extract an IP address from an input stream
-///
-/// \param stream  Input stream
-/// \param address IP address to extract
-///
-/// \return Reference to the input stream
-///
-////////////////////////////////////////////////////////////
 std::istream& operator >>(std::istream& stream, IpAddress& address);
 
-////////////////////////////////////////////////////////////
-/// \brief Overload of << operator to print an IP address to an output stream
-///
-/// \param stream  Output stream
-/// \param address IP address to print
-///
-/// \return Reference to the output stream
-///
-////////////////////////////////////////////////////////////
 std::ostream& operator <<(std::ostream& stream, const IpAddress& address);
 
 } // namespace sf

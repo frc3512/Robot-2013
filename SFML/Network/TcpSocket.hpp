@@ -196,8 +196,7 @@ private:
     /// \brief Structure holding the data of a pending packet
     ///
     ////////////////////////////////////////////////////////////
-    struct PendingPacket
-    {
+    struct PendingPacket {
         PendingPacket();
 
         Uint32            Size;         ///< Data of packet size
