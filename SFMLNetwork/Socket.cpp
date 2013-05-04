@@ -22,114 +22,115 @@
 //
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
 #include "../SFML/Network/Socket.hpp"
-#include "SocketImpl.hpp"
-#include "../SFML/System/Err.hpp"
+#include <cstring>
+#include <iostream>
 
+namespace sf {
 
-namespace sf
-{
-////////////////////////////////////////////////////////////
-Socket::Socket(Type type) :
-m_socketType      (type),
-m_socket    (priv::SocketImpl::invalidSocket()),
-m_isBlocking(true)
-{
+Socket::Socket(Type sockType) :
+m_socketType      (sockType),
+m_socket    (-1),
+m_isBlocking(true) {
 
 }
 
-
-////////////////////////////////////////////////////////////
-Socket::~Socket()
-{
+Socket::~Socket() {
     // Close the socket before it gets destructed
     close();
 }
 
+void Socket::setBlocking(bool blocking) {
+    int doblock = !blocking;
 
-////////////////////////////////////////////////////////////
-void Socket::setBlocking(bool blocking)
-{
     // Apply if the socket is already created
-    if (m_socket != priv::SocketImpl::invalidSocket())
-        priv::SocketImpl::setBlocking(m_socket, blocking);
+    if ( m_socket != -1) {
+        ioctl(m_socket, FIONBIO, reinterpret_cast<int>(&doblock));
+    }
 
     m_isBlocking = blocking;
 }
 
-
-////////////////////////////////////////////////////////////
-bool Socket::isBlocking() const
-{
+bool Socket::isBlocking() const {
     return m_isBlocking;
 }
 
 
 ////////////////////////////////////////////////////////////
-SocketHandle Socket::getHandle() const
+int Socket::getHandle() const
 {
     return m_socket;
 }
 
-
-////////////////////////////////////////////////////////////
-void Socket::create()
-{
+void Socket::create() {
     // Don't create the socket if it already exists
-    if (m_socket == priv::SocketImpl::invalidSocket())
-    {
-        SocketHandle handle = socket(PF_INET, m_socketType == Tcp ? SOCK_STREAM : SOCK_DGRAM, 0);
-        create(handle);
+    if ( m_socket == -1 ) {
+        int handle = socket(PF_INET, m_socketType == Tcp ? SOCK_STREAM : SOCK_DGRAM, 0);
+        create( handle );
     }
 }
 
-
-////////////////////////////////////////////////////////////
-void Socket::create(SocketHandle handle)
-{
+void Socket::create( int handle ) {
     // Don't create the socket if it already exists
-    if (m_socket == priv::SocketImpl::invalidSocket())
-    {
+    if ( m_socket == -1 ) {
         // Assign the new handle
         m_socket = handle;
 
         // Set the current blocking state
         setBlocking(m_isBlocking);
 
-        if (m_socketType == Tcp)
-        {
+        if ( m_socketType == Tcp ) {
             // Disable the Nagle algorithm (ie. removes buffering of TCP packets)
             int yes = 1;
-            if (setsockopt(m_socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&yes), sizeof(yes)) == -1)
-            {
-                err() << "Failed to set socket option \"TCP_NODELAY\" ; "
-                      << "all your TCP packets will be buffered" << std::endl;
+            if (setsockopt(m_socket, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&yes), sizeof(yes)) == -1) {
+                std::cerr << "Failed to set socket option \"TCP_NODELAY\" ; "
+                      << "all your TCP packets will be buffered\n";
             }
         }
-        else
-        {
+        else {
             // Enable broadcast by default for UDP sockets
             int yes = 1;
-            if (setsockopt(m_socket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&yes), sizeof(yes)) == -1)
-            {
-                err() << "Failed to enable broadcast on UDP socket" << std::endl;
+            if (setsockopt(m_socket, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<char*>(&yes), sizeof(yes)) == -1) {
+                std::cerr << "Failed to enable broadcast on UDP socket\n";
             }
         }
     }
 }
 
-
-////////////////////////////////////////////////////////////
-void Socket::close()
-{
+void Socket::close() {
     // Close the socket
-    if (m_socket != priv::SocketImpl::invalidSocket())
-    {
-        priv::SocketImpl::close(m_socket);
-        m_socket = priv::SocketImpl::invalidSocket();
+    if ( m_socket != -1 ) {
+        ::close( m_socket );
+        m_socket = -1;
+    }
+}
+
+sockaddr_in Socket::createAddress(Uint32 address, unsigned short port) {
+    sockaddr_in addr;
+    std::memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
+    addr.sin_addr.s_addr = htonl(address);
+    addr.sin_family      = AF_INET;
+    addr.sin_port        = htons(port);
+
+    return addr;
+}
+
+Socket::Status Socket::getErrorStatus() {
+    // The followings are sometimes equal to EWOULDBLOCK,
+    // so we have to make a special case for them in order
+    // to avoid having double values in the switch case
+    if ((errno == EAGAIN) || (errno == EINPROGRESS)) {
+        return Socket::NotReady;
+    }
+
+    switch (errno) {
+        case EWOULDBLOCK :  return Socket::NotReady;
+        case ECONNABORTED : return Socket::Disconnected;
+        case ECONNRESET :   return Socket::Disconnected;
+        case ETIMEDOUT :    return Socket::Disconnected;
+        case ENETRESET :    return Socket::Disconnected;
+        case ENOTCONN :     return Socket::Disconnected;
+        default :           return Socket::Error;
     }
 }
 

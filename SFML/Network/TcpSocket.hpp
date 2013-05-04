@@ -22,13 +22,17 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_TCPSOCKET_HPP
 #define SFML_TCPSOCKET_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 #include "Socket.hpp"
 #include "../System/Time.hpp"
 
@@ -43,7 +47,7 @@ class Packet;
 /// \brief Specialized socket using the TCP protocol
 ///
 ////////////////////////////////////////////////////////////
-class SFML_NETWORK_API TcpSocket : public Socket
+class TcpSocket : public Socket
 {
 public :
 
@@ -211,82 +215,3 @@ private:
 
 
 #endif // SFML_TCPSOCKET_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::TcpSocket
-/// \ingroup network
-///
-/// TCP is a connected protocol, which means that a TCP
-/// socket can only communicate with the host it is connected
-/// to. It can't send or receive anything if it is not connected.
-///
-/// The TCP protocol is reliable but adds a slight overhead.
-/// It ensures that your data will always be received in order
-/// and without errors (no data corrupted, lost or duplicated).
-///
-/// When a socket is connected to a remote host, you can
-/// retrieve informations about this host with the
-/// getRemoteAddress and getRemotePort functions. You can
-/// also get the local port to which the socket is bound
-/// (which is automatically chosen when the socket is connected),
-/// with the getLocalPort function.
-///
-/// Sending and receiving data can use either the low-level
-/// or the high-level functions. The low-level functions
-/// process a raw sequence of bytes, and cannot ensure that
-/// one call to Send will exactly match one call to Receive
-/// at the other end of the socket.
-///
-/// The high-level interface uses packets (see sf::Packet),
-/// which are easier to use and provide more safety regarding
-/// the data that is exchanged. You can look at the sf::Packet
-/// class to get more details about how they work.
-///
-/// The socket is automatically disconnected when it is destroyed,
-/// but if you want to explicitely close the connection while
-/// the socket instance is still alive, you can call disconnect.
-///
-/// Usage example:
-/// \code
-/// // ----- The client -----
-///
-/// // Create a socket and connect it to 192.168.1.50 on port 55001
-/// sf::TcpSocket socket;
-/// socket.connect("192.168.1.50", 55001);
-///
-/// // Send a message to the connected host
-/// std::string message = "Hi, I am a client";
-/// socket.send(message.c_str(), message.size() + 1);
-///
-/// // Receive an answer from the server
-/// char buffer[1024];
-/// std::size_t received = 0;
-/// socket.receive(buffer, sizeof(buffer), received);
-/// std::cout << "The server said: " << buffer << std::endl;
-///
-/// // ----- The server -----
-///
-/// // Create a listener to wait for incoming connections on port 55001
-/// sf::TcpListener listener;
-/// listener.listen(55001);
-///
-/// // Wait for a connection
-/// sf::TcpSocket socket;
-/// listener.accept(socket);
-/// std::cout << "New client connected: " << socket.getRemoteAddress() << std::endl;
-///
-/// // Receive a message from the client
-/// char buffer[1024];
-/// std::size_t received = 0;
-/// socket.receive(buffer, sizeof(buffer), received);
-/// std::cout << "The client said: " << buffer << std::endl;
-///
-/// // Send an answer
-/// std::string message = "Welcome, client";
-/// socket.send(message.c_str(), message.size() + 1);
-/// \endcode
-///
-/// \see sf::Socket, sf::UdpSocket, sf::Packet
-///
-////////////////////////////////////////////////////////////

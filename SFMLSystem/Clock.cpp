@@ -22,18 +22,16 @@
 //
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
 #include "../SFML/System/Clock.hpp"
 
-#include "VxWorks/ClockImpl.hpp"
+#include "../SFML/Config.hpp"
+#include <ctime>
 
 namespace sf
 {
 ////////////////////////////////////////////////////////////
 Clock::Clock() :
-m_startTime(priv::ClockImpl::getCurrentTime())
+m_startTime(Clock::getCurrentTime())
 {
 }
 
@@ -41,18 +39,26 @@ m_startTime(priv::ClockImpl::getCurrentTime())
 ////////////////////////////////////////////////////////////
 Time Clock::getElapsedTime() const
 {
-    return priv::ClockImpl::getCurrentTime() - m_startTime;
+    return Clock::getCurrentTime() - m_startTime;
 }
 
 
 ////////////////////////////////////////////////////////////
 Time Clock::restart()
 {
-    Time now = priv::ClockImpl::getCurrentTime();
+    Time now = Clock::getCurrentTime();
     Time elapsed = now - m_startTime;
     m_startTime = now;
 
     return elapsed;
+}
+
+////////////////////////////////////////////////////////////
+Time Clock::getCurrentTime()
+{
+    timespec time;
+    clock_gettime(CLOCK_MONOTONIC, &time);
+    return sf::microseconds(static_cast<Uint64>(time.tv_sec) * 1000000 + time.tv_nsec / 1000);
 }
 
 } // namespace sf

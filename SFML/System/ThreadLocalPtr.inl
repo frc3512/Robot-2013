@@ -22,6 +22,12 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
 
 namespace sf
 {

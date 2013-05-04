@@ -22,33 +22,29 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_THREAD_HPP
 #define SFML_THREAD_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 #include "NonCopyable.hpp"
+#include <pthread.h>
 #include <cstdlib>
 
 
-namespace sf
-{
-namespace priv
-{
-    class ThreadImpl;
+namespace sf {
+namespace priv {
     struct ThreadFunc;
 }
 
-////////////////////////////////////////////////////////////
-/// \brief Utility class to manipulate threads
-///
-////////////////////////////////////////////////////////////
-class SFML_SYSTEM_API Thread : NonCopyable
-{
-public :
-
+class Thread : NonCopyable {
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Construct the thread from a functor with no argument
     ///
@@ -171,23 +167,21 @@ public :
     ////////////////////////////////////////////////////////////
     void terminate();
 
-private :
+private:
+    pthread_t m_thread;
+    bool m_isActive; // Thread state (active or inactive)
 
-    friend class priv::ThreadImpl;
+    priv::ThreadFunc* m_entryPoint; ///< Abstraction of the function to run
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Internal entry point of the thread
-    ///
-    /// This function is called by the thread implementation.
-    ///
-    ////////////////////////////////////////////////////////////
+    /* Internal entry point of the thread
+     * This function is called by the thread implementation.
+     */
     void run();
 
-    ////////////////////////////////////////////////////////////
-    // Member data
-    ////////////////////////////////////////////////////////////
-    priv::ThreadImpl* m_impl;       ///< OS-specific implementation of the thread
-    priv::ThreadFunc* m_entryPoint; ///< Abstraction of the function to run
+    /* Global entry point for all threads
+     * userData should contain the Thread instance when this function is called
+     */
+    static void* entryPoint(void* userData);
 };
 
 #include "Thread.inl"
@@ -195,88 +189,3 @@ private :
 } // namespace sf
 
 #endif // SFML_THREAD_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::Thread
-/// \ingroup system
-///
-/// Threads provide a way to run multiple parts of the code
-/// in parallel. When you launch a new thread, the execution
-/// is split and both the new thread and the caller run
-/// in parallel.
-///
-/// To use a sf::Thread, you construct it directly with the
-/// function to execute as the entry point of the thread.
-/// sf::Thread has multiple template constructors, which means
-/// that you can use several types of entry points:
-/// \li non-member functions with no argument
-/// \li non-member functions with one argument of any type
-/// \li functors with no argument (this one is particularly useful for compatibility with boost/std::bind)
-/// \li functors with one argument of any type
-/// \li member functions from any class with no argument
-///
-/// The function argument, if any, is copied in the sf::Thread
-/// instance, as well as the functor (if the corresponding
-/// constructor is used). Class instances, however, are passed
-/// by pointer to you must make sure that the object won't be
-/// destroyed while the thread is still using it.
-///
-/// The thread ends when its function is terminated. If the
-/// owner sf::Thread instance is destroyed before the
-/// thread is finished, the destructor will wait (see wait())
-///
-/// Usage examples:
-/// \code
-/// // example 1: non member function with one argument
-///
-/// void threadFunc(int argument)
-/// {
-///     ...
-/// }
-///
-/// sf::Thread thread(&threadFunc, 5);
-/// thread.launch(); // start the thread (internally calls threadFunc(5))
-/// \endcode
-///
-/// \code
-/// // example 2: member function
-///
-/// class Task
-/// {
-/// public :
-///     void run()
-///     {
-///         ...
-///     }
-/// };
-///
-/// Task task;
-/// sf::Thread thread(&Task::run, &task);
-/// thread.launch(); // start the thread (internally calls task.run())
-/// \endcode
-///
-/// \code
-/// // example 3: functor
-///
-/// struct Task
-/// {
-///     void operator()()
-///     {
-///         ...
-///     }
-/// };
-///
-/// sf::Thread thread(Task());
-/// thread.launch(); // start the thread (internally calls operator() on the Task instance)
-/// \endcode
-///
-/// Creating parallel threads of execution can be dangerous:
-/// all threads inside the same process share the same memory space,
-/// which means that you may end up accessing the same variable
-/// from multiple threads at the same time. To prevent this
-/// kind of situations, you can use mutexes (see sf::Mutex).
-///
-/// \see sf::Mutex
-///
-////////////////////////////////////////////////////////////

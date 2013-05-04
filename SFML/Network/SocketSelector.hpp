@@ -22,13 +22,17 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_SOCKETSELECTOR_HPP
 #define SFML_SOCKETSELECTOR_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 #include "../System/Time.hpp"
 
 
@@ -40,7 +44,7 @@ class Socket;
 /// \brief Multiplexer that allows to read from multiple sockets
 ///
 ////////////////////////////////////////////////////////////
-class SFML_NETWORK_API SocketSelector
+class SocketSelector
 {
 public :
 
@@ -165,94 +169,3 @@ private :
 
 
 #endif // SFML_SOCKETSELECTOR_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::SocketSelector
-/// \ingroup network
-///
-/// Socket selectors provide a way to wait until some data is
-/// available on a set of sockets, instead of just one. This
-/// is convenient when you have multiple sockets that may
-/// possibly receive data, but you don't know which one will
-/// be ready first. In particular, it avoids to use a thread
-/// for each socket; with selectors, a single thread can handle
-/// all the sockets.
-///
-/// All types of sockets can be used in a selector:
-/// \li sf::TcpListener
-/// \li sf::TcpSocket
-/// \li sf::UdpSocket
-///
-/// A selector doesn't store its own copies of the sockets
-/// (socket classes are not copyable anyway), it simply keeps
-/// a reference to the original sockets that you pass to the
-/// "add" function. Therefore, you can't use the selector as a
-/// socket container, you must store them oustide and make sure
-/// that they are alive as long as they are used in the selector.
-///
-/// Using a selector is simple:
-/// \li populate the selector with all the sockets that you want to observe
-/// \li make it wait until there is data available on any of the sockets
-/// \li test each socket to find out which ones are ready
-///
-/// Usage example:
-/// \code
-/// // Create a socket to listen to new connections
-/// sf::TcpListener listener;
-/// listener.listen(55001);
-///
-/// // Create a list to store the future clients
-/// std::list<sf::TcpSocket*> clients;
-///
-/// // Create a selector
-/// sf::SocketSelector selector;
-///
-/// // Add the listener to the selector
-/// selector.add(listener);
-///
-/// // Endless loop that waits for new connections
-/// while (running)
-/// {
-///     // Make the selector wait for data on any socket
-///     if (selector.wait())
-///     {
-///         // Test the listener
-///         if (selector.isReady(listener))
-///         {
-///             // The listener is ready: there is a pending connection
-///             sf::TcpSocket* client = new sf::TcpSocket;
-///             if (listener.accept(*client) == sf::Socket::Done)
-///             {
-///                 // Add the new client to the clients list
-///                 clients.push_back(client);
-///
-///                 // Add the new client to the selector so that we will
-///                 // be notified when he sends something
-///                 selector.add(*client);
-///             }
-///         }
-///         else
-///         {
-///             // The listener socket is not ready, test all other sockets (the clients)
-///             for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
-///             {
-///                 sf::TcpSocket& client = **it;
-///                 if (selector.isReady(client))
-///                 {
-///                     // The client has sent some data, we can receive it
-///                     sf::Packet packet;
-///                     if (client.receive(packet) == sf::Socket::Done)
-///                     {
-///                         ...
-///                     }
-///                 }
-///             }
-///         }
-///     }
-/// }
-/// \endcode
-///
-/// \see sf::Socket
-///
-////////////////////////////////////////////////////////////

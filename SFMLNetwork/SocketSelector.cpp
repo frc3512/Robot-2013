@@ -22,20 +22,13 @@
 //
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
 #include "../SFML/Network/SocketSelector.hpp"
 #include "../SFML/Network/Socket.hpp"
-#include "SocketImpl.hpp"
-#include "../SFML/System/Err.hpp"
 #include <utility>
 #include <string.h>
 
 
-namespace sf
-{
-////////////////////////////////////////////////////////////
+namespace sf {
 struct SocketSelector::SocketSelectorImpl
 {
     fd_set AllSockets;   ///< Set containing all the sockets handles
@@ -44,65 +37,51 @@ struct SocketSelector::SocketSelectorImpl
 };
 
 
-////////////////////////////////////////////////////////////
 SocketSelector::SocketSelector() :
-m_impl(new SocketSelectorImpl)
-{
+m_impl(new SocketSelectorImpl) {
     clear();
 }
 
 
-////////////////////////////////////////////////////////////
-SocketSelector::SocketSelector(const SocketSelector& copy) :
-m_impl(new SocketSelectorImpl(*copy.m_impl))
-{
+SocketSelector::SocketSelector( const SocketSelector& copy ) :
+m_impl(new SocketSelectorImpl(*copy.m_impl)) {
 
 }
 
 
-////////////////////////////////////////////////////////////
-SocketSelector::~SocketSelector()
-{
+SocketSelector::~SocketSelector() {
     delete m_impl;
 }
 
 
-////////////////////////////////////////////////////////////
-void SocketSelector::add(Socket& socket)
-{
-    SocketHandle handle = socket.getHandle();
-    if (handle != priv::SocketImpl::invalidSocket())
-    {
-        FD_SET(handle, &m_impl->AllSockets);
+void SocketSelector::add( Socket& socket ) {
+    int handle = socket.getHandle();
+    if ( handle != -1 ) {
+        FD_SET( handle , &m_impl->AllSockets );
 
         int size = static_cast<int>(handle);
-        if (size > m_impl->MaxSocket)
+        if ( size > m_impl->MaxSocket ) {
             m_impl->MaxSocket = size;
+        }
     }
 }
 
 
-////////////////////////////////////////////////////////////
-void SocketSelector::remove(Socket& socket)
-{
-    FD_CLR(socket.getHandle(), &m_impl->AllSockets);
-    FD_CLR(socket.getHandle(), &m_impl->SocketsReady);
+void SocketSelector::remove( Socket& socket ) {
+    FD_CLR( socket.getHandle() , &m_impl->AllSockets );
+    FD_CLR( socket.getHandle() , &m_impl->SocketsReady );
 }
 
 
-////////////////////////////////////////////////////////////
-void SocketSelector::clear()
-{
-    FD_ZERO(&m_impl->AllSockets);
-    FD_ZERO(&m_impl->SocketsReady);
+void SocketSelector::clear() {
+    FD_ZERO( &m_impl->AllSockets );
+    FD_ZERO( &m_impl->SocketsReady );
 
     m_impl->MaxSocket = 0;
 }
 
 
-////////////////////////////////////////////////////////////
-bool SocketSelector::wait(Time timeout)
-{
+bool SocketSelector::wait( Time timeout ) {
     // Setup the timeout
     timeval time;
     time.tv_sec  = static_cast<long>(timeout.asMicroseconds() / 1000000);
@@ -119,18 +98,16 @@ bool SocketSelector::wait(Time timeout)
 
 
 ////////////////////////////////////////////////////////////
-bool SocketSelector::isReady(Socket& socket) const
-{
-    return FD_ISSET(socket.getHandle(), &m_impl->SocketsReady) != 0;
+bool SocketSelector::isReady( Socket& socket ) const {
+    return FD_ISSET( socket.getHandle() , &m_impl->SocketsReady ) != 0;
 }
 
 
 ////////////////////////////////////////////////////////////
-SocketSelector& SocketSelector::operator =(const SocketSelector& right)
-{
+SocketSelector& SocketSelector::operator =( const SocketSelector& right ) {
     SocketSelector temp(right);
 
-    std::swap(m_impl, temp.m_impl);
+    std::swap( m_impl , temp.m_impl );
 
     return *this;
 }

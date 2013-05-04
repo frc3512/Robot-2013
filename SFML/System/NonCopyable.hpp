@@ -22,13 +22,17 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_NONCOPYABLE_HPP
 #define SFML_NONCOPYABLE_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 
 
 namespace sf
@@ -38,7 +42,7 @@ namespace sf
 ///        class non-copyable
 ///
 ////////////////////////////////////////////////////////////
-class SFML_SYSTEM_API NonCopyable
+class NonCopyable
 {
 protected :
 
@@ -83,37 +87,3 @@ private :
 
 
 #endif // SFML_NONCOPYABLE_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::NonCopyable
-/// \ingroup system
-///
-/// This class makes its instances non-copyable, by explicitely
-/// disabling its copy constructor and its assignment operator.
-///
-/// To create a non-copyable class, simply inherit from
-/// sf::NonCopyable.
-///
-/// The type of inheritance (public or private) doesn't matter,
-/// the copy constructor and assignment operator are declared private
-/// in sf::NonCopyable so they will end up being inaccessible in both
-/// cases. Thus you can use a shorter syntax for inheriting from it
-/// (see below).
-///
-/// Usage example:
-/// \code
-/// class MyNonCopyableClass : sf::NonCopyable
-/// {
-///     ...
-/// };
-/// \endcode
-///
-/// Deciding whether the instances of a class can be copied
-/// or not is a very important design choice. You are strongly
-/// encouraged to think about it before writing a class,
-/// and to use sf::NonCopyable when necessary to prevent
-/// many potential future errors when using it. This is also
-/// a very important indication to users of your class.
-///
-////////////////////////////////////////////////////////////

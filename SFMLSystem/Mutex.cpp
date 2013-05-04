@@ -22,41 +22,26 @@
 //
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
 #include "../SFML/System/Mutex.hpp"
 
-#include "VxWorks/MutexImpl.hpp"
+namespace sf {
+Mutex::Mutex() {
+    pthread_mutexattr_t attributes;
+    pthread_mutexattr_init( &attributes );
 
-
-namespace sf
-{
-////////////////////////////////////////////////////////////
-Mutex::Mutex()
-{
-    m_mutexImpl = new priv::MutexImpl;
+    pthread_mutex_init( &m_mutex , &attributes );
 }
 
-
-////////////////////////////////////////////////////////////
-Mutex::~Mutex()
-{
-    delete m_mutexImpl;
+Mutex::~Mutex() {
+    pthread_mutex_destroy( &m_mutex );
 }
 
-
-////////////////////////////////////////////////////////////
-void Mutex::lock()
-{
-    m_mutexImpl->lock();
+void Mutex::lock() {
+    pthread_mutex_lock( &m_mutex );
 }
 
-
-////////////////////////////////////////////////////////////
-void Mutex::unlock()
-{
-    m_mutexImpl->unlock();
+void Mutex::unlock() {
+    pthread_mutex_unlock( &m_mutex );
 }
 
 } // namespace sf

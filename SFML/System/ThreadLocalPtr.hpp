@@ -22,6 +22,13 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_THREADLOCALPTR_HPP
 #define SFML_THREADLOCALPTR_HPP
 
@@ -45,7 +52,7 @@ public :
     ////////////////////////////////////////////////////////////
     /// \brief Default constructor
     ///
-    /// \param value Optional value to initalize the variable
+    /// \param value Optional value to initialize the variable
     ///
     ////////////////////////////////////////////////////////////
     ThreadLocalPtr(T* value = NULL);
@@ -73,7 +80,7 @@ public :
     T* operator ->() const;
 
     ////////////////////////////////////////////////////////////
-    /// \brief Cast operator to implicitely convert the
+    /// \brief Cast operator to implicitly convert the
     ///        pointer to its raw pointer type (T*)
     ///
     /// \return Pointer to the actual object
@@ -108,51 +115,3 @@ public :
 
 
 #endif // SFML_THREADLOCALPTR_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::ThreadLocalPtr
-/// \ingroup system
-///
-/// sf::ThreadLocalPtr is a type-safe wrapper for storing
-/// pointers to thread-local variables. A thread-local
-/// variable holds a different value for each different
-/// thread, unlike normal variable that are shared.
-///
-/// Its usage is completely transparent, so that it is similar
-/// to manipulating the raw pointer directly (like any smart pointer).
-///
-/// Usage example:
-/// \code
-/// MyClass object1;
-/// MyClass object2;
-/// sf::ThreadLocalPtr<MyClass> objectPtr;
-///
-/// void thread1()
-/// {
-///     objectPtr = &object1; // doesn't impact thread2
-///     ...
-/// }
-///
-/// void thread2()
-/// {
-///     objectPtr = &object2; // doesn't impact thread1
-///     ...
-/// }
-///
-/// int main()
-/// {
-///     // Create and launch the two threads
-///     sf::Thread t1(&thread1);
-///     sf::Thread t2(&thread2);
-///     t1.launch();
-///     t2.launch();
-///
-///     return 0;
-/// }
-/// \endcode
-///
-/// ThreadLocalPtr is designed for internal use; however you
-/// can use it if you feel like it fits well your implementation.
-///
-////////////////////////////////////////////////////////////

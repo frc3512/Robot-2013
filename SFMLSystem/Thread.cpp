@@ -22,60 +22,66 @@
 //
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #include "../SFML/System/Thread.hpp"
 
-#include "VxWorks/ThreadImpl.hpp"
+#include <cassert>
+#include <iostream>
 
+namespace sf {
 
-namespace sf
-{
-////////////////////////////////////////////////////////////
-Thread::~Thread()
-{
+Thread::~Thread() {
     wait();
     delete m_entryPoint;
 }
 
-
-////////////////////////////////////////////////////////////
-void Thread::launch()
-{
+void Thread::launch() {
     wait();
-    m_impl = new priv::ThreadImpl(this);
-}
+    m_isActive = true;
+    m_isActive = pthread_create(&m_thread, NULL, &Thread::entryPoint, &m_thread) == 0;
 
-
-////////////////////////////////////////////////////////////
-void Thread::wait()
-{
-    if (m_impl)
-    {
-        m_impl->wait();
-        delete m_impl;
-        m_impl = NULL;
+    if (!m_isActive) {
+        std::cerr << "Failed to create thread" << std::endl;
     }
 }
 
-
-////////////////////////////////////////////////////////////
-void Thread::terminate()
-{
-    if (m_impl)
-    {
-        m_impl->terminate();
-        delete m_impl;
-        m_impl = NULL;
+void Thread::wait() {
+    if ( m_isActive ) {
+        // A thread cannot wait for itself!
+        if (pthread_equal(pthread_self(), m_thread) != 0) {
+            std::cerr << "A thread cannot wait for itself! (Thread.cpp:58)" << "\n";
+            abort();
+        }
     }
 }
 
+void Thread::terminate() {
+    if ( m_isActive ) {
+        pthread_cancel( m_thread );
+    }
+}
 
-////////////////////////////////////////////////////////////
-void Thread::run()
-{
+void Thread::run() {
     m_entryPoint->run();
+}
+
+void* Thread::entryPoint(void* userData) {
+    // The Thread instance is stored in the user data
+    Thread* owner = static_cast<Thread*>(userData);
+
+    // Tell the thread to handle cancel requests immediately
+    pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+    // Forward to the owner
+    owner->run();
+
+    return NULL;
 }
 
 } // namespace sf

@@ -22,29 +22,33 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_THREADLOCAL_HPP
 #define SFML_THREADLOCAL_HPP
 
 ////////////////////////////////////////////////////////////
 // Headers
 ////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 #include "NonCopyable.hpp"
+#include <pthread.h>
 #include <cstdlib>
 
 
 namespace sf
 {
-namespace priv
-{
-    class ThreadLocalImpl;
-}
 
 ////////////////////////////////////////////////////////////
 /// \brief Defines variables with thread-local storage
 ///
 ////////////////////////////////////////////////////////////
-class SFML_SYSTEM_API ThreadLocal : NonCopyable
+class ThreadLocal : NonCopyable
 {
 public :
 
@@ -83,21 +87,11 @@ private :
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    priv::ThreadLocalImpl* m_impl; ///< Pointer to the OS specific implementation
+    pthread_key_t m_key; ///< Index of our thread-local storage slot
+    //DWORD m_index; ///< Index of our thread-local storage slot
 };
 
 } // namespace sf
 
 
 #endif // SFML_THREADLOCAL_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::ThreadLocal
-/// \ingroup system
-///
-/// This class manipulates void* parameters and thus is not
-/// appropriate for strongly-typed variables. You should rather
-/// use the sf::ThreadLocalPtr template class.
-///
-////////////////////////////////////////////////////////////

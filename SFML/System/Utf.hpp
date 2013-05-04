@@ -22,12 +22,16 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_UTF_HPP
 #define SFML_UTF_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
 #include "../Config.hpp"
 #include <algorithm>
 #include <locale>
@@ -35,8 +39,7 @@
 #include <cstdlib>
 
 
-namespace sf
-{
+namespace sf {
 template <unsigned int N>
 class Utf;
 
@@ -45,10 +48,8 @@ class Utf;
 ///
 ////////////////////////////////////////////////////////////
 template <>
-class Utf<8>
-{
-public :
-
+class Utf<8> {
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Decode a single UTF-8 character
     ///
@@ -252,10 +253,8 @@ public :
 ///
 ////////////////////////////////////////////////////////////
 template <>
-class Utf<16>
-{
-public :
-
+class Utf<16> {
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Decode a single UTF-16 character
     ///
@@ -459,10 +458,8 @@ public :
 ///
 ////////////////////////////////////////////////////////////
 template <>
-class Utf<32>
-{
-public :
-
+class Utf<32> {
+public:
     ////////////////////////////////////////////////////////////
     /// \brief Decode a single UTF-32 character
     ///
@@ -739,25 +736,3 @@ typedef Utf<32> Utf32;
 
 
 #endif // SFML_UTF_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::Utf
-/// \ingroup system
-///
-/// Utility class providing generic functions for UTF conversions.
-///
-/// sf::Utf is a low-level, generic interface for counting, iterating,
-/// encoding and decoding Unicode characters and strings. It is able
-/// to handle ANSI, wide, latin-1, UTF-8, UTF-16 and UTF-32 encodings.
-///
-/// sf::Utf<X> functions are all static, these classes are not meant to
-/// be instanciated. All the functions are template, so that you
-/// can use any character / string type for a given encoding.
-///
-/// It has 3 specializations:
-/// \li sf::Utf<8> (typedef'd to sf::Utf8)
-/// \li sf::Utf<16> (typedef'd to sf::Utf16)
-/// \li sf::Utf<32> (typedef'd to sf::Utf32)
-///
-////////////////////////////////////////////////////////////

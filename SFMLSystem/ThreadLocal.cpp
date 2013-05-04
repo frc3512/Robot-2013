@@ -22,20 +22,21 @@
 //
 ////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #include "../SFML/System/ThreadLocal.hpp"
-
-#include "VxWorks/ThreadLocalImpl.hpp"
-
 
 namespace sf
 {
 ////////////////////////////////////////////////////////////
 ThreadLocal::ThreadLocal(void* value)
 {
-    m_impl = new priv::ThreadLocalImpl;
+    pthread_key_create(&m_key, NULL);
     setValue(value);
 }
 
@@ -43,21 +44,21 @@ ThreadLocal::ThreadLocal(void* value)
 ////////////////////////////////////////////////////////////
 ThreadLocal::~ThreadLocal()
 {
-    delete m_impl;
+    pthread_key_delete(m_key);
 }
 
 
 ////////////////////////////////////////////////////////////
 void ThreadLocal::setValue(void* value)
 {
-    m_impl->setValue(value);
+    pthread_setspecific(m_key, value);
 }
 
 
 ////////////////////////////////////////////////////////////
 void* ThreadLocal::getValue() const
 {
-    return m_impl->getValue();
+    return pthread_getspecific(m_key);
 }
 
 } // namespace sf

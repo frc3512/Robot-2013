@@ -22,13 +22,17 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_TCPLISTENER_HPP
 #define SFML_TCPLISTENER_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 #include "Socket.hpp"
 
 
@@ -40,7 +44,7 @@ class TcpSocket;
 /// \brief Socket that listens to new TCP connections
 ///
 ////////////////////////////////////////////////////////////
-class SFML_NETWORK_API TcpListener : public Socket
+class TcpListener : public Socket
 {
 public :
 
@@ -112,51 +116,3 @@ public :
 
 
 #endif // SFML_TCPLISTENER_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::TcpListener
-/// \ingroup network
-///
-/// A listener socket is a special type of socket that listens to
-/// a given port and waits for connections on that port.
-/// This is all it can do.
-///
-/// When a new connection is received, you must call accept and
-/// the listener returns a new instance of sf::TcpSocket that
-/// is properly initialized and can be used to communicate with
-/// the new client.
-///
-/// Listener sockets are specific to the TCP protocol,
-/// UDP sockets are connectionless and can therefore communicate
-/// directly. As a consequence, a listener socket will always
-/// return the new connections as sf::TcpSocket instances.
-///
-/// A listener is automatically closed on destruction, like all
-/// other types of socket. However if you want to stop listening
-/// before the socket is destroyed, you can call its close()
-/// function.
-///
-/// Usage example:
-/// \code
-/// // Create a listener socket and make it wait for new
-/// // connections on port 55001
-/// sf::TcpListener listener;
-/// listener.listen(55001);
-///
-/// // Endless loop that waits for new connections
-/// while (running)
-/// {
-///     sf::TcpSocket client;
-///     if (listener.accept(client) == sf::Socket::Done)
-///     {
-///         // A new client just connected!
-///         std::cout << "New connection received from " << client.getRemoteAddress() << std::endl;
-///         doSomethingWith(client);
-///     }
-/// }
-/// \endcode
-///
-/// \see sf::TcpSocket, sf::Socket
-///
-////////////////////////////////////////////////////////////

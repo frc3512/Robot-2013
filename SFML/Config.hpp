@@ -22,68 +22,15 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_CONFIG_HPP
 #define SFML_CONFIG_HPP
-
-
-////////////////////////////////////////////////////////////
-// Define the SFML version
-////////////////////////////////////////////////////////////
-#define SFML_VERSION_MAJOR 2
-#define SFML_VERSION_MINOR 0
-
-
-////////////////////////////////////////////////////////////
-// Identify the operating system
-////////////////////////////////////////////////////////////
-    // Linux
-    #define SFML_SYSTEM_LINUX
-
-
-////////////////////////////////////////////////////////////
-// Identify the endianness
-////////////////////////////////////////////////////////////
-    // Big endian
-    #define SFML_ENDIAN_BIG
-
-
-////////////////////////////////////////////////////////////
-// Define a portable debug macro
-////////////////////////////////////////////////////////////
-#if !defined(NDEBUG)
-
-    #define SFML_DEBUG
-
-#endif
-
-
-////////////////////////////////////////////////////////////
-// Define helpers to create portable import / export macros for each module
-////////////////////////////////////////////////////////////
-#if !defined(SFML_STATIC)
-        #if __GNUC__ >= 4
-
-            // GCC 4 has special keywords for showing/hidding symbols,
-            // the same keyword is used for both importing and exporting
-            #define SFML_API_EXPORT __attribute__ ((__visibility__ ("default")))
-            #define SFML_API_IMPORT __attribute__ ((__visibility__ ("default")))
-
-        #else
-
-            // GCC < 4 has no mechanism to explicitely hide symbols, everything's exported
-            #define SFML_API_EXPORT
-            #define SFML_API_IMPORT
-
-        #endif
-
-#else
-
-    // Static build doesn't need import/export macros
-    #define SFML_API_EXPORT
-    #define SFML_API_IMPORT
-
-#endif
-
 
 ////////////////////////////////////////////////////////////
 // Define portable fixed-size types

@@ -267,25 +267,25 @@ void OurRobot::DS_PrintOut() {
         // Open the file
         fp = std::fopen("/ni-rt/system/GUISettings.txt", "rb");
 
-        if(fp != NULL) {
+        if( fp != NULL ) {
             // Get its length
-            std::fseek(fp, 0, SEEK_END);
-            filesize = std::ftell(fp);
+            std::fseek( fp , 0 , SEEK_END );
+            filesize = std::ftell( fp );
             filesize++;
-            std::fseek(fp, 0, SEEK_SET);
+            std::fseek( fp , 0 , SEEK_SET );
 
             // Send the length
             *driverStation << filesize;
 
             // Allocate a buffer for the file
-            tmpbuf = (unsigned char *)std::malloc(filesize);
+            tmpbuf = static_cast<unsigned char*>(std::malloc(filesize));
 
             // Send the data TODO: htonl() the data before it's sent
-            bytesread = std::fread(tmpbuf, 1, filesize, fp);
-            driverStation->append(tmpbuf, bytesread);
+            bytesread = std::fread( tmpbuf , 1 , filesize , fp );
+            driverStation->append( tmpbuf , bytesread );
 
-            std::fclose(fp);
-            std::free(tmpbuf);
+            std::fclose( fp );
+            std::free( tmpbuf );
         }
 
         driverStation->sendToDS();
@@ -318,59 +318,6 @@ void OurRobot::DS_PrintOut() {
         driverStation->sendToDS();
     }
     /* ====================================== */
-
-#if 0
-    DriverStationLCD::GetInstance()->Clear();
-
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line1 , 1 , "Gyro: %f" , fieldGyro.GetAngle() );
-
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line2 , 1 , "RPM: %f" , frisbeeShooter.getRPM() );
-
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line3 , 1 , "Target: %f" , frisbeeShooter.getTargetRPM() );
-
-    if ( mainDrive.GetDriveMode() == MecanumDrive::Omni ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: Omni" );
-    }
-
-    else if ( mainDrive.GetDriveMode() == MecanumDrive::Strafe ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: Strafe" );
-    }
-
-    else if ( mainDrive.GetDriveMode() == MecanumDrive::Arcade ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: Arcade" );
-    }
-
-    else if ( mainDrive.GetDriveMode() == MecanumDrive::FLpivot ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: FLpivot" );
-    }
-
-    else if ( mainDrive.GetDriveMode() == MecanumDrive::FRpivot ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: FRpivot" );
-    }
-
-    else if ( mainDrive.GetDriveMode() == MecanumDrive::RLpivot ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: RLpivot" );
-    }
-
-    else if ( mainDrive.GetDriveMode() == MecanumDrive::RRpivot ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line4 , 1 , "Drive: RRpivot" );
-    }
-
-    DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line5 , 1 , "ScaleZ: %f" , ScaleValue(shootStick.GetZ()) );
-
-    if ( frisbeeShooter.isShooting() ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "Shooter ON" );
-    }
-    else {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 1 , "Shooter OFF" );
-    }
-
-    if ( frisbeeShooter.isReady() ) {
-        DriverStationLCD::GetInstance()->Printf( DriverStationLCD::kUser_Line6 , 13 , "READY" );
-    }
-
-    DriverStationLCD::GetInstance()->UpdateLCD();
-#endif
 }
 
 START_ROBOT_CLASS(OurRobot);

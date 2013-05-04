@@ -22,29 +22,23 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_SLEEP_HPP
 #define SFML_SLEEP_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 #include "Time.hpp"
 
 
-namespace sf
-{
-////////////////////////////////////////////////////////////
-/// \ingroup system
-/// \brief Make the current thread sleep for a given duration
-///
-/// sf::sleep is the best way to block a program or one of its
-/// threads, as it doesn't consume any CPU power.
-///
-/// \param duration Time to sleep
-///
-////////////////////////////////////////////////////////////
-void SFML_SYSTEM_API sleep(Time duration);
+namespace sf {
+// Make the current thread sleep for a given duration
+void sleep( Time duration );
 
 } // namespace sf
 

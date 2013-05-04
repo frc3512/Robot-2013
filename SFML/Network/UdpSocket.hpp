@@ -22,13 +22,17 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_UDPSOCKET_HPP
 #define SFML_UDPSOCKET_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 #include "Socket.hpp"
 #include <vector>
 
@@ -42,7 +46,7 @@ class Packet;
 /// \brief Specialized socket using the UDP protocol
 ///
 ////////////////////////////////////////////////////////////
-class SFML_NETWORK_API UdpSocket : public Socket
+class UdpSocket : public Socket
 {
 public :
 
@@ -192,92 +196,3 @@ private:
 
 
 #endif // SFML_UDPSOCKET_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::UdpSocket
-/// \ingroup network
-///
-/// A UDP socket is a connectionless socket. Instead of
-/// connecting once to a remote host, like TCP sockets,
-/// it can send to and receive from any host at any time.
-///
-/// It is a datagram protocol: bounded blocks of data (datagrams)
-/// are transfered over the network rather than a continuous
-/// stream of data (TCP). Therefore, one call to send will always
-/// match one call to receive (if the datagram is not lost),
-/// with the same data that was sent.
-///
-/// The UDP protocol is lightweight but unreliable. Unreliable
-/// means that datagrams may be duplicated, be lost or
-/// arrive reordered. However, if a datagram arrives, its
-/// data is guaranteed to be valid.
-///
-/// UDP is generally used for real-time communication
-/// (audio or video streaming, real-time games, etc.) where
-/// speed is crucial and lost data doesn't matter much.
-///
-/// Sending and receiving data can use either the low-level
-/// or the high-level functions. The low-level functions
-/// process a raw sequence of bytes, whereas the high-level
-/// interface uses packets (see sf::Packet), which are easier
-/// to use and provide more safety regarding the data that is
-/// exchanged. You can look at the sf::Packet class to get
-/// more details about how they work.
-///
-/// It is important to note that UdpSocket is unable to send
-/// datagrams bigger than MaxDatagramSize. In this case, it
-/// returns an error and doesn't send anything. This applies
-/// to both raw data and packets. Indeed, even packets are
-/// unable to split and recompose data, due to the unreliability
-/// of the protocol (dropped, mixed or duplicated datagrams may
-/// lead to a big mess when trying to recompose a packet).
-///
-/// If the socket is bound to a port, it is automatically
-/// unbound from it when the socket is destroyed. However,
-/// you can unbind the socket explicitely with the Unbind
-/// function if necessary, to stop receiving messages or
-/// make the port available for other sockets.
-///
-/// Usage example:
-/// \code
-/// // ----- The client -----
-///
-/// // Create a socket and bind it to the port 55001
-/// sf::UdpSocket socket;
-/// socket.bind(55001);
-///
-/// // Send a message to 192.168.1.50 on port 55002
-/// std::string message = "Hi, I am " + sf::IpAddress::getLocalAddress().toString();
-/// socket.send(message.c_str(), message.size() + 1, "192.168.1.50", 55002);
-///
-/// // Receive an answer (most likely from 192.168.1.50, but could be anyone else)
-/// char buffer[1024];
-/// std::size_t received = 0;
-/// sf::IpAddress sender;
-/// unsigned short port;
-/// socket.receive(buffer, sizeof(buffer), received, sender, port);
-/// std::cout << sender.ToString() << " said: " << buffer << std::endl;
-///
-/// // ----- The server -----
-///
-/// // Create a socket and bind it to the port 55002
-/// sf::UdpSocket socket;
-/// socket.bind(55002);
-///
-/// // Receive a message from anyone
-/// char buffer[1024];
-/// std::size_t received = 0;
-/// sf::IpAddress sender;
-/// unsigned short port;
-/// socket.receive(buffer, sizeof(buffer), received, sender, port);
-/// std::cout << sender.ToString() << " said: " << buffer << std::endl;
-///
-/// // Send an answer
-/// std::string message = "Welcome " + sender.toString();
-/// socket.send(message.c_str(), message.size() + 1, sender, port);
-/// \endcode
-///
-/// \see sf::Socket, sf::TcpSocket, sf::Packet
-///
-////////////////////////////////////////////////////////////

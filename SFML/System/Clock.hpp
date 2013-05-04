@@ -22,13 +22,17 @@
 //
 ////////////////////////////////////////////////////////////
 
+/* !!! THIS IS AN EXTREMELY ALTERED AND PURPOSE-BUILT VERSION OF SFML !!!
+ * This distribution is designed to possess only a limited subset of the
+ * original library's functionality and to only build on VxWorks 6.3.
+ * The original distribution of this software has many more features and
+ * supports more platforms.
+ */
+
 #ifndef SFML_CLOCK_HPP
 #define SFML_CLOCK_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "Export.hpp"
+#include "../Config.hpp"
 #include "Time.hpp"
 
 
@@ -38,7 +42,7 @@ namespace sf
 /// \brief Utility class that measures the elapsed time
 ///
 ////////////////////////////////////////////////////////////
-class SFML_SYSTEM_API Clock
+class Clock
 {
 public :
 
@@ -79,39 +83,17 @@ private :
     // Member data
     ////////////////////////////////////////////////////////////
     Time m_startTime; ///< Time of last reset, in microseconds
+
+    ////////////////////////////////////////////////////////////
+    /// \brief Get the current time
+    ///
+    /// \return Current time
+    ///
+    ////////////////////////////////////////////////////////////
+    static Time getCurrentTime();
 };
 
 } // namespace sf
 
 
 #endif // SFML_CLOCK_HPP
-
-
-////////////////////////////////////////////////////////////
-/// \class sf::Clock
-/// \ingroup system
-///
-/// sf::Clock is a lightweight class for measuring time.
-///
-/// Its provides the most precise time that the underlying
-/// OS can achieve (generally microseconds or nanoseconds).
-/// It also ensures monotonicity, which means that the returned
-/// time can never go backward, even if the system time is
-/// changed.
-///
-/// Usage example:
-/// \code
-/// sf::Clock clock;
-/// ...
-/// Time time1 = clock.getElapsedTime();
-/// ...
-/// Time time2 = clock.restart();
-/// \endcode
-///
-/// The sf::Time value returned by the clock can then be
-/// converted to a number of seconds, milliseconds or even
-/// microseconds.
-///
-/// \see sf::Time
-///
-////////////////////////////////////////////////////////////
