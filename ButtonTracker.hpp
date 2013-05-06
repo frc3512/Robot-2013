@@ -48,4 +48,4 @@ private:
     short m_newStates;
 };
 
-#endif // BUTTON_TRACKER_H
+#endif // BUTTON_TRACKER_HPP

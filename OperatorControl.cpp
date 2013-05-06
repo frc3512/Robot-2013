@@ -7,7 +7,6 @@
 #include <Timer.h>
 #include "OurRobot.hpp"
 #include "ButtonTracker.hpp"
-#include <iostream> // TODO Remove me
 
 void OurRobot::OperatorControl() {
     mainCompressor.Start();
