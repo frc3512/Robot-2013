@@ -58,7 +58,7 @@ private:
     // Return sensitivity of gyro in least significant bits per degree/second
     double getGyroLSBsPerUnit();
 
-    void callCalcAngle( double dt );
+    void callCalcAngle();
 };
 
 #endif // ITG3200_ADXL345_HPP

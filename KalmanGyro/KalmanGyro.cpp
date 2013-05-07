@@ -105,10 +105,13 @@ void KalmanGyro::setRmeasure( double newR_measure ) {
     m_R_measureMutex.give();
 }
 
-void KalmanGyro::calcAngle( double newAngle , double newRate , double dt ) {
+void KalmanGyro::calcAngle( double newAngle , double newRate ) {
     // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
     // Modified by Kristian Lauszus
     // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
+
+    // Get the current dt since the last call to calcAngle(2)
+    double dt = GetTime() - m_lastTime;
 
     // Discrete Kalman filter time update equations - Time Update ("Predict")
     // Update xhat - Project the state ahead
@@ -158,6 +161,9 @@ void KalmanGyro::calcAngle( double newAngle , double newRate , double dt ) {
     m_P[0][1] -= m_K[0] * m_P[0][1];
     m_P[1][0] -= m_K[1] * m_P[0][0];
     m_P[1][1] -= m_K[1] * m_P[0][1];
+
+    // Update the previous time for the next delta
+    m_lastTime = GetTime();
 }
 
 double KalmanGyro::getAccelXangle() {
@@ -197,11 +203,6 @@ double KalmanGyro::getGyroZrate() { // TODO: negate return value?
 }
 
 void KalmanGyro::threadFunc( void* object ) {
-    KalmanGyro* gyroObj = static_cast<KalmanGyro*>( object );
-
     // Calculate the angle using a Kalman filter
-    gyroObj->callCalcAngle( GetTime() - gyroObj->m_lastTime );
-
-    // Update the previous time for the next delta
-    gyroObj->m_lastTime = GetTime();
+    static_cast<KalmanGyro*>( object )->callCalcAngle();
 }

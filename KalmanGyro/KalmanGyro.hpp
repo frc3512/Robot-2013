@@ -35,18 +35,17 @@
  *     representing a change in the gyro's value of 1 degree/second. This can
  *     be found in the data sheet for the specific gyro you're using.
  *
- * Implementing callCalcAngle(1):
- *   * When writing the callCalcAngle(1) function, you only have to call
- *     calcAngle(3)
- *   * Arguments to calcAngle(3):
+ * Implementing callCalcAngle():
+ *   * When writing the callCalcAngle() function, you only have to call
+ *     calcAngle(2)
+ *   * Arguments to calcAngle(2):
  *       * 1st: getAccelXangle() or any other axis (like getAccelYangle())
  *       * 2nd: getGyroXrate() or any other axis (like (getGyroYrate())
- *       * 3rd: the "dt" parameter of callCalcAngle(1)
  *
  * Misc. Help:
  *   * If your accelerometer or gyro doesn't have one or more of the three
  *     axes, create the function in your class and return zero. As long as you
- *     don't use the axis in callCalcAngle(1), the value will never be used.
+ *     don't use the axis in callCalcAngle(), the value will never be used.
  */
 
 #ifndef KALMAN_GYRO_HPP
@@ -85,8 +84,10 @@ protected:
     double getGyroYrate();
     double getGyroZrate();
 
-    // The angle should be in degrees and the rate should be in degrees per second and the delta time in seconds
-    void calcAngle( double newAngle , double newRate , double dt );
+    /* The angle should be in degrees
+     * The rate should be in degrees per second
+     */
+    void calcAngle( double newAngle , double newRate );
 
 private:
     /* Kalman filter variables */
@@ -127,9 +128,9 @@ private:
     virtual double getGyroLSBsPerUnit() = 0;
 
     /* The implementing class determines the correct arguments to pass to
-     * calcAngle(3) and calls calcAngle(3)
+     * calcAngle(3) and calls calcAngle(2)
      */
-    virtual void callCalcAngle( double dt ) = 0;
+    virtual void callCalcAngle() = 0;
 
     // Used to find dt in threadFunc(1)
     double m_lastTime;
