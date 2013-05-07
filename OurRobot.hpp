@@ -8,8 +8,6 @@
 #ifndef OUR_ROBOT_HPP
 #define OUR_ROBOT_HPP
 
-#define NEW_GYRO
-
 #include <cmath>
 
 #include <SimpleRobot.h>
@@ -36,11 +34,7 @@
 #include <Timer.h>
 
 #include <DriverStationLCD.h>
-#ifdef NEW_GYRO
 #include "KalmanGyro/ITG3200_ADXL345.hpp"
-#else
-#include <Gyro.h>
-#endif
 
 #include "LiveGrapherHost/GraphHost.hpp"
 
@@ -90,11 +84,7 @@ private:
 
     Solenoid climbArms;
 
-#ifdef NEW_GYRO
     ITG3200_ADXL345 fieldGyro;
-#else
-    Gyro fieldGyro;
-#endif
 
     Relay underGlow;
 

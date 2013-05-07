@@ -62,11 +62,7 @@ OurRobot::OurRobot() :
 
     climbArms( 4 ),
 
-#ifdef NEW_GYRO
     fieldGyro( 1 , 0x38 , 0xE5 ) ,
-#else
-    fieldGyro( 1 ),
-#endif
 
     underGlow( 5 ),
 
@@ -180,11 +176,7 @@ void OurRobot::DS_PrintOut() {
         }
         driverStation->addElementData( 's' , L"MODE" , strDriveMode );
 
-#ifdef NEW_GYRO
         driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int>( fieldGyro.getAngle() ) );
-#else
-        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int>( fieldGyro.getAngle() ) );
-#endif
 
         if ( isGyroEnabled ) {
             driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 0 ) );

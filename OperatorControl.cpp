@@ -159,11 +159,7 @@ void OurRobot::OperatorControl() {
         /* ===== Control gyro ===== */
         // Reset gyro
         if ( driveStickButtons.releasedButton( 8 ) ) {
-#ifdef NEW_GYRO
             fieldGyro.resetAngle( 180.f );
-#else
-            fieldGyro.Reset();
-#endif
         }
 
         if ( driveStickButtons.releasedButton( 5 ) ) {
@@ -195,11 +191,7 @@ void OurRobot::OperatorControl() {
 
         // Compensate with gyro angle if that's enabled
         if ( isGyroEnabled && driveMode != MecanumDrive::Arcade ) {
-#ifdef NEW_GYRO
             joyGyro = fieldGyro.getAngle();
-#else
-            joyGyro = fieldGyro.GetAngle();
-#endif
         }
         // Compensate for ArcadeDrive robot being backwards
         else if ( driveMode == MecanumDrive::Arcade ) {
