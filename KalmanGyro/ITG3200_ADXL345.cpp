@@ -37,52 +37,76 @@ ITG3200_ADXL345::~ITG3200_ADXL345() {
 
 // Actually measures y-axis of gyro for consistency with accelerometer
 int ITG3200_ADXL345::readGyroX() {
-    uint8_t* data = NULL;
+    uint8_t data[2];
 
-    m_gyro->Read( 0x1F , 2 , data );
-
-    return (data[0] << 8) | data[1];
+    if ( m_gyro != NULL ) {
+        m_gyro->Read( 0x1F , 2 , data );
+        return (data[0] << 8) | data[1];
+    }
+    else {
+        return 0;
+    }
 }
 
 // Actually measures x-axis of gyro for consistency with accelerometer
 int ITG3200_ADXL345::readGyroY() {
-    uint8_t* data = NULL;
+    uint8_t data[2];
 
-    m_gyro->Read( 0x1D , 2 , data );
-
-    return (data[0] << 8) | data[1];
+    if ( m_gyro != NULL ) {
+        m_gyro->Read( 0x1D , 2 , data );
+        return (data[0] << 8) | data[1];
+    }
+    else {
+        return 0;
+    }
 }
 
 int ITG3200_ADXL345::readGyroZ() {
-    uint8_t* data = NULL;
+    uint8_t data[2];
 
-    m_gyro->Read( 0x21 , 2 , data );
-
-    return (data[0] << 8) | data[1];
+    if ( m_gyro != NULL ) {
+        m_gyro->Read( 0x21 , 2 , data );
+        return (data[0] << 8) | data[1];
+    }
+    else {
+        return 0;
+    }
 }
 
 int ITG3200_ADXL345::readAccelX() {
-    uint8_t* data = NULL;
+    uint8_t data[2];
 
-    m_accel->Read( 0x32 , 2 , data );
-
-    return data[0] | (data[1] << 8);
+    if ( m_accel != NULL ) {
+        m_accel->Read( 0x32 , 2 , data );
+        return (data[0] << 8) | data[1];
+    }
+    else {
+        return 0;
+    }
 }
 
 int ITG3200_ADXL345::readAccelY() {
-    uint8_t* data = NULL;
+    uint8_t data[2];
 
-    m_accel->Read( 0x34 , 2 , data );
-
-    return data[0] | (data[1] << 8);
+    if ( m_accel != NULL ) {
+        m_accel->Read( 0x34 , 2 , data );
+        return data[0] | (data[1] << 8);
+    }
+    else {
+        return 0;
+    }
 }
 
 int ITG3200_ADXL345::readAccelZ() {
-    uint8_t* data = NULL;
+    uint8_t data[2];
 
-    m_accel->Read( 0x36 , 2 , data );
-
-    return data[0] | (data[1] << 8);
+    if ( m_accel != NULL ) {
+        m_accel->Read( 0x36 , 2 , data );
+        return (data[0] << 8) | data[1];
+    }
+    else {
+        return 0;
+    }
 }
 
 double ITG3200_ADXL345::getGyroXzero() {
