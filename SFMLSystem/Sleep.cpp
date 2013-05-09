@@ -24,7 +24,6 @@
 
 #include "../SFML/System/Sleep.hpp"
 
-#include "../SFML/Config.hpp"
 #include "../SFML/System/Time.hpp"
 
 #include <pthread.h>
@@ -55,7 +54,7 @@ void sleep( Time duration ) {
 
         // this implementation is inspired from Qt
 
-        Uint64 usecs = duration.asMicroseconds();
+        uint64_t usecs = duration.asMicroseconds();
 
         // get the current time
         timeval tv;

@@ -31,7 +31,7 @@
 namespace sf
 {
 ////////////////////////////////////////////////////////////
-const std::size_t String::InvalidPos = std::basic_string<Uint32>::npos;
+const std::size_t String::InvalidPos = std::basic_string<uint32_t>::npos;
 
 
 ////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ String::String(char ansiChar, const std::locale& locale)
 
 
 ////////////////////////////////////////////////////////////
-String::String(Uint32 utf32Char)
+String::String(uint32_t utf32Char)
 {
     m_string += utf32Char;
 }
@@ -78,7 +78,7 @@ String::String(const std::string& ansiString, const std::locale& locale)
 
 
 ////////////////////////////////////////////////////////////
-String::String(const Uint32* utf32String)
+String::String(const uint32_t* utf32String)
 {
     if (utf32String)
         m_string = utf32String;
@@ -86,7 +86,7 @@ String::String(const Uint32* utf32String)
 
 
 ////////////////////////////////////////////////////////////
-String::String(const std::basic_string<Uint32>& utf32String) :
+String::String(const std::basic_string<uint32_t>& utf32String) :
 m_string(utf32String)
 {
 }
@@ -137,14 +137,14 @@ String& String::operator +=(const String& right)
 
 
 ////////////////////////////////////////////////////////////
-Uint32 String::operator [](std::size_t index) const
+uint32_t String::operator [](std::size_t index) const
 {
     return m_string[index];
 }
 
 
 ////////////////////////////////////////////////////////////
-Uint32& String::operator [](std::size_t index)
+uint32_t& String::operator [](std::size_t index)
 {
     return m_string[index];
 }
@@ -193,7 +193,7 @@ std::size_t String::find(const String& str, std::size_t start) const
 
 
 ////////////////////////////////////////////////////////////
-const Uint32* String::getData() const
+const uint32_t* String::getData() const
 {
     return m_string.c_str();
 }

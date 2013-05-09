@@ -32,7 +32,6 @@
 #ifndef SFML_MUTEX_HPP
 #define SFML_MUTEX_HPP
 
-#include "../Config.hpp"
 #include "NonCopyable.hpp"
 #include <pthread.h>
 

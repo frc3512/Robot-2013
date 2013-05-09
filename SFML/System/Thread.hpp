@@ -32,7 +32,6 @@
 #ifndef SFML_THREAD_HPP
 #define SFML_THREAD_HPP
 
-#include "../Config.hpp"
 #include "NonCopyable.hpp"
 #include <pthread.h>
 #include <cstdlib>

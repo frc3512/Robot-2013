@@ -105,7 +105,7 @@ void Socket::close() {
     }
 }
 
-sockaddr_in Socket::createAddress(Uint32 address, unsigned short port) {
+sockaddr_in Socket::createAddress(uint32_t address, unsigned short port) {
     sockaddr_in addr;
     std::memset(addr.sin_zero, 0, sizeof(addr.sin_zero));
     addr.sin_addr.s_addr = htonl(address);

@@ -32,7 +32,6 @@
 #ifndef SFML_SOCKETSELECTOR_HPP
 #define SFML_SOCKETSELECTOR_HPP
 
-#include "../Config.hpp"
 #include "../System/Time.hpp"
 
 

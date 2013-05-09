@@ -27,18 +27,18 @@
 
 
 namespace {
-    sf::Uint32 resolve(const std::string& address)
+    uint32_t resolve(const std::string& address)
     {
         if (address == "255.255.255.255")
         {
-            // The broadcast address needs to be handled explicitely,
+            // The broadcast address needs to be handled explicitly,
             // because it is also the value returned by inet_addr on error
             return INADDR_BROADCAST;
         }
         else
         {
             // Try to convert the address as a byte representation ("xxx.xxx.xxx.xxx")
-            sf::Uint32 ip = inet_addr(const_cast<char*>(address.c_str()));
+            uint32_t ip = inet_addr(const_cast<char*>(address.c_str()));
             if (ip != INADDR_NONE)
                 return ip;
 
@@ -76,11 +76,11 @@ IpAddress::IpAddress(const char* address) :
 m_address(resolve(address)) {
 }
 
-IpAddress::IpAddress(Uint8 byte0, Uint8 byte1, Uint8 byte2, Uint8 byte3) :
+IpAddress::IpAddress(uint8_t byte0, uint8_t byte1, uint8_t byte2, uint8_t byte3) :
 m_address(htonl((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3)) {
 }
 
-IpAddress::IpAddress(Uint32 address) :
+IpAddress::IpAddress(uint32_t address) :
 m_address(htonl(address)) {
 }
 
@@ -93,7 +93,7 @@ std::string IpAddress::toString() const {
 
 
 
-Uint32 IpAddress::toInteger() const {
+uint32_t IpAddress::toInteger() const {
     return ntohl( m_address );
 }
 

@@ -32,8 +32,6 @@
 #ifndef SFML_NONCOPYABLE_HPP
 #define SFML_NONCOPYABLE_HPP
 
-#include "../Config.hpp"
-
 
 namespace sf
 {

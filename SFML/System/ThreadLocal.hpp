@@ -32,10 +32,6 @@
 #ifndef SFML_THREADLOCAL_HPP
 #define SFML_THREADLOCAL_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
-#include "../Config.hpp"
 #include "NonCopyable.hpp"
 #include <pthread.h>
 #include <cstdlib>

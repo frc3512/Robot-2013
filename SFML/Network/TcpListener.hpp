@@ -32,7 +32,6 @@
 #ifndef SFML_TCPLISTENER_HPP
 #define SFML_TCPLISTENER_HPP
 
-#include "../Config.hpp"
 #include "../../SFMLNetwork/Socket.hpp"
 
 

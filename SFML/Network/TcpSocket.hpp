@@ -32,9 +32,10 @@
 #ifndef SFML_TCPSOCKET_HPP
 #define SFML_TCPSOCKET_HPP
 
-#include "../Config.hpp"
 #include "../../SFMLNetwork/Socket.hpp"
 #include "../System/Time.hpp"
+
+#include <stdint.h>
 
 
 namespace sf
@@ -199,7 +200,7 @@ private:
     struct PendingPacket {
         PendingPacket();
 
-        Uint32            Size;         ///< Data of packet size
+        uint32_t          Size;         ///< Data of packet size
         std::size_t       SizeReceived; ///< Number of size bytes received so far
         std::vector<char> Data;         ///< Data of the packet
     };

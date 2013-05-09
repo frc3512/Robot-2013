@@ -32,7 +32,6 @@
 #ifndef SFML_SLEEP_HPP
 #define SFML_SLEEP_HPP
 
-#include "../Config.hpp"
 #include "Time.hpp"
 
 

@@ -24,7 +24,6 @@
 
 #include "../SFML/System/Clock.hpp"
 
-#include "../SFML/Config.hpp"
 #include <ctime>
 
 namespace sf
@@ -58,7 +57,7 @@ Time Clock::getCurrentTime()
 {
     timespec time;
     clock_gettime(CLOCK_MONOTONIC, &time);
-    return sf::microseconds(static_cast<Uint64>(time.tv_sec) * 1000000 + time.tv_nsec / 1000);
+    return sf::microseconds(static_cast<uint64_t>(time.tv_sec) * 1000000 + time.tv_nsec / 1000);
 }
 
 } // namespace sf

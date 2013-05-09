@@ -32,7 +32,6 @@
 #ifndef SFML_SOCKET_HPP
 #define SFML_SOCKET_HPP
 
-#include "../SFML/Config.hpp"
 #include "../SFML/System/NonCopyable.hpp"
 #include <vector>
 
@@ -123,7 +122,7 @@ protected:
      *     port    Target port
      * Returns sockaddr_in ready to be used by socket functions
      */
-    static sockaddr_in createAddress( Uint32 address , unsigned short port );
+    static sockaddr_in createAddress( uint32_t address , unsigned short port );
 
     // Returns status corresponding to the last socket error
     static Socket::Status getErrorStatus();

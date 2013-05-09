@@ -10,6 +10,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <stdint.h>
 
 #include <fstream>
 #include <sstream>
@@ -176,20 +177,20 @@ void OurRobot::DS_PrintOut() {
         }
         driverStation->addElementData( 's' , L"MODE" , strDriveMode );
 
-        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int>( fieldGyro.getAngle() ) );
+        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getAngle() ) );
 
         if ( isGyroEnabled ) {
-            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 0 ) );
+            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<uint8_t>( 0 ) );
         }
         else {
-            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<unsigned char>( 2 ) );
+            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<uint8_t>( 2 ) );
         }
 
         if ( slowRotate ) {
-            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( 0 ) );
+            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<uint8_t>( 0 ) );
         }
         else {
-            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<unsigned char>( 2 ) );
+            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<uint8_t>( 2 ) );
         }
 
         {
@@ -262,7 +263,7 @@ void OurRobot::DS_PrintOut() {
         FILE *fp;
         unsigned char *tmpbuf;
         size_t bytesread;
-        unsigned int filesize;
+        uint32_t filesize;
 
         // Open the file
         fp = std::fopen("/ni-rt/system/GUISettings.txt", "rb");

@@ -32,7 +32,6 @@
 #ifndef SFML_UTF_HPP
 #define SFML_UTF_HPP
 
-#include "../Config.hpp"
 #include <algorithm>
 #include <locale>
 #include <string>
@@ -65,7 +64,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename In>
-    static In decode(In begin, In end, Uint32& output, Uint32 replacement = 0);
+    static In decode(In begin, In end, uint32_t& output, uint32_t replacement = 0);
 
     ////////////////////////////////////////////////////////////
     /// \brief Encode a single UTF-8 character
@@ -81,7 +80,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename Out>
-    static Out encode(Uint32 input, Out output, Uint8 replacement = 0);
+    static Out encode(uint32_t input, Out output, uint8_t replacement = 0);
 
     ////////////////////////////////////////////////////////////
     /// \brief Advance to the next UTF-8 character
@@ -270,7 +269,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename In>
-    static In decode(In begin, In end, Uint32& output, Uint32 replacement = 0);
+    static In decode(In begin, In end, uint32_t& output, uint32_t replacement = 0);
 
     ////////////////////////////////////////////////////////////
     /// \brief Encode a single UTF-16 character
@@ -286,7 +285,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename Out>
-    static Out encode(Uint32 input, Out output, Uint16 replacement = 0);
+    static Out encode(uint32_t input, Out output, uint16_t replacement = 0);
 
     ////////////////////////////////////////////////////////////
     /// \brief Advance to the next UTF-16 character
@@ -476,7 +475,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename In>
-    static In decode(In begin, In end, Uint32& output, Uint32 replacement = 0);
+    static In decode(In begin, In end, uint32_t& output, uint32_t replacement = 0);
 
     ////////////////////////////////////////////////////////////
     /// \brief Encode a single UTF-32 character
@@ -493,7 +492,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename Out>
-    static Out encode(Uint32 input, Out output, Uint32 replacement = 0);
+    static Out encode(uint32_t input, Out output, uint32_t replacement = 0);
 
     ////////////////////////////////////////////////////////////
     /// \brief Advance to the next UTF-32 character
@@ -672,7 +671,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename In>
-    static Uint32 decodeAnsi(In input, const std::locale& locale = std::locale());
+    static uint32_t decodeAnsi(In input, const std::locale& locale = std::locale());
 
     ////////////////////////////////////////////////////////////
     /// \brief Decode a single wide character to UTF-32
@@ -687,7 +686,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename In>
-    static Uint32 decodeWide(In input);
+    static uint32_t decodeWide(In input);
 
     ////////////////////////////////////////////////////////////
     /// \brief Encode a single UTF-32 character to ANSI
@@ -705,7 +704,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename Out>
-    static Out encodeAnsi(Uint32 codepoint, Out output, char replacement = 0, const std::locale& locale = std::locale());
+    static Out encodeAnsi(uint32_t codepoint, Out output, char replacement = 0, const std::locale& locale = std::locale());
 
     ////////////////////////////////////////////////////////////
     /// \brief Encode a single UTF-32 character to wide
@@ -722,7 +721,7 @@ public:
     ///
     ////////////////////////////////////////////////////////////
     template <typename Out>
-    static Out encodeWide(Uint32 codepoint, Out output, wchar_t replacement = 0);
+    static Out encodeWide(uint32_t codepoint, Out output, wchar_t replacement = 0);
 };
 
 #include "Utf.inl"

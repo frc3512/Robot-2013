@@ -32,8 +32,8 @@
 #ifndef SFML_TIME_HPP
 #define SFML_TIME_HPP
 
-#include "../Config.hpp"
 
+#include <stdint.h>
 
 namespace sf
 {
@@ -71,7 +71,7 @@ public :
     /// \see asSeconds, asMicroseconds
     ///
     ////////////////////////////////////////////////////////////
-    Int32 asMilliseconds() const;
+    int32_t asMilliseconds() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Return the time value as a number of microseconds
@@ -81,7 +81,7 @@ public :
     /// \see asSeconds, asMilliseconds
     ///
     ////////////////////////////////////////////////////////////
-    Int64 asMicroseconds() const;
+    int64_t asMicroseconds() const;
 
     ////////////////////////////////////////////////////////////
     // Static member data
@@ -91,8 +91,8 @@ public :
 private :
 
     friend Time seconds(float);
-    friend Time milliseconds(Int32);
-    friend Time microseconds(Int64);
+    friend Time milliseconds(int32_t);
+    friend Time microseconds(int64_t);
 
     ////////////////////////////////////////////////////////////
     /// \brief Construct from a number of microseconds
@@ -103,14 +103,14 @@ private :
     /// \param microseconds Number of microseconds
     ///
     ////////////////////////////////////////////////////////////
-    explicit Time(Int64 microseconds);
+    explicit Time(int64_t microseconds);
 
 private :
 
     ////////////////////////////////////////////////////////////
     // Member data
     ////////////////////////////////////////////////////////////
-    Int64 m_microseconds; ///< Time value stored as microseconds
+    int64_t m_microseconds; ///< Time value stored as microseconds
 };
 
 ////////////////////////////////////////////////////////////
@@ -137,7 +137,7 @@ Time seconds(float amount);
 /// \see seconds, microseconds
 ///
 ////////////////////////////////////////////////////////////
-Time milliseconds(Int32 amount);
+Time milliseconds(int32_t amount);
 
 ////////////////////////////////////////////////////////////
 /// \relates Time
@@ -150,7 +150,7 @@ Time milliseconds(Int32 amount);
 /// \see seconds, milliseconds
 ///
 ////////////////////////////////////////////////////////////
-Time microseconds(Int64 amount);
+Time microseconds(int64_t amount);
 
 ////////////////////////////////////////////////////////////
 /// \relates Time
@@ -305,7 +305,7 @@ Time operator *(Time left, float right);
 /// \return \a left multiplied by \a right
 ///
 ////////////////////////////////////////////////////////////
-Time operator *(Time left, Int64 right);
+Time operator *(Time left, int64_t right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Time
@@ -329,7 +329,7 @@ Time operator *(float left, Time right);
 /// \return \a left multiplied by \a right
 ///
 ////////////////////////////////////////////////////////////
-Time operator *(Int64 left, Time right);
+Time operator *(int64_t left, Time right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Time
@@ -353,7 +353,7 @@ Time& operator *=(Time& left, float right);
 /// \return \a left multiplied by \a right
 ///
 ////////////////////////////////////////////////////////////
-Time& operator *=(Time& left, Int64 right);
+Time& operator *=(Time& left, int64_t right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Time
@@ -377,7 +377,7 @@ Time operator /(Time left, float right);
 /// \return \a left divided by \a right
 ///
 ////////////////////////////////////////////////////////////
-Time operator /(Time left, Int64 right);
+Time operator /(Time left, int64_t right);
 
 ////////////////////////////////////////////////////////////
 /// \relates Time
@@ -401,7 +401,7 @@ Time& operator /=(Time& left, float right);
 /// \return \a left divided by \a right
 ///
 ////////////////////////////////////////////////////////////
-Time& operator /=(Time& left, Int64 right);
+Time& operator /=(Time& left, int64_t right);
 
 } // namespace sf
 

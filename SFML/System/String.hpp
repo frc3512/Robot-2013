@@ -32,7 +32,6 @@
 #ifndef SFML_STRING_HPP
 #define SFML_STRING_HPP
 
-#include "../Config.hpp"
 #include <locale>
 #include <string>
 
@@ -45,8 +44,8 @@ namespace sf {
 ////////////////////////////////////////////////////////////
 class String {
 public:
-    typedef std::basic_string<Uint32>::iterator       Iterator;      // Iterator type
-    typedef std::basic_string<Uint32>::const_iterator ConstIterator; // Constant iterator type
+    typedef std::basic_string<uint32_t>::iterator       Iterator;      // Iterator type
+    typedef std::basic_string<uint32_t>::const_iterator ConstIterator; // Constant iterator type
 
     static const std::size_t InvalidPos; // Represents an invalid position in the string
 
@@ -59,7 +58,7 @@ public:
     String( char ansiChar , const std::locale& locale = std::locale() );
 
     // Construct from single UTF-32 character
-    String( Uint32 utf32Char );
+    String( uint32_t utf32Char );
 
     /* Construct from a null-terminated C-style ANSI string and a locale
      *
@@ -74,10 +73,10 @@ public:
     String( const std::string& ansiString , const std::locale& locale = std::locale() );
 
     // Construct from a null-terminated C-style UTF-32 string
-    String( const Uint32* utf32String );
+    String( const uint32_t* utf32String );
 
     // Construct from an UTF-32 string
-    String( const std::basic_string<Uint32>& utf32String );
+    String( const std::basic_string<uint32_t>& utf32String );
 
     String( const String& copy );
 
@@ -102,14 +101,14 @@ public:
      * This function provides read-only access to characters.
      * Note: this function doesn't throw if index is out of range.
      */
-    Uint32 operator [](std::size_t index) const;
+    uint32_t operator [](std::size_t index) const;
 
     /* Overload of [] operator to access a character by its position
      *
      * This function provides read and write access to characters.
      * Note: this function doesn't throw if index is out of range.
      */
-    Uint32& operator [](std::size_t index);
+    uint32_t& operator [](std::size_t index);
 
     void clear();
 
@@ -138,7 +137,7 @@ public:
     ////////////////////////////////////////////////////////////
     std::size_t find(const String& str, std::size_t start = 0) const;
 
-    const Uint32* getData() const;
+    const uint32_t* getData() const;
 
     Iterator begin();
 
@@ -153,7 +152,7 @@ private :
     friend bool operator ==(const String& left, const String& right);
     friend bool operator <(const String& left, const String& right);
 
-    std::basic_string<Uint32> m_string;
+    std::basic_string<uint32_t> m_string;
 };
 
 bool operator ==(const String& left, const String& right);

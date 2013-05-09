@@ -32,7 +32,6 @@
 #ifndef SFML_LOCK_HPP
 #define SFML_LOCK_HPP
 
-#include "../Config.hpp"
 #include "NonCopyable.hpp"
 
 

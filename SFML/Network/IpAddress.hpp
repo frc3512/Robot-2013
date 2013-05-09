@@ -32,7 +32,6 @@
 #ifndef SFML_IPADDRESS_HPP
 #define SFML_IPADDRESS_HPP
 
-#include "../Config.hpp"
 #include "../System/Time.hpp"
 #include <istream>
 #include <ostream>
@@ -56,7 +55,7 @@ public:
      * IpAddress("a.b.c.d"), but safer as it doesn't have to
      * parse a string to get the address components.
      */
-    IpAddress(Uint8 byte0, Uint8 byte1, Uint8 byte2, Uint8 byte3);
+    IpAddress(uint8_t byte0, uint8_t byte1, uint8_t byte2, uint8_t byte3);
 
     ////////////////////////////////////////////////////////////
     /// \brief Construct the address from a 32-bits integer
@@ -71,7 +70,7 @@ public:
     /// \see toInteger
     ///
     ////////////////////////////////////////////////////////////
-    explicit IpAddress(Uint32 address);
+    explicit IpAddress(uint32_t address);
 
     ////////////////////////////////////////////////////////////
     /// \brief Get a string representation of the address
@@ -101,7 +100,7 @@ public:
     /// \see toString
     ///
     ////////////////////////////////////////////////////////////
-    Uint32 toInteger() const;
+    uint32_t toInteger() const;
 
     ////////////////////////////////////////////////////////////
     /// \brief Get the computer's local address
@@ -124,7 +123,7 @@ public:
     static const IpAddress Broadcast; ///< The "broadcast" address (for sending UDP messages to everyone on a local network)
 
 private:
-    Uint32 m_address;
+    uint32_t m_address;
 };
 
 bool operator ==(const IpAddress& left, const IpAddress& right);

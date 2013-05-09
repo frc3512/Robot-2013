@@ -32,14 +32,14 @@
 #ifndef SFML_PACKET_HPP
 #define SFML_PACKET_HPP
 
-#include "../Config.hpp"
-
 #include <string>
+
 namespace std {
 typedef basic_string<wchar_t> wstring;
 }
 
 #include <vector>
+#include <stdint.h>
 
 uint64_t htonll( uint64_t value );
 uint64_t ntohll( uint64_t value );
@@ -131,14 +131,14 @@ public:
 
     // Overloads of operator >> to read data from the packet
     Packet& operator >>(bool&         data);
-    Packet& operator >>(Int8&         data);
-    Packet& operator >>(Uint8&        data);
-    Packet& operator >>(Int16&        data);
-    Packet& operator >>(Uint16&       data);
-    Packet& operator >>(Int32&        data);
-    Packet& operator >>(Uint32&       data);
-    Packet& operator >>(Int64&        data);
-    Packet& operator >>(Uint64&       data);
+    Packet& operator >>(int8_t&       data);
+    Packet& operator >>(uint8_t&      data);
+    Packet& operator >>(int16_t&      data);
+    Packet& operator >>(uint16_t&     data);
+    Packet& operator >>(int32_t&      data);
+    Packet& operator >>(uint32_t&     data);
+    Packet& operator >>(int64_t&      data);
+    Packet& operator >>(uint64_t&     data);
     Packet& operator >>(float&        data);
     Packet& operator >>(double&       data);
     Packet& operator >>(char*         data);
@@ -149,14 +149,14 @@ public:
 
     // Overloads of operator << to write data into the packet
     Packet& operator <<(bool                data);
-    Packet& operator <<(Int8                data);
-    Packet& operator <<(Uint8               data);
-    Packet& operator <<(Int16               data);
-    Packet& operator <<(Uint16              data);
-    Packet& operator <<(Int32               data);
-    Packet& operator <<(Uint32              data);
-    Packet& operator <<(Int64               data);
-    Packet& operator <<(Uint64              data);
+    Packet& operator <<(int8_t              data);
+    Packet& operator <<(uint8_t             data);
+    Packet& operator <<(int16_t             data);
+    Packet& operator <<(uint16_t            data);
+    Packet& operator <<(int32_t             data);
+    Packet& operator <<(uint32_t            data);
+    Packet& operator <<(int64_t             data);
+    Packet& operator <<(uint64_t            data);
     Packet& operator <<(float               data);
     Packet& operator <<(double              data);
     Packet& operator <<(const char*         data);
