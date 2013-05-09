@@ -24,7 +24,7 @@
 
 #include "../SFML/Network/TcpListener.hpp"
 #include "../SFML/Network/TcpSocket.hpp"
-#include "../SFML/Network/Socket.hpp"
+#include "Socket.hpp"
 #include <iostream>
 
 namespace sf {

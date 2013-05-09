@@ -33,7 +33,7 @@
 #define SFML_TCPLISTENER_HPP
 
 #include "../Config.hpp"
-#include "Socket.hpp"
+#include "../../SFMLNetwork/Socket.hpp"
 
 
 namespace sf

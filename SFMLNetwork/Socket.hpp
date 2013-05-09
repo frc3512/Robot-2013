@@ -32,9 +32,8 @@
 #ifndef SFML_SOCKET_HPP
 #define SFML_SOCKET_HPP
 
-#include "../Config.hpp"
-#include "../System/NonCopyable.hpp"
-#include "../Network/Socket.hpp"
+#include "../SFML/Config.hpp"
+#include "../SFML/System/NonCopyable.hpp"
 #include <vector>
 
 #include <sys/types.h>

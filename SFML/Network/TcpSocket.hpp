@@ -33,7 +33,7 @@
 #define SFML_TCPSOCKET_HPP
 
 #include "../Config.hpp"
-#include "Socket.hpp"
+#include "../../SFMLNetwork/Socket.hpp"
 #include "../System/Time.hpp"
 
 

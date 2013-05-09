@@ -23,7 +23,7 @@
 
 
 #include "../SFML/Network/IpAddress.hpp"
-#include "../SFML/Network/Socket.hpp"
+#include "Socket.hpp"
 
 
 namespace {

@@ -23,7 +23,7 @@
 ////////////////////////////////////////////////////////////
 
 #include "../SFML/Network/SocketSelector.hpp"
-#include "../SFML/Network/Socket.hpp"
+#include "Socket.hpp"
 #include <utility>
 #include <string.h>
 

@@ -25,7 +25,7 @@
 #include "../SFML/Network/TcpSocket.hpp"
 #include "../SFML/Network/IpAddress.hpp"
 #include "../SFML/Network/Packet.hpp"
-#include "../SFML/Network/Socket.hpp"
+#include "Socket.hpp"
 #include <algorithm>
 #include <cstring>
 #include <iostream>

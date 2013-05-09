@@ -23,38 +23,18 @@
 ////////////////////////////////////////////////////////////
 
 #include "../SFML/Network/Packet.hpp"
-#include "../SFML/Network/Socket.hpp"
+#include "Socket.hpp"
 #include "../SFML/System/String.hpp"
 #include <cstring>
 
 uint64_t htonll( uint64_t value ) {
-	// The answer is 42
-	static const int num = 42;
-
-	// Check the endianness
-	if ( *reinterpret_cast<const char*>(&num) == num ) { // if little endian
-		const uint32_t high_part = htonl( static_cast<uint32_t>(value >> 32) );
-		const uint32_t low_part = htonl( static_cast<uint32_t>(value & 0xFFFFFFFFLL) );
-
-		return ( static_cast<uint64_t>(low_part) << 32 ) | high_part;
-	}
-	else
-		return value;
+	// PowerPC for VxWorks 6.3 is big endian
+    return value;
 }
 
 uint64_t ntohll( uint64_t value ) {
-	// The answer is 42
-	static const int num = 42;
-
-	// Check the endianness
-	if ( *reinterpret_cast<const char*>(&num) == num ) // if little endian
-		return value;
-	else {
-		const uint32_t high_part = ntohl( static_cast<uint32_t>(value << 32) );
-		const uint32_t low_part = ntohl( static_cast<uint32_t>(value & (0xFFFFFFFFLL) ) );
-
-		return ( static_cast<uint64_t>(low_part) >> 32 ) | high_part;
-	}
+    // PowerPC for VxWorks 6.3 is big endian
+    return value;
 }
 
 namespace sf
