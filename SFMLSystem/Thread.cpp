@@ -43,7 +43,6 @@ Thread::~Thread() {
 
 void Thread::launch() {
     wait();
-    m_isActive = true;
     m_isActive = pthread_create(&m_thread, NULL, &Thread::entryPoint, &m_thread) == 0;
 
     if (!m_isActive) {

@@ -32,80 +32,33 @@
 #ifndef SFML_THREADLOCALPTR_HPP
 #define SFML_THREADLOCALPTR_HPP
 
-////////////////////////////////////////////////////////////
-// Headers
-////////////////////////////////////////////////////////////
 #include "ThreadLocal.hpp"
 
 
 namespace sf
 {
-////////////////////////////////////////////////////////////
-/// \brief Pointer to a thread-local variable
-///
-////////////////////////////////////////////////////////////
+// Pointer to a thread-local variable
 template <typename T>
-class ThreadLocalPtr : private ThreadLocal
-{
-public :
-
-    ////////////////////////////////////////////////////////////
-    /// \brief Default constructor
-    ///
-    /// \param value Optional value to initialize the variable
-    ///
-    ////////////////////////////////////////////////////////////
+class ThreadLocalPtr : private ThreadLocal {
+public:
     ThreadLocalPtr(T* value = NULL);
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Overload of unary operator *
-    ///
-    /// Like raw pointers, applying the * operator returns a
-    /// reference to the pointed object.
-    ///
-    /// \return Reference to the pointed object
-    ///
-    ////////////////////////////////////////////////////////////
+    /* Like raw pointers, applying the * operator returns a reference to the
+     * pointed object
+     */
     T& operator *() const;
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Overload of operator ->
-    ///
-    /// Like raw pointers, applying the -> operator returns the
-    /// pointed object.
-    ///
-    /// \return Pointed object
-    ///
-    ////////////////////////////////////////////////////////////
+    // Like raw pointers, applying the -> operator returns the pointed object
     T* operator ->() const;
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Cast operator to implicitly convert the
-    ///        pointer to its raw pointer type (T*)
-    ///
-    /// \return Pointer to the actual object
-    ///
-    ////////////////////////////////////////////////////////////
+    /* Cast operator to implicitly convert the pointer to its raw pointer type
+     * (T*)
+     * Returns Pointer to the actual object
+     */
     operator T*() const;
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Assignment operator for a raw pointer parameter
-    ///
-    /// \param value Pointer to assign
-    ///
-    /// \return Reference to self
-    ///
-    ////////////////////////////////////////////////////////////
     ThreadLocalPtr<T>& operator =(T* value);
 
-    ////////////////////////////////////////////////////////////
-    /// \brief Assignment operator for a ThreadLocalPtr parameter
-    ///
-    /// \param right ThreadLocalPtr to assign
-    ///
-    /// \return Reference to self
-    ///
-    ////////////////////////////////////////////////////////////
     ThreadLocalPtr<T>& operator =(const ThreadLocalPtr<T>& right);
 };
 
