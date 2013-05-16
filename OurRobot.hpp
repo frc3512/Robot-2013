@@ -34,7 +34,11 @@
 #include <Timer.h>
 
 #include <DriverStationLCD.h>
+#ifdef NEW_GYRO
 #include "KalmanGyro/ITG3200_ADXL345.hpp"
+#else
+#include <Gyro.h>
+#endif
 
 #include "LiveGrapherHost/GraphHost.hpp"
 
@@ -84,7 +88,11 @@ private:
 
     Solenoid climbArms;
 
+#ifdef NEW_GYRO
     ITG3200_ADXL345 fieldGyro;
+#else
+    Gyro fieldGyro;
+#endif
 
     Relay underGlow;
 
@@ -98,6 +106,9 @@ private:
 
     // Used for timing in all Autonomous routines
     Timer autoTime;
+
+    // Used for determining when to send DSDisplay packets
+    Timer DSpacketTime;
 
     // The LiveGrapher host
     GraphHost pidGraph;

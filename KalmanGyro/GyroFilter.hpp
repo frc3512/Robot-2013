@@ -48,8 +48,8 @@
  *     don't use the axis in callCalcAngle(), the value will never be used.
  */
 
-#ifndef FILTER_BASE_HPP
-#define FILTER_BASE_HPP
+#ifndef GYRO_FILTER_HPP
+#define GYRO_FILTER_HPP
 
 #include <Notifier.h>
 #include <Synchronized.h>
@@ -57,10 +57,10 @@
 
 class GyroBase;
 
-class FilterBase {
+class GyroFilter {
 public:
-    FilterBase( double (GyroBase::*angleFunc)() , double (GyroBase::*rateFunc)() , GyroBase* funcObj );
-    virtual ~FilterBase();
+    GyroFilter( double (GyroBase::*angleFunc)() , double (GyroBase::*rateFunc)() , GyroBase* funcObj );
+    virtual ~GyroFilter();
 
     // Return the internally stored value for gyro angle
     double getAngle();
@@ -120,4 +120,4 @@ private:
     /* ============================ */
 };
 
-#endif // FILTER_BASE_HPP
+#endif // GYRO_FILTER_HPP

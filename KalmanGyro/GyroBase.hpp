@@ -53,7 +53,7 @@
 
 #include <Notifier.h>
 #include <Synchronized.h>
-#include "FilterBase.hpp"
+#include "GyroFilter.hpp"
 
 class GyroBase {
 public:
@@ -87,9 +87,9 @@ protected:
     double getGyroZrate();
 
 private:
-    FilterBase xFilter;
-    FilterBase yFilter;
-    FilterBase zFilter;
+    GyroFilter xFilter;
+    GyroFilter yFilter;
+    GyroFilter zFilter;
 
     // Read angle change (usually raw data) from gyro
     virtual int readGyroX() = 0;

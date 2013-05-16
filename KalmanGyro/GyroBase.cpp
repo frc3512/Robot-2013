@@ -18,7 +18,7 @@
 #include <cmath>
 #include <Timer.h>
 #include "GyroBase.hpp"
-#include "FilterBase.hpp"
+#include "GyroFilter.hpp"
 
 GyroBase::GyroBase() :
 xFilter( &GyroBase::getAccelXangle , &GyroBase::getGyroXrate , this ) ,

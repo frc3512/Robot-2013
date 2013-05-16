@@ -20,7 +20,11 @@ void OurRobot::Disabled() {
 
         // Reset gyro
         if ( driveStickButtons.releasedButton( 8 ) ) {
+#ifdef NEW_GYRO
             fieldGyro.resetXangle( 180.f );
+#else
+            fieldGyro.Reset();
+#endif
         }
 
         // update "new" value of joystick buttons

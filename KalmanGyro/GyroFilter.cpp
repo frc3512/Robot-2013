@@ -15,12 +15,12 @@
  e-mail   :  kristianl@tkjelectronics.com
  */
 
-#include "FilterBase.hpp"
+#include "GyroFilter.hpp"
 
 #include <cmath>
 #include <Timer.h>
 
-FilterBase::FilterBase( double (GyroBase::*angleFunc)() , double (GyroBase::*rateFunc)() , GyroBase* funcObj ) {
+GyroFilter::GyroFilter( double (GyroBase::*angleFunc)() , double (GyroBase::*rateFunc)() , GyroBase* funcObj ) {
     /* We will set the variables like so, these can also be tuned by the user */
     m_Q_angle = 0.001;
     m_Q_bias = 0.003;
@@ -42,17 +42,17 @@ FilterBase::FilterBase( double (GyroBase::*angleFunc)() , double (GyroBase::*rat
 
     m_lastTime = GetTime();
 
-    m_sampleThread = new Notifier( &FilterBase::threadFunc , this );
+    m_sampleThread = new Notifier( &GyroFilter::threadFunc , this );
     m_sampleThread->StartPeriodic( 0.01f );
 }
 
-FilterBase::~FilterBase() {
+GyroFilter::~GyroFilter() {
     // Stop thread before deleting it
     m_sampleThread->Stop();
     delete m_sampleThread;
 }
 
-double FilterBase::getAngle() {
+double GyroFilter::getAngle() {
     double sAngle = 0.0;
 
     m_angleMutex.take();
@@ -64,7 +64,7 @@ double FilterBase::getAngle() {
     return sAngle;
 }
 
-void FilterBase::resetAngle( double newAngle ) {
+void GyroFilter::resetAngle( double newAngle ) {
     m_angleMutex.take();
 
     m_angle = newAngle;
@@ -72,7 +72,7 @@ void FilterBase::resetAngle( double newAngle ) {
     m_angleMutex.give();
 }
 
-double FilterBase::getRate() {
+double GyroFilter::getRate() {
     double sRate = 0.0;
 
     m_rateMutex.take();
@@ -84,7 +84,7 @@ double FilterBase::getRate() {
     return sRate;
 }
 
-void FilterBase::calcAngle() {
+void GyroFilter::calcAngle() {
     // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
     // Modified by Kristian Lauszus
     // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
@@ -145,7 +145,7 @@ void FilterBase::calcAngle() {
     m_lastTime = GetTime();
 }
 
-void FilterBase::threadFunc( void* object ) {
+void GyroFilter::threadFunc( void* object ) {
     // Calculate the angle using a Kalman filter
-    static_cast<FilterBase*>( object )->calcAngle();
+    static_cast<GyroFilter*>( object )->calcAngle();
 }

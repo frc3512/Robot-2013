@@ -63,7 +63,11 @@ OurRobot::OurRobot() :
 
     climbArms( 4 ),
 
+#ifdef NEW_GYRO
     fieldGyro( 1 , 0x38 , 0xE5 ) ,
+#else
+    fieldGyro( 1 ) ,
+#endif
 
     underGlow( 5 ),
 
@@ -115,6 +119,8 @@ OurRobot::OurRobot() :
     mainDrive.SquareInputs( true );
 
     autonMode = 3;
+
+    DSpacketTime.Start();
 }
 
 OurRobot::~OurRobot() {
@@ -130,9 +136,7 @@ void OurRobot::DS_PrintOut() {
         pidGraph.resetInterval();
     }
 
-    static bool shouldSend = false;
-
-    if ( shouldSend ) {
+    if ( DSpacketTime.HasPeriodPassed( 0.2 ) ) {
         /* ===== Print to Driver Station LCD =====
          * Packs the following variables:
          *
@@ -177,7 +181,11 @@ void OurRobot::DS_PrintOut() {
         }
         driverStation->addElementData( 's' , L"MODE" , strDriveMode );
 
+#ifdef NEW_GYRO
         driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
+#else
+        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
+#endif
 
         if ( isGyroEnabled ) {
             driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<uint8_t>( 0 ) );
@@ -247,9 +255,6 @@ void OurRobot::DS_PrintOut() {
 
         driverStation->sendToDS();
     }
-
-    // Skip sending every other set of data
-    shouldSend = !shouldSend;
 
     // Gets messages from DS and fills 'autonMode' if it's a connection message
     const std::string& command = driverStation->receiveFromDS( &autonMode );
