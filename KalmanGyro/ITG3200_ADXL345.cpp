@@ -136,7 +136,3 @@ double ITG3200_ADXL345::getAccelZzero() {
 double ITG3200_ADXL345::getGyroLSBsPerUnit() {
     return 14.375;
 }
-
-void ITG3200_ADXL345::callCalcAngle() {
-    calcAngle( getAccelXangle() , getGyroXrate() );
-}

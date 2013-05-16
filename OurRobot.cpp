@@ -177,7 +177,7 @@ void OurRobot::DS_PrintOut() {
         }
         driverStation->addElementData( 's' , L"MODE" , strDriveMode );
 
-        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getAngle() ) );
+        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
 
         if ( isGyroEnabled ) {
             driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<uint8_t>( 0 ) );

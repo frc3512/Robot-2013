@@ -48,30 +48,32 @@
  *     don't use the axis in callCalcAngle(), the value will never be used.
  */
 
-#ifndef KALMAN_GYRO_HPP
-#define KALMAN_GYRO_HPP
+#ifndef GYRO_BASE_HPP
+#define GYRO_BASE_HPP
 
 #include <Notifier.h>
 #include <Synchronized.h>
+#include "FilterBase.hpp"
 
-class KalmanGyro {
+class GyroBase {
 public:
-    KalmanGyro();
-    virtual ~KalmanGyro();
+    GyroBase();
+    virtual ~GyroBase();
 
-    // Return the internally stored value for gyro angle
-    double getAngle();
+    // Return the internally stored values for gyro angles
+    double getXangle();
+    double getYangle();
+    double getZangle();
 
-    // Used to reset starting angle
-    void resetAngle( double newAngle );
+    // Used to reset starting angle for the respective axis
+    void resetXangle( double newAngle );
+    void resetYangle( double newAngle );
+    void resetZangle( double newAngle );
 
-    // Return the unbiased rate
-    double getRate();
-
-    // These are used to tune the Kalman filter
-    void setQangle( double newQ_angle );
-    void setQbias( double newQ_bias );
-    void setRmeasure( double newR_measure );
+    // Return the unbiased rate of the respective axis
+    double getXrate();
+    double getYrate();
+    double getZrate();
 
 protected:
     // Return angle calculated with accelerometer data (returns degrees)
@@ -84,25 +86,10 @@ protected:
     double getGyroYrate();
     double getGyroZrate();
 
-    /* The angle should be in degrees
-     * The rate should be in degrees per second
-     */
-    void calcAngle( double newAngle , double newRate );
-
 private:
-    /* Kalman filter variables */
-    double m_Q_angle; // Process noise variance for the accelerometer
-    double m_Q_bias; // Process noise variance for the gyro bias
-    double m_R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
-
-    double m_angle; // The angle calculated by the Kalman filter - part of the 2x1 state matrix
-    double m_bias; // The gyro bias calculated by the Kalman filter - part of the 2x1 state matrix
-    double m_rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
-
-    double m_P[2][2]; // Error covariance matrix - This is a 2x2 matrix
-    double m_K[2]; // Kalman gain - This is a 2x1 matrix
-    double m_y; // Angle difference - 1x1 matrix
-    double m_S; // Estimate error - 1x1 matrix
+    FilterBase xFilter;
+    FilterBase yFilter;
+    FilterBase zFilter;
 
     // Read angle change (usually raw data) from gyro
     virtual int readGyroX() = 0;
@@ -126,31 +113,6 @@ private:
 
     // Return sensitivity of gyro in least significant bits per degree/second
     virtual double getGyroLSBsPerUnit() = 0;
-
-    /* The implementing class determines the correct arguments to pass to
-     * calcAngle(3) and calls calcAngle(2)
-     */
-    virtual void callCalcAngle() = 0;
-
-    // Used to find dt in threadFunc(1)
-    double m_lastTime;
-
-    /* ===== Thread variables ===== */
-    // Samples values from gyro at given time interval for filtering
-    Notifier* m_sampleThread;
-
-    // Used for getting and setting variables between main and sampling thread
-    ReentrantSemaphore m_angleMutex;
-    ReentrantSemaphore m_rateMutex;
-    ReentrantSemaphore m_Q_angleMutex;
-    ReentrantSemaphore m_Q_biasMutex;
-    ReentrantSemaphore m_R_measureMutex;
-
-    /* Function rand by sampling thread; takes pointer to current class
-     * instance as first argument
-     */
-    static void threadFunc( void* object );
-    /* ============================ */
 };
 
-#endif // KALMAN_GYRO_HPP
+#endif // GYRO_BASE_HPP

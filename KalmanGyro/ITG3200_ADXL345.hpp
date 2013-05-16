@@ -8,14 +8,14 @@
 #ifndef ITG3200_ADXL345_HPP
 #define ITG3200_ADXL345_HPP
 
-#include "KalmanGyro.hpp"
+#include "GyroBase.hpp"
 
 #include <SensorBase.h>
 #include <DigitalModule.h>
 
 class I2C;
 
-class ITG3200_ADXL345 : public KalmanGyro , public SensorBase {
+class ITG3200_ADXL345 : public GyroBase , public SensorBase {
 public:
     ITG3200_ADXL345( UINT32 slot , UINT32 gyroAddress , UINT32 accelAddress );
     virtual ~ITG3200_ADXL345();
@@ -57,8 +57,6 @@ private:
 
     // Return sensitivity of gyro in least significant bits per degree/second
     double getGyroLSBsPerUnit();
-
-    void callCalcAngle();
 };
 
 #endif // ITG3200_ADXL345_HPP

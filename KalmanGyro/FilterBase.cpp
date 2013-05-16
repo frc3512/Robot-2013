@@ -15,12 +15,12 @@
  e-mail   :  kristianl@tkjelectronics.com
  */
 
-#include "KalmanGyro.hpp"
+#include "FilterBase.hpp"
 
 #include <cmath>
 #include <Timer.h>
 
-KalmanGyro::KalmanGyro() {
+FilterBase::FilterBase( double (GyroBase::*angleFunc)() , double (GyroBase::*rateFunc)() , GyroBase* funcObj ) {
     /* We will set the variables like so, these can also be tuned by the user */
     m_Q_angle = 0.001;
     m_Q_bias = 0.003;
@@ -37,19 +37,22 @@ KalmanGyro::KalmanGyro() {
     m_y = 0;
     m_S = 0;
 
+    m_angleFunc = std::bind( angleFunc , funcObj );
+    m_rateFunc = std::bind( rateFunc , funcObj );
+
     m_lastTime = GetTime();
 
-    m_sampleThread = new Notifier( &KalmanGyro::threadFunc , this );
+    m_sampleThread = new Notifier( &FilterBase::threadFunc , this );
     m_sampleThread->StartPeriodic( 0.01f );
 }
 
-KalmanGyro::~KalmanGyro() {
+FilterBase::~FilterBase() {
     // Stop thread before deleting it
     m_sampleThread->Stop();
     delete m_sampleThread;
 }
 
-double KalmanGyro::getAngle() {
+double FilterBase::getAngle() {
     double sAngle = 0.0;
 
     m_angleMutex.take();
@@ -61,7 +64,7 @@ double KalmanGyro::getAngle() {
     return sAngle;
 }
 
-void KalmanGyro::resetAngle( double newAngle ) {
+void FilterBase::resetAngle( double newAngle ) {
     m_angleMutex.take();
 
     m_angle = newAngle;
@@ -69,7 +72,7 @@ void KalmanGyro::resetAngle( double newAngle ) {
     m_angleMutex.give();
 }
 
-double KalmanGyro::getRate() {
+double FilterBase::getRate() {
     double sRate = 0.0;
 
     m_rateMutex.take();
@@ -81,31 +84,7 @@ double KalmanGyro::getRate() {
     return sRate;
 }
 
-void KalmanGyro::setQangle( double newQ_angle ) {
-    m_Q_angleMutex.take();
-
-    m_Q_angle = newQ_angle;
-
-    m_Q_angleMutex.give();
-}
-
-void KalmanGyro::setQbias( double newQ_bias ) {
-    m_Q_biasMutex.take();
-
-    m_Q_bias = newQ_bias;
-
-    m_Q_biasMutex.give();
-}
-
-void KalmanGyro::setRmeasure( double newR_measure ) {
-    m_R_measureMutex.take();
-
-    m_R_measure = newR_measure;
-
-    m_R_measureMutex.give();
-}
-
-void KalmanGyro::calcAngle( double newAngle , double newRate ) {
+void FilterBase::calcAngle() {
     // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
     // Modified by Kristian Lauszus
     // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
@@ -117,7 +96,7 @@ void KalmanGyro::calcAngle( double newAngle , double newRate ) {
     // Update xhat - Project the state ahead
     /* Step 1 */
     m_rateMutex.take();
-    m_rate = newRate - m_bias;
+    m_rate = m_rateFunc() - m_bias;
     m_angleMutex.take();
     m_angle += dt * m_rate;
     m_angleMutex.give();
@@ -148,7 +127,7 @@ void KalmanGyro::calcAngle( double newAngle , double newRate ) {
     // Calculate angle and bias - Update estimate with measurement zk (newAngle)
     /* Step 5 */
     m_angleMutex.take();
-    m_y = newAngle - m_angle;
+    m_y = m_angleFunc() - m_angle;
 
     /* Step 6 */
     m_angle += m_K[0] * m_y;
@@ -166,43 +145,7 @@ void KalmanGyro::calcAngle( double newAngle , double newRate ) {
     m_lastTime = GetTime();
 }
 
-double KalmanGyro::getAccelXangle() {
-    double accelXval = static_cast<double>(readAccelX()) - getAccelXzero();
-    double accelZval = static_cast<double>(readAccelZ()) - getAccelZzero();
-
-    // ( std::atan2( accelXval , accelZval ) + 3.14159265 ) * 180.0 / 3.14159265;
-    return 180.0 * std::atan2( accelXval , accelZval ) / 3.14159265 + 180.0;
-}
-
-double KalmanGyro::getAccelYangle() {
-    double accelYval = static_cast<double>(readAccelY()) - getAccelYzero();
-    double accelZval = static_cast<double>(readAccelZ()) - getAccelZzero();
-
-    // ( std::atan2( accelYval , accelZval ) + 3.14159265 ) * 180.0 / 3.14159265
-    return 180.0 * std::atan2( accelYval , accelZval ) / 3.14159265 + 180.0;
-}
-
-double KalmanGyro::getAccelZangle() { // TODO: correct order of atan2 args?
-    double accelXval = static_cast<double>(readAccelX()) - getAccelXzero();
-    double accelYval = static_cast<double>(readAccelY()) - getAccelYzero();
-
-    // ( std::atan2( accelXval , accelYval ) + 3.14159265 ) * 180.0 / 3.14159265
-    return 180.0 * std::atan2( accelXval , accelYval ) / 3.14159265 + 180.0;
-}
-
-double KalmanGyro::getGyroXrate() {
-    return -(static_cast<double>(readGyroX()) - getGyroXzero()) / getGyroLSBsPerUnit();
-}
-
-double KalmanGyro::getGyroYrate() {
-    return (static_cast<double>(readGyroY()) - getGyroYzero()) / getGyroLSBsPerUnit();
-}
-
-double KalmanGyro::getGyroZrate() { // TODO: negate return value?
-    return (static_cast<double>(readGyroZ()) - getGyroZzero()) / getGyroLSBsPerUnit();
-}
-
-void KalmanGyro::threadFunc( void* object ) {
+void FilterBase::threadFunc( void* object ) {
     // Calculate the angle using a Kalman filter
-    static_cast<KalmanGyro*>( object )->callCalcAngle();
+    static_cast<FilterBase*>( object )->calcAngle();
 }
