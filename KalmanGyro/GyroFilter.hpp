@@ -29,7 +29,7 @@
 #define GYRO_FILTER_HPP
 
 #include <Notifier.h>
-#include <Synchronized.h>
+#include <atomic>
 #include <functional>
 
 class GyroBase;
@@ -49,17 +49,18 @@ public:
     double getRate();
 
 protected:
+    // Executes Kalman filter algorithm
     void calcAngle();
 
 private:
     /* Kalman filter variables */
-    double m_Q_angle; // Process noise variance for the accelerometer
-    double m_Q_bias; // Process noise variance for the gyro bias
-    double m_R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
+    std::atomic<double> m_Q_angle; // Process noise variance for the accelerometer
+    std::atomic<double> m_Q_bias; // Process noise variance for the gyro bias
+    std::atomic<double> m_R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
 
-    double m_angle; // The angle calculated by the Kalman filter - part of the 2x1 state matrix
+    std::atomic<double> m_angle; // The angle calculated by the Kalman filter - part of the 2x1 state matrix
+    std::atomic<double> m_rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
     double m_bias; // The gyro bias calculated by the Kalman filter - part of the 2x1 state matrix
-    double m_rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
 
     double m_P[2][2]; // Error covariance matrix - This is a 2x2 matrix
     double m_K[2]; // Kalman gain - This is a 2x1 matrix
@@ -83,15 +84,8 @@ private:
     // Samples values from gyro at given time interval for filtering
     Notifier* m_sampleThread;
 
-    // Used for getting and setting variables between main and sampling thread
-    ReentrantSemaphore m_angleMutex;
-    ReentrantSemaphore m_rateMutex;
-    ReentrantSemaphore m_Q_angleMutex;
-    ReentrantSemaphore m_Q_biasMutex;
-    ReentrantSemaphore m_R_measureMutex;
-
-    /* Function rand by sampling thread; takes pointer to current class
-     * instance as first argument
+    /* Function ran by sampling thread; takes pointer to current class instance
+     * as first argument; calls 'void GyroFilter::calcAngle()'
      */
     static void threadFunc( void* object );
     /* ============================ */

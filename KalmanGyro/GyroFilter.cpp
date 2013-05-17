@@ -53,35 +53,15 @@ GyroFilter::~GyroFilter() {
 }
 
 double GyroFilter::getAngle() {
-    double sAngle = 0.0;
-
-    m_angleMutex.take();
-
-    sAngle = m_angle;
-
-    m_angleMutex.give();
-
-    return sAngle;
+    return m_angle;
 }
 
 void GyroFilter::resetAngle( double newAngle ) {
-    m_angleMutex.take();
-
     m_angle = newAngle;
-
-    m_angleMutex.give();
 }
 
 double GyroFilter::getRate() {
-    double sRate = 0.0;
-
-    m_rateMutex.take();
-
-    sRate = m_rate;
-
-    m_rateMutex.give();
-
-    return sRate;
+    return m_rate;
 }
 
 void GyroFilter::calcAngle() {
@@ -95,30 +75,20 @@ void GyroFilter::calcAngle() {
     // Discrete Kalman filter time update equations - Time Update ("Predict")
     // Update xhat - Project the state ahead
     /* Step 1 */
-    m_rateMutex.take();
     m_rate = m_rateFunc() - m_bias;
-    m_angleMutex.take();
-    m_angle += dt * m_rate;
-    m_angleMutex.give();
-    m_rateMutex.give();
+    m_angle = m_angle + dt * m_rate;
 
     // Update estimation error covariance - Project the error covariance ahead
     /* Step 2 */
-    m_Q_angleMutex.take();
     m_P[0][0] += dt * (dt * m_P[1][1] - m_P[0][1] - m_P[1][0] + m_Q_angle);
-    m_Q_angleMutex.give();
     m_P[0][1] -= dt * m_P[1][1];
     m_P[1][0] -= dt * m_P[1][1];
-    m_Q_biasMutex.take();
     m_P[1][1] += m_Q_bias * dt;
-    m_Q_biasMutex.give();
 
     // Discrete Kalman filter measurement update equations - Measurement Update ("Correct")
     // Calculate Kalman gain - Compute the Kalman gain
     /* Step 3 */
-    m_R_measureMutex.take();
     m_S = m_P[0][0] + m_R_measure;
-    m_R_measureMutex.give();
 
     /* Step 4 */
     m_K[0] = m_P[0][0] / m_S;
@@ -126,12 +96,10 @@ void GyroFilter::calcAngle() {
 
     // Calculate angle and bias - Update estimate with measurement zk (newAngle)
     /* Step 5 */
-    m_angleMutex.take();
     m_y = m_angleFunc() - m_angle;
 
     /* Step 6 */
-    m_angle += m_K[0] * m_y;
-    m_angleMutex.give();
+    m_angle = m_angle + m_K[0] * m_y;
     m_bias += m_K[1] * m_y;
 
     // Calculate estimation error covariance - Update the error covariance
