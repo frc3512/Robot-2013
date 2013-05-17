@@ -17,35 +17,12 @@
 
 /* Usage:
  *
- * This class is an implementation for a gyro-accelerometer Kalman Filter.
- * Since this class can't possibly know how to interface with every gyro and
- * accelerometer that exists, you'll instead handle your gyro/accelerometer in
- * your own derived class and pass in the required data from them via the pure
- * virtual functions.
+ * This class is an implementation for a gyro-accelerometer Kalman Filter. It
+ * implements the basic algorithm of a Kalman Filter, with the correct angle
+ * and rate functions passed in via the constructor.
  *
- * * To use this interface, derive from this class and override all pure
- *   virtual member functions privately.
- *
- * Function clarifications:
- *   * readGyroX() should return the value of the X-axis of the gyro
- *   * readAccelY() should return the value of the Y-axis of the accelerometer
- *   * getGyroZzero() should return the constant representing the zero point of
- *     the Z-axis of the gyro
- *   * getGyroLSBsPerUnit() should return the number of least significant bits
- *     representing a change in the gyro's value of 1 degree/second. This can
- *     be found in the data sheet for the specific gyro you're using.
- *
- * Implementing callCalcAngle():
- *   * When writing the callCalcAngle() function, you only have to call
- *     calcAngle(2)
- *   * Arguments to calcAngle(2):
- *       * 1st: getAccelXangle() or any other axis (like getAccelYangle())
- *       * 2nd: getGyroXrate() or any other axis (like (getGyroYrate())
- *
- * Misc. Help:
- *   * If your accelerometer or gyro doesn't have one or more of the three
- *     axes, create the function in your class and return zero. As long as you
- *     don't use the axis in callCalcAngle(), the value will never be used.
+ * This class shouldn't be instantiated alone. Instead, created a derived class
+ * from GyroBase and follow the instructions for how to override its functions.
  */
 
 #ifndef GYRO_FILTER_HPP

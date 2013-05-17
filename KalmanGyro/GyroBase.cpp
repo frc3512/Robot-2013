@@ -1,19 +1,8 @@
-/* Copyright (C) 2012 Kristian Lauszus, TKJ Electronics. All rights reserved.
-
- This software may be distributed and modified under the terms of the GNU
- General Public License version 2 (GPL2) as published by the Free Software
- Foundation and appearing in the file GPL2.TXT included in the packaging of
- this file. Please note that GPL2 Section 2[b] requires that all works based
- on this software must also be made publicly available under the terms of
- the GPL2 ("Copyleft").
-
- Contact information
- -------------------
-
- Kristian Lauszus, TKJ Electronics
- Web      :  http://www.tkjelectronics.com
- e-mail   :  kristianl@tkjelectronics.com
- */
+//=============================================================================
+//File Name: GyroBase.cpp
+//Description: Wrapper for a gyro-accelerometer Kalman filter (GyroFilter)
+//Author: FRC Team 3512, Spartatroniks
+//=============================================================================
 
 #include <cmath>
 #include <Timer.h>
@@ -100,4 +89,52 @@ double GyroBase::getGyroYrate() {
 
 double GyroBase::getGyroZrate() { // TODO: negate return value?
     return (static_cast<double>(readGyroZ()) - getGyroZzero()) / getGyroLSBsPerUnit();
+}
+
+int GyroBase::readGyroX() {
+    return 0;
+}
+
+int GyroBase::readGyroY() {
+    return 0;
+}
+
+int GyroBase::readGyroZ() {
+    return 0;
+}
+
+int GyroBase::readAccelX() {
+    return 0;
+}
+
+int GyroBase::readAccelY() {
+    return 0;
+}
+
+int GyroBase::readAccelZ() {
+    return 0;
+}
+
+double GyroBase::getGyroXzero() {
+    return 0.0;
+}
+
+double GyroBase::getGyroYzero() {
+    return 0.0;
+}
+
+double GyroBase::getGyroZzero() {
+    return 0.0;
+}
+
+double GyroBase::getAccelXzero() {
+    return 0.0;
+}
+
+double GyroBase::getAccelYzero() {
+    return 0.0;
+}
+
+double GyroBase::getAccelZzero() {
+    return 0.0;
 }
