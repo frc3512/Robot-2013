@@ -70,8 +70,6 @@ const std::string DriverStationDisplay::receiveFromDS( void* userData ) {
             // Next byte after command is selection choice
             *static_cast<char*>(userData) = m_recvBuffer[13];
 
-
-
             return "autonSelect\r\n";
         }
     }
