@@ -33,6 +33,10 @@
 #include "SFML/Network/Packet.hpp"
 #include "SFML/Network/UdpSocket.hpp"
 
+namespace std {
+typedef std::basic_string<char32_t> w32string;
+}
+
 class DriverStationDisplayInit;
 
 class DriverStationDisplay : public NonCopyable , public sf::Packet {
@@ -54,7 +58,7 @@ public:
 
     // Add UI element data to packet
     template <class T>
-    void addElementData( unsigned char type , std::wstring ID , T data );
+    void addElementData( unsigned char type , std::basic_string<char32_t> ID , T data );
 
 private:
     DriverStationDisplay( unsigned short portNumber );

@@ -334,6 +334,29 @@ Packet& Packet::operator >>(std::wstring& data)
 
 
 ////////////////////////////////////////////////////////////
+Packet& Packet::operator >>(std::w32string& data)
+{
+    // First extract string length
+    uint32_t length = 0;
+    *this >> length;
+
+    data.clear();
+    if ((length > 0) && checkSize(length * sizeof(char32_t)))
+    {
+        // Then extract characters
+        for (uint32_t i = 0; i < length; ++i)
+        {
+            uint32_t character = 0;
+            *this >> character;
+            data += static_cast<uint32_t>(character);
+        }
+    }
+
+    return *this;
+}
+
+
+////////////////////////////////////////////////////////////
 Packet& Packet::operator >>(String& data)
 {
     // First extract the string length
@@ -511,6 +534,24 @@ Packet& Packet::operator <<(const std::wstring& data)
     if (length > 0)
     {
         for (std::wstring::const_iterator c = data.begin(); c != data.end(); ++c)
+            *this << static_cast<uint32_t>(*c);
+    }
+
+    return *this;
+}
+
+
+////////////////////////////////////////////////////////////
+Packet& Packet::operator <<(const std::w32string& data)
+{
+    // First insert string length
+    uint32_t length = static_cast<uint32_t>(data.size());
+    *this << length;
+
+    // Then insert characters
+    if (length > 0)
+    {
+        for (std::w32string::const_iterator c = data.begin(); c != data.end(); ++c)
             *this << static_cast<uint32_t>(*c);
     }
 
