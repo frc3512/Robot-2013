@@ -67,6 +67,7 @@ double GyroFilter::getRate() {
 void GyroFilter::calcAngle() {
     // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
     // Modified by Kristian Lauszus
+    // Modified again by Tyler Veness
     // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
 
     // Get the current dt since the last call to calcAngle(2)
@@ -85,22 +86,27 @@ void GyroFilter::calcAngle() {
     m_P[1][0] -= dt * m_P[1][1];
     m_P[1][1] += m_Q_bias * dt;
 
-    // Discrete Kalman filter measurement update equations - Measurement Update ("Correct")
-    // Calculate Kalman gain - Compute the Kalman gain
+    /* === Discrete Kalman filter measurement update equations - Measurement Update ("Correct") === */
+    // Calculate Kalman gain
     /* Step 3 */
     m_S = m_P[0][0] + m_R_measure;
 
+    // Compute the Kalman gain
     /* Step 4 */
     m_K[0] = m_P[0][0] / m_S;
     m_K[1] = m_P[1][0] / m_S;
+    /* ======================================================================================== */
 
-    // Calculate angle and bias - Update estimate with measurement zk (newAngle)
+    /* === Calculate angle and bias === */
     /* Step 5 */
+    // Calculate angle difference
     m_y = m_angleFunc() - m_angle;
 
+    // Update estimate with measurement zk (newAngle)
     /* Step 6 */
     m_angle = m_angle + m_K[0] * m_y;
     m_bias += m_K[1] * m_y;
+    /* ================================ */
 
     // Calculate estimation error covariance - Update the error covariance
     /* Step 7 */
