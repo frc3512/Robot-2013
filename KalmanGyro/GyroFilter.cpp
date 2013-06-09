@@ -70,21 +70,21 @@ void GyroFilter::calcAngle() {
     // Modified again by Tyler Veness
     // See my blog post for more information: http://blog.tkjelectronics.dk/2012/09/a-practical-approach-to-kalman-filter-and-how-to-implement-it
 
-    // Get the current dt since the last call to calcAngle(2)
-    double dt = GetTime() - m_lastTime;
+    // Get the current dt since the last call to calcAngle()
+    m_dt = GetTime() - m_lastTime;
 
     // Discrete Kalman filter time update equations - Time Update ("Predict")
     // Update xhat - Project the state ahead
     /* Step 1 */
     m_rate = m_rateFunc() - m_bias;
-    m_angle = m_angle + dt * m_rate;
+    m_angle = m_angle + m_dt * m_rate;
 
     // Update estimation error covariance - Project the error covariance ahead
     /* Step 2 */
-    m_P[0][0] += dt * (dt * m_P[1][1] - m_P[0][1] - m_P[1][0] + m_Q_angle);
-    m_P[0][1] -= dt * m_P[1][1];
-    m_P[1][0] -= dt * m_P[1][1];
-    m_P[1][1] += m_Q_bias * dt;
+    m_P[0][0] += m_dt * (m_dt * m_P[1][1] - m_P[0][1] - m_P[1][0] + m_Q_angle);
+    m_P[0][1] -= m_dt * m_P[1][1];
+    m_P[1][0] -= m_dt * m_P[1][1];
+    m_P[1][1] += m_Q_bias * m_dt;
 
     /* === Discrete Kalman filter measurement update equations - Measurement Update ("Correct") === */
     // Calculate Kalman gain

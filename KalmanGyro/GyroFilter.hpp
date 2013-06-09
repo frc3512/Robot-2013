@@ -77,7 +77,10 @@ private:
      */
     std::function<double()> m_rateFunc;
 
-    // Used to find dt in threadFunc(1)
+    // Holds dt in calcAngle()
+    double m_dt;
+
+    // Used to find dt in calcAngle()
     double m_lastTime;
 
     /* ===== Thread variables ===== */
