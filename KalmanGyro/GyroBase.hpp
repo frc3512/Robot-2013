@@ -10,10 +10,9 @@
  * class can't possibly know how to interface with every gyro and accelerometer
  * that exists, you'll instead handle your gyro/accelerometer in your own
  * derived class and pass in the required data from them via the virtual
- * functions. This class is designed for use with a digital (not analog) gyro.
- * TODO: Support analog gyros
+ * functions.
  *
- * * To use this interface, derive from this class and override all pure
+ * * To use this interface, derive from this class and override all appropriate
  *   virtual member functions privately.
  *
  * Function clarifications:
@@ -98,7 +97,10 @@ private:
     virtual double getAccelYzero();
     virtual double getAccelZzero();
 
-    // Return sensitivity of gyro in least significant bits per degree/second
+    /* Return sensitivity of gyro in least significant bits per degree/second.
+     * If you're using an analog gyro, LSBs would be volts instead, but the
+     * underlying algorithm is the same.
+     */
     virtual double getGyroLSBsPerUnit() = 0;
 };
 
