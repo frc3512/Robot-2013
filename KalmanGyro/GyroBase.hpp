@@ -9,8 +9,9 @@
  * This class is a wrapper for a gyro-accelerometer Kalman Filter. Since this
  * class can't possibly know how to interface with every gyro and accelerometer
  * that exists, you'll instead handle your gyro/accelerometer in your own
- * derived class and pass in the required data from them via the pure virtual
- * functions.
+ * derived class and pass in the required data from them via the virtual
+ * functions. This class is designed for use with a digital (not analog) gyro.
+ * TODO: Support analog gyros
  *
  * * To use this interface, derive from this class and override all pure
  *   virtual member functions privately.
@@ -21,8 +22,11 @@
  *   * getGyroZzero() should return the constant representing the zero point of
  *     the Z-axis of the gyro
  *   * getGyroLSBsPerUnit() should return the number of least significant bits
- *     representing a change in the gyro's value of 1 degree/second. This can
- *     be found in the data sheet for the specific gyro you're using.
+ *     which represent a change in the gyro's value of 1 degree/second. This
+ *     can be found in the data sheet for the specific gyro you're using. Some
+ *     data sheets may tell you that one LSB is A degrees/second, or A units
+ *     per LSB, in which case 1/A, or 1/A LSBs per unit, would be the value to
+ *     return from this function.
  *
  * Misc. Help:
  *   * If your accelerometer or gyro doesn't have one or more of the three
