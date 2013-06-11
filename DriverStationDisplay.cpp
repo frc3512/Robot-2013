@@ -80,5 +80,7 @@ const std::string DriverStationDisplay::receiveFromDS( void* userData ) {
 DriverStationDisplay::DriverStationDisplay( unsigned short portNumber ) : m_dsIP( sf::IpAddress::None ) , m_dsPort( portNumber ) {
     m_socket.bind( portNumber );
     m_socket.setBlocking( false );
+    m_recvIP = sf::IpAddress( 0 , 0 , 0 , 0 );
+    m_recvPort = 0;
     m_recvBuffer = static_cast<char*>( std::malloc( 256 ) );
 }

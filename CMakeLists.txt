@@ -5,16 +5,16 @@ project(Cynisca)
 find_package(WPILib)
 include_directories(${WPILib_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "-O3 -s -std=c++11")
-set(CMAKE_C_FLAGS "-O3 -s -std=c11")
+set(CMAKE_CXX_FLAGS "-O3 -Wall -s -std=c++11")
+set(CMAKE_C_FLAGS "-O3 -Wall -s -std=c11")
 
 set(DIRS
     AutonomousModes/*
     KalmanGyro/*
     LiveGrapherHost/*
-    Subsystems/*
     SFMLNetwork/*
     SFMLSystem/*
+    Subsystems/*
 )
 
 file(GLOB SRC *.cpp *.c)

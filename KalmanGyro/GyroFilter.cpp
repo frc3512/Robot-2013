@@ -40,6 +40,7 @@ GyroFilter::GyroFilter( double (GyroBase::*angleFunc)() , double (GyroBase::*rat
     m_angleFunc = std::bind( angleFunc , funcObj );
     m_rateFunc = std::bind( rateFunc , funcObj );
 
+    m_dt = 0.f;
     m_lastTime = GetTime();
 
     m_sampleThread = new Notifier( &GyroFilter::threadFunc , this );
