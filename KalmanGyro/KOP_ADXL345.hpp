@@ -9,11 +9,10 @@
 #define KOP_ADXL345_HPP
 
 #include "GyroBase.hpp"
-#include "KopGyro.hpp"
 
 #include <SensorBase.h>
-#include <DigitalModule.h>
 
+class AnalogModule;
 class I2C;
 
 class KOP_ADXL345 : public GyroBase , public SensorBase {
@@ -23,7 +22,8 @@ public:
 
 private:
     // KOP 1-axis gyro
-    KopGyro m_gyro;
+    AnalogModule* m_gyro;
+    UINT32 m_gyroChannel;
 
     // ADXL345 3-axis accelerometer
     I2C* m_accel;

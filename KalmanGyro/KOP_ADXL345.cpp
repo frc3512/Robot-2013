@@ -7,11 +7,15 @@
 
 #include "KOP_ADXL345.hpp"
 
+#include <AnalogModule.h>
 #include <DigitalModule.h>
 #include <I2C.h>
 
 KOP_ADXL345::KOP_ADXL345( UINT32 gyroSlot , UINT32 gyroChannel , UINT32 accelSlot , UINT32 accelAddress )
-: m_gyro( gyroSlot , gyroChannel ) , m_accel( NULL ) {
+: m_gyro( NULL ) , m_accel( NULL ) {
+    m_gyro = AnalogModule::GetInstance( gyroSlot );
+    m_gyroChannel = gyroChannel;
+
     DigitalModule* accelModule = DigitalModule::GetInstance( accelSlot );
 
     if ( accelModule != NULL ) {
@@ -30,7 +34,12 @@ KOP_ADXL345::~KOP_ADXL345() {
 
 // Actually measures y-axis of gyro for consistency with accelerometer
 int KOP_ADXL345::readGyroX() {
-    return (m_gyro.GetVoltage() - getGyroXzero()) / getGyroLSBsPerUnit();
+    if ( m_gyro != NULL ) {
+        return (m_gyro->GetAverageVoltage( m_gyroChannel ) - getGyroXzero()) / getGyroLSBsPerUnit();
+    }
+    else {
+        return 0;
+    }
 }
 
 int KOP_ADXL345::readAccelX() {
