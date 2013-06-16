@@ -41,8 +41,8 @@
 
 #include <PIDSource.h>
 #include <PIDOutput.h>
-#include <PIDController.h>
 #include <Victor.h>
+#include "../PIDController.hpp"
 #include "../GeartoothEncoder.hpp"
 
 #include "../SFML/System/Mutex.hpp"
