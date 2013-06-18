@@ -10,12 +10,11 @@
 
 #include "GyroBase.hpp"
 
-#include <SensorBase.h>
 #include <DigitalModule.h>
 
 class I2C;
 
-class ITG3200_ADXL345 : public GyroBase , public SensorBase {
+class ITG3200_ADXL345 : public GyroBase {
 public:
     ITG3200_ADXL345( UINT32 slot , UINT32 gyroAddress , UINT32 accelAddress );
     virtual ~ITG3200_ADXL345();

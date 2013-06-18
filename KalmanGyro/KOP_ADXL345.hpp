@@ -10,12 +10,10 @@
 
 #include "GyroBase.hpp"
 
-#include <SensorBase.h>
-
 class AnalogModule;
 class I2C;
 
-class KOP_ADXL345 : public GyroBase , public SensorBase {
+class KOP_ADXL345 : public GyroBase {
 public:
     KOP_ADXL345( UINT32 gyroSlot , UINT32 gyroChannel , UINT32 accelSlot , UINT32 accelAddress );
     virtual ~KOP_ADXL345();
