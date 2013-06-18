@@ -34,8 +34,9 @@
 #include <Timer.h>
 
 #include <DriverStationLCD.h>
+#define NEW_GYRO
 #ifdef NEW_GYRO
-#include "KalmanGyro/ITG3200_ADXL345.hpp"
+#include "KalmanGyro/KOP_ADXL345.hpp"
 #else
 #include <Gyro.h>
 #endif
@@ -89,7 +90,7 @@ private:
     Solenoid climbArms;
 
 #ifdef NEW_GYRO
-    ITG3200_ADXL345 fieldGyro;
+    KOP_ADXL345 fieldGyro;
 #else
     Gyro fieldGyro;
 #endif

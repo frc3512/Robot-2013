@@ -50,8 +50,7 @@ MecanumDrive::~MecanumDrive() {
  * Drive method for Mecanum wheeled robots.
  *
  * A method for driving with Mecanum wheeled robots. There are 4 wheels
- * on the robot, arranged so that the front and back wheels are toed in 45 degrees.
- * When looking at the wheels from the top, the roller axles should form an X across the robot.
+ * on the robot, arranged so that the front and back wheels are parallel.
  *
  * This is designed to be directly driven by joystick axes.
  *

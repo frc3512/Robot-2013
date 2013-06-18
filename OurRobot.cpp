@@ -63,7 +63,7 @@ OurRobot::OurRobot() :
     climbArms( 4 ),
 
 #ifdef NEW_GYRO
-    fieldGyro( 1 , 0x38 , 0xE5 ) ,
+    fieldGyro( 1 , 1 , 0x38 , 0xE5 ) ,
 #else
     fieldGyro( 1 ) ,
 #endif
