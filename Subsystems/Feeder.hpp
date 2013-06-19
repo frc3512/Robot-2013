@@ -35,7 +35,7 @@ public:
     // Continues transition of feeder state
     void update();
 
-    // Returns true if this instance is in the middle of feeding a frisbee
+    // Returns true if this instance is in the middle of feeding frisbees
     bool isFeeding();
 
     /* Sets delay for which the plunging actuator stays retracted (to give the
@@ -52,13 +52,25 @@ public:
 private:
     Solenoid m_frisbeeFeed;
     Timer m_feedTimer;
+
+    // Time it takes for the feed actuator to completely switch states
     double m_feedDelay;
 
     Solenoid m_frisbeeGuard;
     Timer m_guardTimer;
+
+    /* Time it takes for the frisbee to pass into the shooter after the feed
+     * actuator fully contracts
+     */
     double m_guardDelay;
 
     bool m_isActivated;
+
+    // Number of frisbees shot since feeder was last activated
+    unsigned int m_numShot;
+
+    // Number of frisbees to shoot since feeder was last activated
+    unsigned int m_totalToShoot;
 };
 
 #endif // FEEDER_HPP

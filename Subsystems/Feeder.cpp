@@ -12,7 +12,9 @@ Feeder::Feeder( UINT32 feedSolenoid , UINT32 guardSolenoid ,
         m_feedDelay( feedDelay ) ,
         m_frisbeeGuard( guardSolenoid ) ,
         m_guardDelay( guardDelay ) ,
-        m_isActivated( false ) {
+        m_isActivated( false ) ,
+        m_numShot( 0 ) ,
+        m_totalToShoot( 0 ) {
 }
 
 Feeder::~Feeder() {
@@ -20,9 +22,10 @@ Feeder::~Feeder() {
 }
 
 void Feeder::activate() {
+    // Start process if it's stopped
     if ( !m_isActivated ) {
-        // Pull feeder in for pushing frisbee
-        m_frisbeeFeed.Set( true );
+        // Make sure the feed actuator is in a known state: the default
+        m_frisbeeFeed.Set( false );
 
         // Lower shooter guard so frisbees can leave
         m_frisbeeGuard.Set( true );
@@ -32,28 +35,41 @@ void Feeder::activate() {
         m_guardTimer.Start();
 
         m_isActivated = true;
+
+        // Reset counters
+        m_numShot = 0;
+        m_totalToShoot = 0;
     }
+
+    // Increase number of frisbees to shoot before stopping process
+    m_totalToShoot++;
 }
 
 void Feeder::update() {
-    /* If frisbee is going to be fed into the shooter and the actuator had
-     * enough time to move completely out from underneath the frisbees
-     */
+    // If frisbee is going to be fed into the shooter
     if ( m_isActivated ) {
-        if ( m_frisbeeFeed.Get() && m_feedTimer.Get() > m_feedDelay ) {
-            // Reset feed actuator and push frisbee into shooter
-            m_frisbeeFeed.Set( false );
+        // If there are still frisbees to shoot
+        if ( m_numShot < m_totalToShoot ) {
+            if ( m_feedTimer.HasPeriodPassed( m_feedDelay ) ) {
+                // Switch state of solenoid
+                m_frisbeeFeed.Set( !m_frisbeeFeed.Get() );
 
-            // Reset timer
-            m_feedTimer.Stop();
-            m_feedTimer.Reset();
+                // If feed actuator is now in default position
+                if ( m_frisbeeFeed.Get() == false ) {
+                    m_numShot++;
+                }
+            }
         }
 
-        // If frisbee guard is down and frisbee has moved past guard
-        if ( m_frisbeeGuard.Get() == true && m_guardTimer.Get() > m_guardDelay ) {
+        // If time for 'm_totalShoot' transits and the guard delay has passed
+        if ( m_guardTimer.Get() > m_totalToShoot * (2 * m_feedDelay) + m_guardDelay ) {
             m_frisbeeGuard.Set( false );
 
-            // Reset timer
+            // Reset feed timer
+            m_feedTimer.Stop();
+            m_feedTimer.Reset();
+
+            // Reset guard timer
             m_guardTimer.Stop();
             m_guardTimer.Reset();
 
