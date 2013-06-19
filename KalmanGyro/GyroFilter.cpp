@@ -18,6 +18,7 @@
 #include "GyroFilter.hpp"
 
 #include <cmath>
+#include <Notifier.h>
 #include <Timer.h>
 
 GyroFilter::GyroFilter( double (GyroBase::*angleFunc)() , double (GyroBase::*rateFunc)() , GyroBase* funcObj ) {

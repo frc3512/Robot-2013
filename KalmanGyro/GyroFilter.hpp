@@ -28,11 +28,11 @@
 #ifndef GYRO_FILTER_HPP
 #define GYRO_FILTER_HPP
 
-#include <Notifier.h>
 #include <atomic>
 #include <functional>
 
 class GyroBase;
+class Notifier;
 
 class GyroFilter {
 public:

@@ -29,16 +29,14 @@
  *
  * Misc. Help:
  *   * If your accelerometer or gyro doesn't have one or more of the three
- *     axes, don't inherit the functions related to them. Avoid calling
- *     functions returning data for that respective axis, since it will be
- *     garbage.
+ *     axes, don't override the functions related to them. Avoid calling
+ *     functions which return data for those unused axes, since the data will
+ *     be garbage.
  */
 
 #ifndef GYRO_BASE_HPP
 #define GYRO_BASE_HPP
 
-#include <Notifier.h>
-#include <Synchronized.h>
 #include "GyroFilter.hpp"
 
 class GyroBase {
