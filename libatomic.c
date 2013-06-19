@@ -1,5 +1,5 @@
 /* Basic implementation of libatomic for GCC.
-   This basic implementation currently assumes everything is aligned. 
+   This basic implementation currently assumes everything is aligned.
 
    Copyright (C) 2010, 2011
    Free Software Foundation, Inc.
@@ -29,8 +29,8 @@
 /* These defines should be defined based on configuration of what the target
    supports.  Changing these #defines is all that is required to use this
    file.  If your target supports unsigned int type of the appropriate
-   number of bytes, simply define it as 1.  Note that for I16 you may 
-   also have to change the type from __int128_t to int128_t if approriate.  
+   number of bytes, simply define it as 1.  Note that for I16 you may
+   also have to change the type from __int128_t to int128_t if approriate.
 
    Also note that you can expect to see warning from compiler similar to :
 warning: conflicting types for built-in function ‘__atomic_compare_exchange_1’
@@ -54,26 +54,27 @@ warning: conflicting types for built-in function ‘__atomic_compare_exchange_1�
 #define __LIBATOMIC_SUPPORTS_I8		1
 #endif
 
+#if 0
 #ifndef  __LIBATOMIC_SUPPORTS_I16
 #define __LIBATOMIC_SUPPORTS_I16	1
+#endif
 #endif
 
 /* Define types for all supported sizes.  */
 
-#if __LIBATOMIC_SUPPORTS_I1	
+#if __LIBATOMIC_SUPPORTS_I1
 typedef uint8_t		I1;
 #endif
-#if __LIBATOMIC_SUPPORTS_I2	
+#if __LIBATOMIC_SUPPORTS_I2
 typedef uint16_t	I2;
 #endif
-#if __LIBATOMIC_SUPPORTS_I4	
+#if __LIBATOMIC_SUPPORTS_I4
 typedef uint32_t	I4;
 #endif
-#if __LIBATOMIC_SUPPORTS_I8	
+#if __LIBATOMIC_SUPPORTS_I8
 typedef uint64_t	I8;
 #endif
-#undef __LIBATOMIC_SUPPORTS_I16
-#if __LIBATOMIC_SUPPORTS_I16	
+#if __LIBATOMIC_SUPPORTS_I16
 typedef __int128_t	I16;
 #endif
 
@@ -220,11 +221,11 @@ __atomic_is_lock_free (size_t size, void *ptr __attribute__ ((unused)))
 /* Implement a generic atomic load for an object of SIZE, copying the value
    from MEM into RET using MODEL.  */
 
-void 
+void
 __atomic_load (size_t size, void *mem, void *ret, int model)
 {
   switch (size)
-  {	
+  {
 #if __LIBATOMIC_SUPPORTS_I1
     case 1:
       LOAD (1);
@@ -269,10 +270,10 @@ __atomic_load (size_t size, void *mem, void *ret, int model)
   else							\
     break;
 
-/* Perform an atomic store for an object of SIZE.  Store VAL into MEM using 
+/* Perform an atomic store for an object of SIZE.  Store VAL into MEM using
    MODEL.  */
 
-void 
+void
 __atomic_store (size_t size, void *mem, void *val, int model)
 {
   switch (size)
@@ -322,10 +323,10 @@ __atomic_store (size_t size, void *mem, void *val, int model)
   else						     		\
     break;
 
-/* Perform an atomic exchange for an object of SIZE.  Store VAL into MEM using 
+/* Perform an atomic exchange for an object of SIZE.  Store VAL into MEM using
    MODEL, and return the previous value of MEM in RET.  */
 
-void 
+void
 __atomic_exchange (size_t size, void *mem, void *val, void *ret, int model)
 {
   switch (size)
@@ -518,7 +519,7 @@ __atomic_fetch_nand_ ## SIZE (I ## SIZE *mem, I ## SIZE val, int model)	\
   return ret;								\
 }
 
-#if __LIBATOMIC_SUPPORTS_I1	
+#if __LIBATOMIC_SUPPORTS_I1
 ATOMIC_LOAD (1)
 ATOMIC_STORE (1)
 ATOMIC_EXCHANGE (1)
@@ -531,7 +532,7 @@ ATOMIC_FETCH (1, xor_, ^)
 ATOMIC_FETCH_NAND (1)
 #endif
 
-#if __LIBATOMIC_SUPPORTS_I2	
+#if __LIBATOMIC_SUPPORTS_I2
 ATOMIC_LOAD (2)
 ATOMIC_STORE (2)
 ATOMIC_EXCHANGE (2)
@@ -545,7 +546,7 @@ ATOMIC_FETCH_NAND (2)
 #endif
 
 
-#if __LIBATOMIC_SUPPORTS_I4	
+#if __LIBATOMIC_SUPPORTS_I4
 ATOMIC_LOAD (4)
 ATOMIC_STORE (4)
 ATOMIC_EXCHANGE (4)
@@ -559,7 +560,7 @@ ATOMIC_FETCH_NAND (4)
 #endif
 
 
-#if __LIBATOMIC_SUPPORTS_I8	
+#if __LIBATOMIC_SUPPORTS_I8
 ATOMIC_LOAD (8)
 ATOMIC_STORE (8)
 ATOMIC_EXCHANGE (8)
@@ -573,7 +574,7 @@ ATOMIC_FETCH_NAND (8)
 #endif
 
 
-#if __LIBATOMIC_SUPPORTS_I16	
+#if __LIBATOMIC_SUPPORTS_I16
 ATOMIC_LOAD (16)
 ATOMIC_STORE (16)
 ATOMIC_EXCHANGE (16)
