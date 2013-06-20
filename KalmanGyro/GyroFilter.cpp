@@ -89,19 +89,19 @@ void GyroFilter::calcAngle() {
     m_P[1][1] += m_Q_bias * m_dt;
 
     /* === Discrete Kalman filter measurement update equations - Measurement Update ("Correct") === */
-    // Calculate Kalman gain
+    // Calculate the innovation covariance
     /* Step 3 */
     m_S = m_P[0][0] + m_R_measure;
 
-    // Compute the Kalman gain
+    // Calculate the Kalman gain
     /* Step 4 */
     m_K[0] = m_P[0][0] / m_S;
     m_K[1] = m_P[1][0] / m_S;
     /* ======================================================================================== */
 
     /* === Calculate angle and bias === */
-    /* Step 5 */
     // Calculate angle difference
+    /* Step 5 */
     m_y = m_angleFunc() - m_angle;
 
     // Update estimate with measurement zk (newAngle)
