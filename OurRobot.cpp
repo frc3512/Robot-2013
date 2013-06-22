@@ -48,7 +48,7 @@ OurRobot::OurRobot() :
 
     mainCompressor( 1 , 2 ),
 
-    frisbeeFeeder( 1 , 3 , 0.3f , 0.05f ),
+    frisbeeFeeder( 1 , 3 , 0.3f , 0.3f ),
 
     shooterAngle( 2 ),
 

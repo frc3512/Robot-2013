@@ -34,7 +34,7 @@
 #include <Timer.h>
 
 #include <DriverStationLCD.h>
-#define NEW_GYRO
+//#define NEW_GYRO
 #ifdef NEW_GYRO
 #include "KalmanGyro/KOP_ADXL345.hpp"
 #else

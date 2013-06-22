@@ -175,7 +175,7 @@ void PIDController::Calculate()
 				}
 			}
 
-			m_result = (m_P * m_error + m_I * m_totalError + m_D * (m_error - m_prevError) + m_setpoint * m_F) * dt;
+			m_result = (m_P * m_error + m_I * m_totalError + m_D * (m_error - m_prevError)) * dt + m_setpoint * m_F;
 			m_prevError = m_error;
 
 			if (m_result > m_maximumOutput) m_result = m_maximumOutput;

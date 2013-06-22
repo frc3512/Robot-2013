@@ -47,12 +47,7 @@ void OurRobot::OperatorControl() {
         }
 
         if ( frisbeeShooter.isShooting() ) {
-            if ( isShooterManual ) { // let driver change shooter speed manually
-                frisbeeShooter.setScale( ScaleValue( shootStick.GetZ() ) );
-            }
-            else {
-                frisbeeShooter.setRPM( ScaleValue( shootStick.GetZ() ) * Shooter::maxSpeed );
-            }
+            frisbeeShooter.setScale( ScaleValue( shootStick.GetZ() ) );
         }
         else {
             frisbeeShooter.stop();

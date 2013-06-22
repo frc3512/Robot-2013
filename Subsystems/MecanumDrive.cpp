@@ -11,7 +11,7 @@
 #include <CANJaguar.h>
 
 #include <Encoder.h>
-#include <PIDController.h>
+#include "../PIDController.hpp"
 
 #define max( x , y ) (((x) > (y)) ? (x) : (y))
 
@@ -331,6 +331,13 @@ void MecanumDrive::EnableEncoders( bool pidEnabled ) {
 
     // If was enabled and isn't now
     else if ( m_pidEnabled && !pidEnabled ) {
+        m_pidEnabled = pidEnabled;
+
+        m_flEncoder->Stop();
+        m_rlEncoder->Stop();
+        m_frEncoder->Stop();
+        m_rrEncoder->Stop();
+
         delete m_flEncoder;
         delete m_rlEncoder;
         delete m_frEncoder;
@@ -340,8 +347,6 @@ void MecanumDrive::EnableEncoders( bool pidEnabled ) {
         delete m_rlPID;
         delete m_frPID;
         delete m_rrPID;
-
-        m_pidEnabled = pidEnabled;
     }
 }
 
