@@ -20,14 +20,14 @@ RollingAverage::~RollingAverage() {
 }
 
 void RollingAverage::addValue( float value ) {
-    m_protectArray.startWriting();
+    m_protectArray.startWrite();
 
     /* Advance to next slot. If the next slot is past the end of the array, set
      * index to the beginning
      */
     m_index = (m_index + 1) % m_maxSize;
 
-    m_protectArray.stopWriting();
+    m_protectArray.stopWrite();
 
     /* Other assignments are atomic and don't negatively affect getAverage() */
 
@@ -56,7 +56,7 @@ void RollingAverage::setSize( unsigned int newSize ) {
     }
 
     // Every operation before here was only reading
-    m_protectArray.startWriting();
+    m_protectArray.startWrite();
 
     m_maxSize = newSize;
     m_size = count;
@@ -66,13 +66,13 @@ void RollingAverage::setSize( unsigned int newSize ) {
     m_values.exchange( tempVals );
     delete[] tempVals;
 
-    m_protectArray.stopWriting();
+    m_protectArray.stopWrite();
 }
 
 float RollingAverage::getAverage() {
     float sum = 0;
 
-    m_protectArray.startReading();
+    m_protectArray.startRead();
 
     // Store values from atomic variables
     unsigned int index = m_index;
@@ -83,7 +83,7 @@ float RollingAverage::getAverage() {
         sum += m_values[(index + count) % maxSize];
     }
 
-    m_protectArray.stopReading();
+    m_protectArray.stopRead();
 
     // Prevent divide by zero
     if ( size != 0 ) {
