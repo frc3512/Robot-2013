@@ -37,8 +37,6 @@ void RollingAverage::addValue( float value ) {
     if ( m_size < m_maxSize ) {
         m_size++;
     }
-
-    m_protectArray.stopWriting();
 }
 
 void RollingAverage::setSize( unsigned int newSize ) {

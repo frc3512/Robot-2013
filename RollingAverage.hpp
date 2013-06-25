@@ -8,12 +8,10 @@
 #ifndef ROLLING_AVERAGE_HPP
 #define ROLLING_AVERAGE_HPP
 
-//#include <list>
 #include <pthread.h>
 #include <atomic>
-//#include <mutex>
 
-#include "ReadWriteProtector.hpp"
+#include "RWProtect.hpp"
 
 class RollingAverage {
 public:
@@ -38,7 +36,7 @@ private:
     // Total number of slots available in array (may be larger than m_size)
     std::atomic<unsigned int> m_maxSize;
 
-    ReadWriteProtector m_protectArray;
+    RWProtect m_protectArray;
 
     // Prevents accessing list from two places at once
     //std::mutex m_dataMutex;
