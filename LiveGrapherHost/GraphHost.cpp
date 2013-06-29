@@ -26,6 +26,9 @@ void GraphHost::setSendInterval( uint32_t milliseconds ) {
 }
 
 bool GraphHost::hasIntervalPassed() {
+    gettimeofday( &m_rawTime , NULL );
+    m_currentTime = m_rawTime.tv_usec / 1000 + m_rawTime.tv_sec * 1000;
+
     return m_currentTime - m_lastTime > m_sendInterval;
 }
 

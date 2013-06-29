@@ -8,6 +8,8 @@
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
 
+#include <iostream>
+#include <stdio.h>
 #include <cstdlib>
 #include <cstring>
 #include <stdint.h>
@@ -181,9 +183,9 @@ void OurRobot::DS_PrintOut() {
         driverStation->addElementData( 's' , U"MODE" , strDriveMode );
 
 #ifdef NEW_GYRO
-        driverStation->addElementData( 'i' , U"GYRO_VAU" , static_cast<int32_t>( fieldGyro.getXangle() ) );
+        driverStation->addElementData( 'i' , U"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
 #else
-        driverStation->addElementData( 'i' , U"GYRO_VAU" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
+        driverStation->addElementData( 'i' , U"GYRO_VAL" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
 #endif
 
         if ( isGyroEnabled ) {
@@ -204,6 +206,7 @@ void OurRobot::DS_PrintOut() {
         std::w32stringstream ss;
         ss << ScaleValue(shootStick.GetZ());
         driverStation->addElementData( 's' , U"RPM_MAN_DISP" , ss.str() );
+        wprintf( "RPM_MAN_DISP=%ls\n" , ss.str() );
         }
 
         driverStation->addElementData( 'c' , U"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
@@ -222,7 +225,7 @@ void OurRobot::DS_PrintOut() {
         driverStation->addElementData( 's' , U"RPM_REAL_DISP" , ss.str() );
         }
 
-        driverStation->addElementData( 'c' , U"RPM_REAU" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
+        driverStation->addElementData( 'c' , U"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
 
         if ( frisbeeShooter.isReady() ) {
             driverStation->addElementData( 'c' , U"SHOOT_READY" , static_cast<unsigned char>( 0 ) );
