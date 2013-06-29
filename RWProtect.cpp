@@ -2,7 +2,7 @@
 //File Name: RWProtect.cpp
 //Description: Allows resource to be read by many threads but only written to
 //             by one thread when no thread is reading
-//Author: Tyler Veness
+//Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
 #include "RWProtect.hpp"
