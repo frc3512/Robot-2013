@@ -206,7 +206,6 @@ void OurRobot::DS_PrintOut() {
         std::w32stringstream ss;
         ss << ScaleValue(shootStick.GetZ());
         driverStation->addElementData( 's' , U"RPM_MAN_DISP" , ss.str() );
-        wprintf( "RPM_MAN_DISP=%ls\n" , ss.str() );
         }
 
         driverStation->addElementData( 'c' , U"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
