@@ -24,7 +24,6 @@
 
 #include "../SFML/Network/Packet.hpp"
 #include "Socket.hpp"
-#include "../SFML/System/String.hpp"
 #include <cstring>
 
 uint64_t htonll( uint64_t value ) {
@@ -357,29 +356,6 @@ Packet& Packet::operator >>(std::w32string& data)
 
 
 ////////////////////////////////////////////////////////////
-Packet& Packet::operator >>(String& data)
-{
-    // First extract the string length
-    uint32_t length = 0;
-    *this >> length;
-
-    data.clear();
-    if ((length > 0) && checkSize(length * sizeof(uint32_t)))
-    {
-        // Then extract characters
-        for (uint32_t i = 0; i < length; ++i)
-        {
-            uint32_t character = 0;
-            *this >> character;
-            data += character;
-        }
-    }
-
-    return *this;
-}
-
-
-////////////////////////////////////////////////////////////
 Packet& Packet::operator <<(bool data)
 {
     *this << static_cast<uint8_t>(data);
@@ -553,24 +529,6 @@ Packet& Packet::operator <<(const std::w32string& data)
     {
         for (std::w32string::const_iterator c = data.begin(); c != data.end(); ++c)
             *this << static_cast<uint32_t>(*c);
-    }
-
-    return *this;
-}
-
-
-////////////////////////////////////////////////////////////
-Packet& Packet::operator <<(const String& data)
-{
-    // First insert the string length
-    uint32_t length = static_cast<uint32_t>(data.getSize());
-    *this << length;
-
-    // Then insert characters
-    if (length > 0)
-    {
-        for (String::ConstIterator c = data.begin(); c != data.end(); ++c)
-            *this << *c;
     }
 
     return *this;
