@@ -20,7 +20,7 @@ void OurRobot::Disabled() {
 
         // Reset gyro
         if ( driveStickButtons.releasedButton( 8 ) ) {
-#ifdef NEW_GYRO
+#if defined(KOP_KGYRO) || defined(NEW_KGYRO)
             fieldGyro.resetXangle( 180.f );
 #else
             fieldGyro.Reset();

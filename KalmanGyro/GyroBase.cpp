@@ -11,8 +11,19 @@
 GyroBase::GyroBase() :
 xFilter( &GyroBase::getAccelXangle , &GyroBase::getGyroXrate , this ) ,
 yFilter( &GyroBase::getAccelYangle , &GyroBase::getGyroYrate , this ) ,
-zFilter( &GyroBase::getAccelZangle , &GyroBase::getGyroZrate , this )
+zFilter( &GyroBase::getMagnetZangle , &GyroBase::getGyroZrate , this )
 {
+    xFilter.setQAngle( 0.001 );
+    xFilter.setQBias( 0.003 );
+    xFilter.setRMeasure( 0.03 );
+
+    yFilter.setQAngle( 0.001 );
+    yFilter.setQBias( 0.003 );
+    yFilter.setRMeasure( 0.03 );
+
+    zFilter.setQAngle( 0.001 );
+    zFilter.setQBias( 0.003 );
+    zFilter.setRMeasure( 0.03 );
 }
 
 GyroBase::~GyroBase() {
@@ -70,12 +81,12 @@ double GyroBase::getAccelYangle() {
     return 180.0 * std::atan2( accelYval , accelZval ) / 3.14159265 + 180.0;
 }
 
-double GyroBase::getAccelZangle() { // TODO: correct order of atan2 args?
-    double accelXval = static_cast<double>(readAccelX()) - getAccelXzero();
-    double accelYval = static_cast<double>(readAccelY()) - getAccelYzero();
+double GyroBase::getMagnetZangle() { // TODO: correct order of atan2 args?
+    double magnetXval = static_cast<double>(readMagnetX()) - getMagnetXzero();
+    double magnetYval = static_cast<double>(readMagnetY()) - getMagnetYzero();
 
     // ( std::atan2( accelXval , accelYval ) + 3.14159265 ) * 180.0 / 3.14159265
-    return 180.0 * std::atan2( accelXval , accelYval ) / 3.14159265 + 180.0;
+    return 180.0 * std::atan2( magnetXval , magnetYval ) / 3.14159265 + 180.0;
 }
 
 double GyroBase::getGyroXrate() {
@@ -114,6 +125,14 @@ int GyroBase::readAccelZ() {
     return 0;
 }
 
+int GyroBase::readMagnetX() {
+    return 0;
+}
+
+int GyroBase::readMagnetY() {
+    return 0;
+}
+
 double GyroBase::getGyroXzero() {
     return 0.0;
 }
@@ -135,5 +154,13 @@ double GyroBase::getAccelYzero() {
 }
 
 double GyroBase::getAccelZzero() {
+    return 0.0;
+}
+
+double GyroBase::getMagnetXzero() {
+    return 0.0;
+}
+
+double GyroBase::getMagnetYzero() {
     return 0.0;
 }

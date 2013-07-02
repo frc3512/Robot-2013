@@ -48,13 +48,18 @@ public:
     // Return the unbiased rate
     double getRate();
 
+    // Set noise variances of filter
+    void setQAngle( double variance );
+    void setQBias( double variance );
+    void setRMeasure( double variance );
+
 protected:
     // Executes Kalman filter algorithm
     void calcAngle();
 
 private:
     /* Kalman filter variables */
-    std::atomic<double> m_Q_angle; // Process noise variance for the accelerometer
+    std::atomic<double> m_Q_angle; // Process noise variance for the accelerometer/magnetometer
     std::atomic<double> m_Q_bias; // Process noise variance for the gyro bias
     std::atomic<double> m_R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
 
@@ -67,7 +72,7 @@ private:
     double m_y; // Angle difference - 1x1 matrix
     double m_S; // Estimate error - 1x1 matrix
 
-    /* Returns current angle with data from accelerometer
+    /* Returns current angle with data from accelerometer/magnetometer
      * The angle returned should be in degrees
      */
     std::function<double()> m_angleFunc;

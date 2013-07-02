@@ -154,7 +154,7 @@ void OurRobot::OperatorControl() {
         /* ===== Control gyro ===== */
         // Reset gyro
         if ( driveStickButtons.releasedButton( 8 ) ) {
-#ifdef NEW_GYRO
+#if defined(KOP_KGYRO) || defined(NEW_KGYRO)
             fieldGyro.resetXangle( 180.f );
 #else
             fieldGyro.Reset();
@@ -190,7 +190,7 @@ void OurRobot::OperatorControl() {
 
         // Compensate with gyro angle if that's enabled
         if ( isGyroEnabled && driveMode != MecanumDrive::Arcade ) {
-#ifdef NEW_GYRO
+#if defined(KOP_KGYRO) || defined(NEW_KGYRO)
             joyGyro = fieldGyro.getXangle();
 #else
             joyGyro = fieldGyro.GetAngle();

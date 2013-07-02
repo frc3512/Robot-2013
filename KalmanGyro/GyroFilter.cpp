@@ -66,6 +66,18 @@ double GyroFilter::getRate() {
     return m_rate;
 }
 
+void GyroFilter::setQAngle( double variance ) {
+    m_Q_angle = variance;
+}
+
+void GyroFilter::setQBias( double variance ) {
+    m_Q_bias = variance;
+}
+
+void GyroFilter::setRMeasure( double variance ) {
+    m_R_measure = variance;
+}
+
 void GyroFilter::calcAngle() {
     // KasBot V2  -  Kalman filter module - http://www.x-firm.com/?page_id=145
     // Modified by Kristian Lauszus

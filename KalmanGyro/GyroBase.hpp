@@ -60,15 +60,15 @@ public:
     double getZrate();
 
 protected:
-    // Return angle calculated with accelerometer data (returns degrees)
-    double getAccelXangle();
-    double getAccelYangle();
-    double getAccelZangle();
-
     // Return rate calculated with gyro data
     double getGyroXrate();
     double getGyroYrate();
     double getGyroZrate();
+
+    // Return angle calculated with accelerometer or magnetometer data (returns degrees)
+    double getAccelXangle();
+    double getAccelYangle();
+    double getMagnetZangle();
 
 private:
     GyroFilter xFilter;
@@ -85,6 +85,10 @@ private:
     virtual int readAccelY();
     virtual int readAccelZ();
 
+    // Read magnetic field strength (usually raw data) from magnetometer
+    virtual int readMagnetX();
+    virtual int readMagnetY();
+
     // Return zero points for gyro
     virtual double getGyroXzero();
     virtual double getGyroYzero();
@@ -94,6 +98,10 @@ private:
     virtual double getAccelXzero();
     virtual double getAccelYzero();
     virtual double getAccelZzero();
+
+    // Return zero points for magnetometer
+    virtual double getMagnetXzero();
+    virtual double getMagnetYzero();
 
     /* Return sensitivity of gyro in least significant bits per degree/second.
      * If you're using an analog gyro, LSBs would be volts instead, but the

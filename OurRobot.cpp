@@ -64,8 +64,10 @@ OurRobot::OurRobot() :
 
     climbArms( 4 ),
 
-#ifdef NEW_GYRO
-    fieldGyro( 1 , 1 , 0x38 , 0xE5 ) ,
+#ifdef KOP_KGYRO
+    fieldGyro( 1 , 1 , 2 , 0xE5 , 0xC4 ) ,
+#elif defined NEW_KGYRO
+    fieldGyro( 2 , 0x38 , 0xE5 , 0xC4 ) ,
 #else
     fieldGyro( 1 ) ,
 #endif
@@ -182,8 +184,10 @@ void OurRobot::DS_PrintOut() {
         }
         driverStation->addElementData( 's' , U"MODE" , strDriveMode );
 
-#ifdef NEW_GYRO
+#if defined(KOP_KGYRO) || defined(NEW_KGYRO)
         driverStation->addElementData( 'i' , U"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
+//#elif defined NEW_KGYRO
+//        driverStation->addElementData( 'i' , U"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
 #else
         driverStation->addElementData( 'i' , U"GYRO_VAL" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
 #endif
