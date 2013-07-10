@@ -47,7 +47,7 @@ private:
     Counter m_counter;
 
     // Averages values from encoder
-    RollingAverage m_rpmAverager;
+    RollingAverage<float> m_rpmAverager;
 
     /* Represents conversion factor between RPM of gear and RPM of shooter
      * wheel
@@ -60,7 +60,7 @@ private:
     /* ===== Thread variables ===== */
     // Samples values from encoder at given time interval for averaging
     Notifier* m_sampleThread;
-    
+
     // Used for getting and setting variables between main and sampling thread
     ReentrantSemaphore m_dataMutex;
 

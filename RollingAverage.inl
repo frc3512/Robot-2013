@@ -1,25 +1,26 @@
 //=============================================================================
-//File Name: RollingAverage.cpp
+//File Name: RollingAverage.inl
 //Description: Creates queue of values and returns the average of the latest
 //             values added to it
 //Author: FRC Team 3512, Spartatroniks
 //=============================================================================
 
-#include "RollingAverage.hpp"
-
-RollingAverage::RollingAverage( unsigned int size ) :
+template <class T>
+RollingAverage<T>::RollingAverage( unsigned int size ) :
 m_size( 0 ) ,
 m_maxSize( size ) {
-    m_values = new std::atomic<float>[m_maxSize];
+    m_values = new std::atomic<T>[m_maxSize];
     pthread_mutex_init( &m_dataMutex , NULL );
 }
 
-RollingAverage::~RollingAverage() {
+template <class T>
+RollingAverage<T>::~RollingAverage() {
     delete[] m_values;
     pthread_mutex_destroy( &m_dataMutex );
 }
 
-void RollingAverage::addValue( float value ) {
+template <class T>
+void RollingAverage<T>::addValue( T value ) {
     m_protectArray.startWrite();
 
     /* Advance to next slot. If the next slot is past the end of the array, set
@@ -39,8 +40,9 @@ void RollingAverage::addValue( float value ) {
     }
 }
 
-void RollingAverage::setSize( unsigned int newSize ) {
-    std::atomic<float>* tempVals = new std::atomic<float>[newSize];
+template <class T>
+void RollingAverage<T>::setSize( unsigned int newSize ) {
+    std::atomic<T>* tempVals = new std::atomic<T>[newSize];
 
     unsigned int oldPos = m_index;
     unsigned int count = 0;
@@ -69,8 +71,9 @@ void RollingAverage::setSize( unsigned int newSize ) {
     m_protectArray.stopWrite();
 }
 
-float RollingAverage::getAverage() {
-    float sum = 0;
+template <class T>
+T RollingAverage<T>::getAverage() {
+    T sum = 0;
 
     m_protectArray.startRead();
 

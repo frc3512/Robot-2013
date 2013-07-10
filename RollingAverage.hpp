@@ -13,18 +13,19 @@
 
 #include "RWProtect.hpp"
 
+template<class T>
 class RollingAverage {
 public:
     RollingAverage( unsigned int size );
     virtual ~RollingAverage();
 
-    void addValue( float value );
+    void addValue( T value );
     void setSize( unsigned int newSize );
-    float getAverage();
+    T getAverage();
 
 private:
     // Holds values to be averaged
-    std::atomic<std::atomic<float>*> m_values;
+    std::atomic<std::atomic<T>*> m_values;
 
     // Determines oldest value in array
     std::atomic<unsigned int> m_index;
@@ -38,8 +39,9 @@ private:
     RWProtect m_protectArray;
 
     // Prevents accessing list from two places at once
-    //std::mutex m_dataMutex;
     pthread_mutex_t m_dataMutex;
 };
+
+#include "RollingAverage.inl"
 
 #endif // ROLLING_AVERAGE_HPP
