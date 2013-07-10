@@ -9,7 +9,6 @@
 #include "DriverStationDisplay.hpp"
 
 #include <iostream>
-#include <wchar.h> // TODO remove me
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -19,14 +18,11 @@
 #include <sstream>
 #include <string>
 
-/* Declare typedefs for wide C++ streams since the VxWorks 6.3 headers usually
- * fail to define them
+/* Declare typedef for wide C++ string since the VxWorks 6.3 headers usually
+ * fail to define it
  */
 namespace std {
-typedef basic_stringstream<wchar_t, char_traits<wchar_t>,
-    allocator<wchar_t> > wstringstream;
-
-typedef std::basic_ifstream<wchar_t, std::char_traits<wchar_t> > wifstream;
+typedef basic_string<wchar_t> wstring;
 }
 
 float ScaleValue( float value ) {
@@ -212,10 +208,9 @@ void OurRobot::DS_PrintOut() {
         ss << 100.f * ScaleValue(shootStick.GetZ());
 
         wchar_t cStr[ss.str().length() + 1];
-        cStr[ss.str().length()] = 0;
+        std::memset( cStr , 0 , sizeof(cStr) );
 
-        for ( unsigned int i = 0 ; i < ss.str().length() ; i++ ) {
-            cStr[i] = 0;
+        for ( unsigned int i = 0 ; i < sizeof(cStr) / sizeof(wchar_t) ; i++ ) {
             cStr[i] = ss.str()[i];
         }
 
@@ -230,10 +225,9 @@ void OurRobot::DS_PrintOut() {
         ss << frisbeeShooter.getTargetRPM();
 
         wchar_t cStr[ss.str().length() + 1];
-        cStr[ss.str().length()] = 0;
+        std::memset( cStr , 0 , sizeof(cStr) );
 
-        for ( unsigned int i = 0 ; i < ss.str().length() ; i++ ) {
-            cStr[i] = 0;
+        for ( unsigned int i = 0 ; i < sizeof(cStr) / sizeof(wchar_t) ; i++ ) {
             cStr[i] = ss.str()[i];
         }
 
@@ -248,10 +242,9 @@ void OurRobot::DS_PrintOut() {
         ss << frisbeeShooter.getRPM();
 
         wchar_t cStr[ss.str().length() + 1];
-        cStr[ss.str().length()] = 0;
+        std::memset( cStr , 0 , sizeof(cStr) );
 
-        for ( unsigned int i = 0 ; i < ss.str().length() ; i++ ) {
-            cStr[i] = 0;
+        for ( unsigned int i = 0 ; i < sizeof(cStr) / sizeof(wchar_t) ; i++ ) {
             cStr[i] = ss.str()[i];
         }
 
