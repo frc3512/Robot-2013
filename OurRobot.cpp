@@ -9,10 +9,11 @@
 #include "DriverStationDisplay.hpp"
 
 #include <iostream>
-#include <stdio.h>
+#include <wchar.h> // TODO remove me
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <stdint.h>
+#include <types/vxTypes.h>
 
 #include <fstream>
 #include <sstream>
@@ -22,10 +23,10 @@
  * fail to define them
  */
 namespace std {
-typedef basic_stringstream<char32_t, char_traits<char32_t>,
-    allocator<char32_t> > w32stringstream;
+typedef basic_stringstream<wchar_t, char_traits<wchar_t>,
+    allocator<wchar_t> > wstringstream;
 
-typedef std::basic_ifstream<char32_t, std::char_traits<char32_t> > w32ifstream;
+typedef std::basic_ifstream<wchar_t, std::char_traits<wchar_t> > wifstream;
 }
 
 float ScaleValue( float value ) {
@@ -160,102 +161,132 @@ void OurRobot::DS_PrintOut() {
         *driverStation << static_cast<std::string>( "display\r\n" );
 
         unsigned int driveMode = mainDrive.GetDriveMode();
-        std::w32string strDriveMode;
+        std::wstring strDriveMode;
         if ( driveMode == MecanumDrive::Omni ) {
-            strDriveMode = U"Omni";
+            strDriveMode = L"Omni";
         }
         else if ( driveMode == MecanumDrive::Strafe ) {
-            strDriveMode = U"Strafe";
+            strDriveMode = L"Strafe";
         }
         else if ( driveMode == MecanumDrive::Arcade ) {
-            strDriveMode = U"Arcade";
+            strDriveMode = L"Arcade";
         }
         else if ( driveMode == MecanumDrive::FLpivot ) {
-            strDriveMode = U"FLpivot";
+            strDriveMode = L"FLpivot";
         }
         else if ( driveMode == MecanumDrive::FRpivot ) {
-            strDriveMode = U"FRpivot";
+            strDriveMode = L"FRpivot";
         }
         else if ( driveMode == MecanumDrive::RLpivot ) {
-            strDriveMode = U"RLpivot";
+            strDriveMode = L"RLpivot";
         }
         else if ( driveMode == MecanumDrive::RRpivot ) {
-            strDriveMode = U"RRpivot";
+            strDriveMode = L"RRpivot";
         }
-        driverStation->addElementData( 's' , U"MODE" , strDriveMode );
+        driverStation->addElementData( 's' , L"MODE" , strDriveMode );
 
 #if defined(KOP_KGYRO) || defined(NEW_KGYRO)
-        driverStation->addElementData( 'i' , U"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
+        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
 //#elif defined NEW_KGYRO
-//        driverStation->addElementData( 'i' , U"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
+//        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
 #else
-        driverStation->addElementData( 'i' , U"GYRO_VAL" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
+        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
 #endif
 
         if ( isGyroEnabled ) {
-            driverStation->addElementData( 'c' , U"GYRO_ON" , static_cast<uint8_t>( 0 ) );
+            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<uint8_t>( 0 ) );
         }
         else {
-            driverStation->addElementData( 'c' , U"GYRO_ON" , static_cast<uint8_t>( 2 ) );
+            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<uint8_t>( 2 ) );
         }
 
         if ( slowRotate ) {
-            driverStation->addElementData( 'c' , U"ROTATE" , static_cast<uint8_t>( 0 ) );
+            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<uint8_t>( 0 ) );
         }
         else {
-            driverStation->addElementData( 'c' , U"ROTATE" , static_cast<uint8_t>( 2 ) );
+            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<uint8_t>( 2 ) );
         }
 
         {
-        std::w32stringstream ss;
-        ss << ScaleValue(shootStick.GetZ());
-        driverStation->addElementData( 's' , U"RPM_MAN_DISP" , ss.str() );
+        std::stringstream ss;
+        ss << 100.f * ScaleValue(shootStick.GetZ());
+
+        wchar_t cStr[ss.str().length() + 1];
+        cStr[ss.str().length()] = 0;
+
+        for ( unsigned int i = 0 ; i < ss.str().length() ; i++ ) {
+            cStr[i] = 0;
+            cStr[i] = ss.str()[i];
         }
 
-        driverStation->addElementData( 'c' , U"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
+        std::wstring tempStr( cStr );
+        driverStation->addElementData( 's' , L"RPM_MAN_DISP" , tempStr );
+        }
+
+        driverStation->addElementData( 'c' , L"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
 
         {
-        std::w32stringstream ss;
+        std::stringstream ss;
         ss << frisbeeShooter.getTargetRPM();
-        driverStation->addElementData( 's' , U"RPM_SET_DISP" , ss.str() );
+
+        wchar_t cStr[ss.str().length() + 1];
+        cStr[ss.str().length()] = 0;
+
+        for ( unsigned int i = 0 ; i < ss.str().length() ; i++ ) {
+            cStr[i] = 0;
+            cStr[i] = ss.str()[i];
         }
 
-        driverStation->addElementData( 'c' , U"RPM_SET" , static_cast<unsigned char>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
+        std::wstring tempStr( cStr );
+        driverStation->addElementData( 's' , L"RPM_SET_DISP" , tempStr );
+        }
+
+        driverStation->addElementData( 'c' , L"RPM_SET" , static_cast<unsigned char>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
 
         {
-        std::w32stringstream ss;
+        std::stringstream ss;
         ss << frisbeeShooter.getRPM();
-        driverStation->addElementData( 's' , U"RPM_REAL_DISP" , ss.str() );
+
+        wchar_t cStr[ss.str().length() + 1];
+        cStr[ss.str().length()] = 0;
+
+        for ( unsigned int i = 0 ; i < ss.str().length() ; i++ ) {
+            cStr[i] = 0;
+            cStr[i] = ss.str()[i];
         }
 
-        driverStation->addElementData( 'c' , U"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
+        std::wstring tempStr( cStr );
+        driverStation->addElementData( 's' , L"RPM_REAL_DISP" , tempStr );
+        }
+
+        driverStation->addElementData( 'c' , L"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
 
         if ( frisbeeShooter.isReady() ) {
-            driverStation->addElementData( 'c' , U"SHOOT_READY" , static_cast<unsigned char>( 0 ) );
+            driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 0 ) );
         }
         else {
-            driverStation->addElementData( 'c' , U"SHOOT_READY" , static_cast<unsigned char>( 2 ) );
+            driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 2 ) );
         }
 
         if ( frisbeeShooter.isShooting() ) {
-            driverStation->addElementData( 'c' , U"SHOOT_ON" , static_cast<unsigned char>( 0 ) );
+            driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 0 ) );
         }
         else {
-            driverStation->addElementData( 'c' , U"SHOOT_ON" , static_cast<unsigned char>( 2 ) );
+            driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 2 ) );
         }
 
         if ( isShooterManual ) {
-            driverStation->addElementData( 'c' , U"SHOOT_MAN" , static_cast<unsigned char>( 0 ) );
+            driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 0 ) );
         }
         else {
-            driverStation->addElementData( 'c' , U"SHOOT_MAN" , static_cast<unsigned char>( 2 ) );
+            driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 2 ) );
         }
 
         if ( !climbArms.Get() ) {
-            driverStation->addElementData( 'c' , U"ARMS_DOWN" , static_cast<unsigned char>( 0 ) );
+            driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 0 ) );
         }
         else {
-            driverStation->addElementData( 'c' , U"ARMS_DOWN" , static_cast<unsigned char>( 2 ) );
+            driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 2 ) );
         }
 
         driverStation->sendToDS();

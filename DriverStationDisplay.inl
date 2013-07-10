@@ -5,7 +5,7 @@
 //=============================================================================
 
 template <class T>
-void DriverStationDisplay::addElementData( unsigned char type , std::basic_string<char32_t> ID , T data ) {
+void DriverStationDisplay::addElementData( unsigned char type , std::basic_string<wchar_t> ID , T data ) {
     *this << type;
     *this << ID;
     *this << data;

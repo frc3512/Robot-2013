@@ -35,7 +35,7 @@
 #include "../../SFMLNetwork/Socket.hpp"
 #include "../System/Time.hpp"
 
-#include <stdint.h>
+#include <types/vxTypes.h>
 
 
 namespace sf

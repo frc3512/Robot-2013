@@ -36,11 +36,10 @@
 
 namespace std {
 typedef basic_string<wchar_t> wstring;
-typedef basic_string<char32_t> w32string;
 }
 
 #include <vector>
-#include <cstdint>
+#include <types/vxTypes.h>
 
 uint64_t htonll( uint64_t value );
 uint64_t ntohll( uint64_t value );
@@ -145,7 +144,6 @@ public:
     Packet& operator >>(std::string&    data);
     Packet& operator >>(wchar_t*        data);
     Packet& operator >>(std::wstring&   data);
-    Packet& operator >>(std::w32string& data);
 
     // Overloads of operator << to write data into the packet
     Packet& operator <<(bool                  data);
@@ -163,7 +161,6 @@ public:
     Packet& operator <<(const std::string&    data);
     Packet& operator <<(const wchar_t*        data);
     Packet& operator <<(const std::wstring&   data);
-    Packet& operator <<(const std::w32string& data);
 
 protected:
     friend class TcpSocket;

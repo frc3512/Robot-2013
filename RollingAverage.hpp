@@ -24,7 +24,6 @@ public:
 
 private:
     // Holds values to be averaged
-    //std::list<float> m_values;
     std::atomic<std::atomic<float>*> m_values;
 
     // Determines oldest value in array

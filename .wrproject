@@ -244,7 +244,22 @@
         </buildtarget>
         <buildtarget buildtool="Partial Image Linker" name="Cynisca_partialImage" passed="true" targetname="Cynisca_partialImage">
             <contents>
-                <folder name="/Cynisca" recursive="true"/>
+                <folder name="/Cynisca/AutonomousModes" recursive="true"/>
+                <folder name="/Cynisca/LiveGrapherHost" recursive="true"/>
+                <folder name="/Cynisca/SFMLNetwork" recursive="true"/>
+                <folder name="/Cynisca/SFMLSystem" recursive="true"/>
+                <folder name="/Cynisca/Subsystems" recursive="true"/>
+                <file name="/Cynisca/Autonomous.cpp"/>
+                <file name="/Cynisca/ButtonTracker.cpp"/>
+                <file name="/Cynisca/Disabled.cpp"/>
+                <file name="/Cynisca/DriverStationDisplay.cpp"/>
+                <file name="/Cynisca/GeartoothEncoder.cpp"/>
+                <file name="/Cynisca/OperatorControl.cpp"/>
+                <file name="/Cynisca/OurRobot.cpp"/>
+                <file name="/Cynisca/PIDController.cpp"/>
+                <file name="/Cynisca/RollingAverage.cpp"/>
+                <file name="/Cynisca/RWProtect.cpp"/>
+                <file name="/Cynisca/Settings.cpp"/>
             </contents>
         </buildtarget>
     </buildtargets>

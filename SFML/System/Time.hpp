@@ -32,8 +32,7 @@
 #ifndef SFML_TIME_HPP
 #define SFML_TIME_HPP
 
-
-#include <stdint.h>
+#include <types/vxTypes.h>
 
 namespace sf
 {
