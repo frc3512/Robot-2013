@@ -9,14 +9,12 @@
 #include "DriverStationDisplay.hpp"
 
 #include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <types/vxTypes.h>
-
 #include <fstream>
 #include <sstream>
 #include <string>
+
+#include <cstring>
+#include <types/vxTypes.h>
 
 /* Declare typedef for wide C++ string since the VxWorks 6.3 headers usually
  * fail to define it
@@ -294,33 +292,28 @@ void OurRobot::DS_PrintOut() {
 
         *driverStation << static_cast<std::string>( "guiCreate\r\n" );
 
-        FILE *fp;
-        unsigned char *tmpbuf;
-        size_t bytesread;
-        uint32_t filesize;
-
         // Open the file
-        fp = std::fopen("/ni-rt/system/GUISettings.txt", "rb");
+        std::ifstream guiFile(
+                "/ni-rt/system/GUISettings.txt" , std::ifstream::binary );
 
-        if( fp != NULL ) {
+        if( guiFile.is_open() ) {
             // Get its length
-            std::fseek( fp , 0 , SEEK_END );
-            filesize = std::ftell( fp );
-            filesize++;
-            std::fseek( fp , 0 , SEEK_SET );
+            guiFile.seekg( 0 , guiFile.end );
+            unsigned int fileSize = guiFile.tellg();
+            guiFile.seekg( 0 , guiFile.beg );
 
             // Send the length
-            *driverStation << filesize;
+            *driverStation << static_cast<uint32_t>(fileSize);
 
             // Allocate a buffer for the file
-            tmpbuf = static_cast<unsigned char*>(std::malloc(filesize));
+            char* tempBuf = new char[fileSize];
 
             // Send the data TODO: htonl() the data before it's sent
-            bytesread = std::fread( tmpbuf , 1 , filesize , fp );
-            driverStation->append( tmpbuf , bytesread );
+            guiFile.read( tempBuf , fileSize );
+            driverStation->append( tempBuf , fileSize );
 
-            std::fclose( fp );
-            std::free( tmpbuf );
+            delete[] tempBuf;
+            guiFile.close();
         }
 
         driverStation->sendToDS();
