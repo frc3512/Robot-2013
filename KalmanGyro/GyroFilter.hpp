@@ -29,7 +29,6 @@
 #define GYRO_FILTER_HPP
 
 #include <atomic>
-#include <functional>
 
 class GyroBase;
 class Notifier;
@@ -75,12 +74,17 @@ private:
     /* Returns current angle with data from accelerometer/magnetometer
      * The angle returned should be in degrees
      */
-    std::function<double()> m_angleFunc;
+    double (GyroBase::*m_angleFunc)();
 
     /* Returns current angular rate from gyro
      * The rate returned should be in degrees per second
      */
-    std::function<double()> m_rateFunc;
+    double (GyroBase::*m_rateFunc)();
+
+    /* Contains a pointer to the GyroBase instance to which the angle and rate
+     * functions belong
+     */
+    GyroBase* m_funcObj;
 
     // Holds dt in calcAngle()
     double m_dt;

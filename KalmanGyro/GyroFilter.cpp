@@ -38,8 +38,9 @@ GyroFilter::GyroFilter( double (GyroBase::*angleFunc)() , double (GyroBase::*rat
     m_y = 0;
     m_S = 0;
 
-    m_angleFunc = std::bind( angleFunc , funcObj );
-    m_rateFunc = std::bind( rateFunc , funcObj );
+    m_angleFunc = angleFunc;
+    m_rateFunc = rateFunc;
+    m_funcObj = funcObj;
 
     m_dt = 0.f;
     m_lastTime = GetTime();
@@ -90,7 +91,8 @@ void GyroFilter::calcAngle() {
     // Discrete Kalman filter time update equations - Time Update ("Predict")
     // Update xhat - Project the state ahead
     /* Step 1 */
-    m_rate = m_rateFunc() - m_bias;
+    m_rate = (m_funcObj->*m_rateFunc)() - m_bias;
+    //m_rate = m_rateFunc() - m_bias;
     m_angle = m_angle + m_dt * m_rate;
 
     // Update estimation error covariance - Project the error covariance ahead
@@ -114,7 +116,8 @@ void GyroFilter::calcAngle() {
     /* === Calculate angle and bias === */
     // Calculate angle difference
     /* Step 5 */
-    m_y = m_angleFunc() - m_angle;
+    //m_y = m_angleFunc() - m_angle;
+    m_y = (m_funcObj->*m_angleFunc)() - m_angle;
 
     // Update estimate with measurement zk (newAngle)
     /* Step 6 */
