@@ -476,7 +476,6 @@ __atomic_exchange_ ## SIZE   (I ## SIZE *mem, I ## SIZE val, int model)	\
 #define ATOMIC_COMPARE_EXCHANGE(SIZE) bool			\
 __atomic_compare_exchange_ ## SIZE   (I ## SIZE *mem, I ## SIZE *expect, I ## SIZE desired, int success, int failure)				\
 {								\
-  bool ret;							\
   if (__atomic_always_lock_free (sizeof (desired), 0))		\
     return __atomic_compare_exchange_n (mem, expect, desired, 0,\
 				        success, failure);	\
