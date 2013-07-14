@@ -205,15 +205,7 @@ void OurRobot::DS_PrintOut() {
         std::stringstream ss;
         ss << 100.f * ScaleValue(shootStick.GetZ());
 
-        wchar_t cStr[ss.str().length() + 1];
-        std::memset( cStr , 0 , sizeof(cStr) );
-
-        for ( unsigned int i = 0 ; i < sizeof(cStr) / sizeof(wchar_t) ; i++ ) {
-            cStr[i] = ss.str()[i];
-        }
-
-        std::wstring tempStr( cStr );
-        driverStation->addElementData( 's' , L"RPM_MAN_DISP" , tempStr );
+        driverStation->addElementData( 's' , L"RPM_MAN_DISP" , ss.str() );
         }
 
         driverStation->addElementData( 'c' , L"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
@@ -222,15 +214,7 @@ void OurRobot::DS_PrintOut() {
         std::stringstream ss;
         ss << frisbeeShooter.getTargetRPM();
 
-        wchar_t cStr[ss.str().length() + 1];
-        std::memset( cStr , 0 , sizeof(cStr) );
-
-        for ( unsigned int i = 0 ; i < sizeof(cStr) / sizeof(wchar_t) ; i++ ) {
-            cStr[i] = ss.str()[i];
-        }
-
-        std::wstring tempStr( cStr );
-        driverStation->addElementData( 's' , L"RPM_SET_DISP" , tempStr );
+        driverStation->addElementData( 's' , L"RPM_SET_DISP" , ss.str() );
         }
 
         driverStation->addElementData( 'c' , L"RPM_SET" , static_cast<unsigned char>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
@@ -239,15 +223,7 @@ void OurRobot::DS_PrintOut() {
         std::stringstream ss;
         ss << frisbeeShooter.getRPM();
 
-        wchar_t cStr[ss.str().length() + 1];
-        std::memset( cStr , 0 , sizeof(cStr) );
-
-        for ( unsigned int i = 0 ; i < sizeof(cStr) / sizeof(wchar_t) ; i++ ) {
-            cStr[i] = ss.str()[i];
-        }
-
-        std::wstring tempStr( cStr );
-        driverStation->addElementData( 's' , L"RPM_REAL_DISP" , tempStr );
+        driverStation->addElementData( 's' , L"RPM_REAL_DISP" , ss.str() );
         }
 
         driverStation->addElementData( 'c' , L"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );

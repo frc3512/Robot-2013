@@ -33,6 +33,9 @@
 #include "SFML/Network/Packet.hpp"
 #include "SFML/Network/UdpSocket.hpp"
 
+#include <sstream>
+#include <cstring>
+
 class DriverStationDisplayInit;
 
 class DriverStationDisplay : public NonCopyable , public sf::Packet {
@@ -54,7 +57,7 @@ public:
 
     // Add UI element data to packet
     template <class T>
-    void addElementData( unsigned char type , std::basic_string<wchar_t> ID , T data );
+    void addElementData( unsigned char type , std::wstring ID , T data );
 
 private:
     DriverStationDisplay( unsigned short portNumber );
@@ -68,7 +71,7 @@ private:
 
     sf::IpAddress m_recvIP; // stores IP address temporarily during receive
     unsigned short m_recvPort; // stores port temporarily during receive
-    char* m_recvBuffer; // buffer for Driver Station requests
+    char m_recvBuffer[256]; // buffer for Driver Station requests
     size_t m_recvAmount; // holds number of bytes received from Driver Station
 
     friend class DriverStationDisplayInit;
