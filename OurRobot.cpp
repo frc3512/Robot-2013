@@ -87,6 +87,17 @@ OurRobot::OurRobot() :
     autonModes.addMethod( "LeftMove" , &OurRobot::AutonLeftMove , this );
     autonModes.addMethod( "TwoDisc" , &OurRobot::AutonTwoDisc , this );
 
+    // Retrieve stored autonomous index
+    std::ifstream autonModeFile( "autonMode.txt" );
+    if ( autonModeFile.is_open() ) {
+        autonModeFile >> autonMode;
+
+        autonModeFile.close();
+    }
+    else {
+        autonMode = 0;
+    }
+
     // Set encoder ports
     mainDrive.SetEncoderPorts( 14 , 13 , 10 , 9 ,
             6 , 5 , 8 , 7 );
@@ -115,8 +126,6 @@ OurRobot::OurRobot() :
 
     frisbeeShooter.stop();
     mainDrive.SquareInputs( true );
-
-    autonMode = 3;
 
     DSpacketTime.Start();
 }
@@ -318,6 +327,14 @@ void OurRobot::DS_PrintOut() {
 
         *driverStation << static_cast<std::string>( "autonConfirmed\r\n" );
         *driverStation << autonModes.name( autonMode );
+
+        // Store newest autonomous choice to file for persistent storage
+        std::ofstream autonModeFile( "autonMode.txt" , std::ofstream::trunc );
+        if ( autonModeFile.is_open() ) {
+            autonModeFile << autonMode;
+
+            autonModeFile.close();
+        }
 
         driverStation->sendToDS();
     }
