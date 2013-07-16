@@ -80,23 +80,5 @@ DriverStationDisplay::DriverStationDisplay( unsigned short portNumber ) : m_dsIP
     m_socket.setBlocking( false );
     m_recvIP = sf::IpAddress( 0 , 0 , 0 , 0 );
     m_recvPort = 0;
-}
-
-// Make sure every std::string is converted to a std::wstring before it's sent
-template <>
-void DriverStationDisplay::addElementData( unsigned char type , std::wstring ID , std::string data ) {
-    *this << type;
-    *this << ID;
-
-    // Convert std::string to std::wstring
-    wchar_t cStr[data.length() + 1];
-    std::memset( cStr , 0 , sizeof(cStr) );
-
-    for ( unsigned int i = 0 ; i < sizeof(cStr) / sizeof(wchar_t) ; i++ ) {
-        cStr[i] = data[i];
-    }
-
-    std::wstring tempStr( cStr );
-
-    *this << tempStr;
+    m_recvAmount = 0;
 }
