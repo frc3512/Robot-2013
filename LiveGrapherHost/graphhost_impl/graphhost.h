@@ -24,6 +24,7 @@ struct graphhost_t {
 	int ipcfd_r;
 	int ipcfd_w;
 	int port;
+	struct list_t *graphlist;
 	struct list_t *connlist;
 };
 
@@ -56,9 +57,17 @@ struct writebuf_t {
 };
 
 struct graph_payload_t {
-	char dataset[16];
+	char type; /* Set to 'd' to identify this as a graph
+		payload packet */
+	char dataset[15];
 	float x;
 	float y;
+};
+
+struct graph_list_t {
+	char type;
+	char dataset[15];
+        char pad[8];
 };
 
 #define SOCKET_READ 1
@@ -75,6 +84,9 @@ int
 GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *graphhost);
 
 /* Internal functions */
+
+int
+socket_recordgraph(struct list_t *graphlist, const char *dataset);
 
 int
 sockets_listen_int(int port, sa_family_t sin_family, uint32_t s_addr);
@@ -95,13 +107,16 @@ void
 sockets_clear_orphans(struct list_t *list);
 
 int
-sockets_readh(struct list_t *list, struct list_elem_t *elem);
+sockets_readh(struct graphhost_t *inst, struct list_t *list, struct list_elem_t *elem);
 
 int
-sockets_readdoneh(uint8_t *inbuf, size_t bufsize, struct list_t *list, struct list_elem_t *elem);
+sockets_readdoneh(struct graphhost_t *inst, uint8_t *inbuf, size_t bufsize, struct list_t *list, struct list_elem_t *elem);
 
 int
-sockets_writeh(struct list_t *list, struct list_elem_t *elem);
+sockets_sendlist(struct graphhost_t *inst, struct list_t *list, struct list_elem_t *elem);
+
+int
+sockets_writeh(struct graphhost_t *inst, struct list_t *list, struct list_elem_t *elem);
 
 int
 sockets_queuewrite(struct graphhost_t *inst, struct socketconn_t *conn, uint8_t *buf, size_t buflength);
