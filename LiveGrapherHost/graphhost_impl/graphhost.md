@@ -48,8 +48,9 @@ The 'l' character is sent to the server, followed by fifteen bytes of padding. O
   
 The body of each response contains the following fields:
 * The ASCII character 'l', the type of response.
+* A nonzero value of this one byte field indicates the datagram is the last in the sequence.
 * A fifteen byte string whose contents represent the name of a dataset in the list.
-* Eight bytes of padding.
+* Seven bytes of padding.
 
 ### Begin Sending Data ('c') ###
 
@@ -60,8 +61,8 @@ The 'c' character is sent to the server, followed by a fifteen byte string descr
 The body of each response contains the following fields:
 * The ASCII character 'd', the type of response.
 * The fifteen byte ASCII string describing the dataset to which the data point belongs.
-* A 32-bit, IEEE floating point numbers representing the X component of the data points position as specified in the call to GraphHost_graphData.
-* A 32-bit, IEEE floating point numbers representing the Y component of the data points position as specified in the call to GraphHost_graphData.
+* A 32-bit, IEEE floating point number representing the X component of the data points position as specified in the call to GraphHost_graphData.
+* A 32-bit, IEEE floating point number representing the Y component of the data points position as specified in the call to GraphHost_graphData.
 
 ### Stop Sending Data ('d') ###
 

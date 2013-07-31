@@ -407,8 +407,21 @@ sockets_sendlist(struct graphhost_t *inst, struct list_t *list, struct list_elem
 
 		/* Set up the response body, and queue it for sending. */
 		memset((void *)&replydg, 0x00, sizeof(struct graph_list_t));
+
+		/* Set the type of the datagram. */
 		replydg.type = 'l';
+
+		/* Is this the last element in the list? */
+		if(clelem->next == NULL) {
+			replydg.end = 1;
+		}else{
+                	replydg.end = 0;
+		}
+
+		/* Copy in the string */
 		strcpy(replydg.dataset, tmpstr);
+
+		/* Queue the datagram for writing */
 		if(sockets_queuewrite(inst, conn, (void *)&replydg, sizeof(struct graph_list_t)) == -1) {
 			return -1;
 		}

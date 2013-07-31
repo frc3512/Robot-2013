@@ -62,13 +62,14 @@ struct graph_payload_t {
 	char dataset[15];
 	float x;
 	float y;
-};
+} __attribute__ ((packed));
 
 struct graph_list_t {
 	char type;
+	char end;
 	char dataset[15];
-        char pad[8];
-};
+        char pad[7];
+} __attribute__ ((packed));
 
 #define SOCKET_READ 1
 #define SOCKET_WRITE 2
