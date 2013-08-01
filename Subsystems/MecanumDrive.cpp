@@ -27,7 +27,8 @@ float MecanumDrive::maxWheelSpeed = 14.f;
 MecanumDrive::MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rearLeftMotor,
             SpeedController *frontRightMotor, SpeedController *rearRightMotor) :
             RobotDrive(frontLeftMotor, rearLeftMotor,
-                    frontRightMotor, rearRightMotor) {
+                    frontRightMotor, rearRightMotor),
+            Settings( "/ni-rt/system/RobotSettings.txt" ) {
     m_pidEnabled = false;
     m_squaredInputs = false;
     m_driveMode = Omni;
@@ -36,7 +37,8 @@ MecanumDrive::MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rea
 MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rearLeftMotor,
             SpeedController &frontRightMotor, SpeedController &rearRightMotor) :
             RobotDrive(frontLeftMotor, rearLeftMotor,
-                    frontRightMotor, rearRightMotor) {
+                    frontRightMotor, rearRightMotor),
+            Settings( "/ni-rt/system/RobotSettings.txt" ) {
     m_pidEnabled = false;
     m_squaredInputs = false;
     m_driveMode = Omni;
@@ -226,7 +228,6 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
     // Normalize wheel speeds and run PID loop if enabled
     Normalize( wheelSpeeds );
 
-#if 0
     if ( m_pidEnabled ) {
         m_flPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kFrontLeftMotor] * m_invertedMotors[kFrontLeftMotor] * m_maxOutput );
         m_frPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kFrontRightMotor] * m_invertedMotors[kFrontRightMotor] * m_maxOutput );
@@ -245,7 +246,6 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         // TODO Send PID values to DSDisplay for graphing
     }
     else {
-#endif
         UINT8 syncGroup = 0x80;
 
         m_frontLeftMotor->Set( wheelSpeeds[kFrontLeftMotor] * m_invertedMotors[kFrontLeftMotor] * m_maxOutput , syncGroup );
@@ -256,7 +256,7 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         CANJaguar::UpdateSyncGroup( syncGroup );
 
         m_safetyHelper->Feed();
-    //}
+    }
 }
 
 void MecanumDrive::SquareInputs( bool squared ) {
@@ -310,20 +310,20 @@ void MecanumDrive::EnableEncoders( bool pidEnabled ) {
         /* =============================== */
 
         /* ===== Start PID loops for motors ===== */
-        m_flPID = new PIDController( 0.02 , 0 , 0 , 0.5 , m_flEncoder , m_frontLeftMotor );
-        m_rlPID = new PIDController( 0.02 , 0 , 0 , 0.5 ,  m_rlEncoder , m_rearLeftMotor );
-        m_frPID = new PIDController( 0.02 , 0 , 0 , 0.5 , m_frEncoder , m_frontRightMotor );
-        m_rrPID = new PIDController( 0.02 , 0 , 0 , 0.5 , m_rrEncoder , m_rearRightMotor );
+        m_flPID = new PIDController( 0 , 0 , 0 , 0 , m_flEncoder , m_frontLeftMotor );
+        m_rlPID = new PIDController( 0 , 0 , 0 , 0 ,  m_rlEncoder , m_rearLeftMotor );
+        m_frPID = new PIDController( 0 , 0 , 0 , 0 , m_frEncoder , m_frontRightMotor );
+        m_rrPID = new PIDController( 0 , 0 , 0 , 0 , m_rrEncoder , m_rearRightMotor );
 
         m_flPID->SetOutputRange( -1 , 1 );
         m_rlPID->SetOutputRange( -1 , 1 );
         m_frPID->SetOutputRange( -1 , 1 );
         m_rrPID->SetOutputRange( -1 , 1 );
 
-        /*m_flPID->Enable();
+        m_flPID->Enable();
         m_rlPID->Enable();
         m_frPID->Enable();
-        m_rrPID->Enable();*/
+        m_rrPID->Enable();
         /* ====================================== */
 
         m_pidEnabled = pidEnabled;
@@ -364,6 +364,12 @@ void MecanumDrive::ResetEncoders() {
     }
 }
 
+void MecanumDrive::ReloadPID() {
+    Settings::update();
+
+    m_flPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
+}
+
 // Returns encoder values if the encoders are enabled
 double MecanumDrive::GetFLrate() {
     if ( m_pidEnabled ) {
@@ -402,7 +408,7 @@ double MecanumDrive::GetRRrate() {
 }
 
 double MecanumDrive::GetFLdist() {
-    if( m_pidEnabled ) {
+    if ( m_pidEnabled ) {
         return m_flEncoder->GetDistance();
     }
     else {
@@ -411,7 +417,7 @@ double MecanumDrive::GetFLdist() {
 }
 
 double MecanumDrive::GetRLdist() {
-    if( m_pidEnabled ) {
+    if ( m_pidEnabled ) {
         return m_rlEncoder->GetDistance();
     }
     else {
@@ -420,7 +426,7 @@ double MecanumDrive::GetRLdist() {
 }
 
 double MecanumDrive::GetFRdist() {
-    if( m_pidEnabled ) {
+    if ( m_pidEnabled ) {
         return m_frEncoder->GetDistance();
     }
     else {
@@ -429,8 +435,44 @@ double MecanumDrive::GetFRdist() {
 }
 
 double MecanumDrive::GetRRdist() {
-    if( m_pidEnabled ) {
+    if ( m_pidEnabled ) {
         return m_rrEncoder->GetDistance();
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double MecanumDrive::GetFLsetpoint() {
+    if ( m_pidEnabled ) {
+        return m_flPID->GetSetpoint();
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double MecanumDrive::GetRLsetpoint() {
+    if ( m_pidEnabled ) {
+        return m_flPID->GetSetpoint();
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double MecanumDrive::GetFRsetpoint() {
+    if ( m_pidEnabled ) {
+        return m_flPID->GetSetpoint();
+    }
+    else {
+        return 0.0;
+    }
+}
+
+double MecanumDrive::GetRRsetpoint() {
+    if ( m_pidEnabled ) {
+        return m_flPID->GetSetpoint();
     }
     else {
         return 0.0;

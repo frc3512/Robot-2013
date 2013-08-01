@@ -7,12 +7,13 @@
 #ifndef MECANUM_DRIVE_HPP
 #define MECANUM_DRIVE_HPP
 
-#include "RobotDrive.h"
+#include <RobotDrive.h>
+#include "../Settings.hpp"
 
 class Encoder;
 class PIDController;
 
-class MecanumDrive : public RobotDrive {
+class MecanumDrive : public RobotDrive , public Settings {
 public:
     MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rearLeftMotor,
                 SpeedController *frontRightMotor, SpeedController *rearRightMotor);
@@ -58,6 +59,9 @@ public:
     // Set encoder distances to 0
     void ResetEncoders();
 
+    // Reload PID constants
+    void ReloadPID();
+
     // Returns encoder rates if the encoders are enabled
     double GetFLrate();
     double GetRLrate();
@@ -69,6 +73,12 @@ public:
     double GetRLdist();
     double GetFRdist();
     double GetRRdist();
+
+    // Returns encoder PID loop setpoints
+    double GetFLsetpoint();
+    double GetRLsetpoint();
+    double GetFRsetpoint();
+    double GetRRsetpoint();
 
 private:
     DISALLOW_COPY_AND_ASSIGN(MecanumDrive);

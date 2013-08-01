@@ -8,6 +8,9 @@
 #include <map>
 #include <string>
 
+#ifndef SETTINGS_HPP
+#define SETTINGS_HPP
+
 class Settings {
 public:
     Settings( std::string fileName );
@@ -36,3 +39,5 @@ private:
 
     std::string extractDataFromString( const bool& isName );
 };
+
+#endif // SETTINGS_HPP

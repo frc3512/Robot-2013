@@ -102,6 +102,8 @@ OurRobot::OurRobot() :
     mainDrive.SetEncoderPorts( 14 , 13 , 10 , 9 ,
             6 , 5 , 8 , 7 );
 
+    mainDrive.EnableEncoders( true );
+
     // Let motors run for up to 1 second uncontrolled before shutting them down
     mainDrive.SetExpiration( 1.f );
     frisbeeShooter.setPID( atof( getValueFor( "PID_CLOSE_P" ).c_str() ) , atof( getValueFor( "PID_CLOSE_I" ).c_str() ) , atof( getValueFor( "PID_CLOSE_D" ).c_str() ) );
@@ -136,9 +138,8 @@ OurRobot::~OurRobot() {
 
 void OurRobot::DS_PrintOut() {
     if ( pidGraph.hasIntervalPassed() ) {
-        //pidGraph.graphData( 5000.f , "PID0" );
-        pidGraph.graphData( frisbeeShooter.getRPM() , "PID0" );
-        pidGraph.graphData( frisbeeShooter.getTargetRPM() , "PID1" );
+        pidGraph.graphData( mainDrive.GetFLrate() , "FL PID" );
+        pidGraph.graphData( mainDrive.GetFLsetpoint() , "FL Setpoint" );
 
         pidGraph.resetInterval();
     }

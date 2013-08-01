@@ -60,6 +60,8 @@ void OurRobot::OperatorControl() {
             // Reset PID constants
             Settings::update();
 
+            mainDrive.ReloadPID();
+
             frisbeeShooter.setPID( atof( getValueFor( "PID_CLOSE_P" ).c_str() ) , atof( getValueFor( "PID_CLOSE_I" ).c_str() ) , atof( getValueFor( "PID_CLOSE_D" ).c_str() ) );
 
 #if 0
