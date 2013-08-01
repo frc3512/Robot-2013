@@ -319,7 +319,7 @@ sockets_clear_orphans(struct list_t *list)
 }
 
 int
-sockets_readh(struct list_t *list, struct list_elem_t *elem)
+sockets_readh(struct graphhost_t *inst, struct list_t *list, struct list_elem_t *elem)
 {
 	struct socketconn_t *conn = elem->data;
 	int error;
@@ -339,7 +339,7 @@ sockets_readh(struct list_t *list, struct list_elem_t *elem)
 	conn->readbufoffset += error;
 
 	if(conn->readbufoffset == conn->readbuflength) {
-		sockets_readdoneh(conn->readbuf, conn->readbuflength, list, elem);
+		sockets_readdoneh(inst, conn->readbuf, conn->readbuflength, list, elem);
 		conn->readbufoffset = 0;
 		conn->readbuflength = 0;
 		free(conn->readbuf);
@@ -352,23 +352,88 @@ sockets_readh(struct list_t *list, struct list_elem_t *elem)
 
 /* Recieves 16 byte buffers which will be freed upon return */
 int
-sockets_readdoneh(uint8_t *inbuf, size_t bufsize, struct list_t *list, struct list_elem_t *elem)
+sockets_readdoneh(struct graphhost_t *inst, uint8_t *inbuf, size_t bufsize, struct list_t *list, struct list_elem_t *elem)
 {
 	struct socketconn_t *conn = elem->data;
 	char *buf;
+	char *graphstr;
+	char *tmpstr;
+	struct list_elem_t *clelem;
 
 	inbuf[15] = 0;
+        graphstr = ((char *)inbuf)+1;
 
-	buf = strdup((char *)inbuf);
+        switch(inbuf[0]) {
+        case 'c':
+		/* Start sending data for the graph specified by graphstr. */
+		buf = strdup((char *)graphstr);
+		list_add_after(conn->datasets, NULL, buf);
+		break;
+        case 'd':
+		/* Stop sending data for the graph specified by graphstr. */
+		for(clelem = inst->connlist->start; clelem != NULL;
+			clelem = clelem->next) {
 
-	list_add_after(conn->datasets, NULL, buf);
+			tmpstr = clelem->data;
+			if(strcmp(tmpstr, graphstr) == 0) {
+				list_delete(conn->datasets, clelem);
+				break;
+			}
+		}
+		break;
+	case 'l':
+		/* If this fails, we just ignore it. There's really nothing we can
+		   do about it right now. */
+		sockets_sendlist(inst, list, elem);
+        }
+
+
+	return 0;
+}
+
+/* Send to the client a list of available graphs */
+int
+sockets_sendlist(struct graphhost_t *inst, struct list_t *list, struct list_elem_t *elem) {
+	struct list_t *graphlist = inst->graphlist;
+	struct socketconn_t *conn = elem->data;
+        struct graph_list_t replydg;
+	struct list_elem_t *clelem;
+	char *tmpstr;
+
+	for(clelem = graphlist->start; clelem != NULL;
+		clelem = clelem->next) {
+
+		tmpstr = clelem->data;
+
+		/* Set up the response body, and queue it for sending. */
+		memset((void *)&replydg, 0x00, sizeof(struct graph_list_t));
+
+		/* Set the type of the datagram. */
+		replydg.type = 'l';
+
+		/* Is this the last element in the list? */
+		if(clelem->next == NULL) {
+			replydg.end = 1;
+		}else{
+                	replydg.end = 0;
+		}
+
+		/* Copy in the string */
+		strcpy(replydg.dataset, tmpstr);
+
+		/* Queue the datagram for writing */
+		if(sockets_queuewrite(inst, conn, (void *)&replydg, sizeof(struct graph_list_t)) == -1) {
+			return -1;
+		}
+	}
 
 	return 0;
 }
 
 
+/* Write queued data to a socket when the socket becomes ready */
 int
-sockets_writeh(struct list_t *list, struct list_elem_t *elem)
+sockets_writeh(struct graphhost_t *inst, struct list_t *list, struct list_elem_t *elem)
 {
 	int error;
 	struct socketconn_t *conn = elem->data;
@@ -465,11 +530,13 @@ sockets_threadmain(void *arg)
 
 	/* Create a list to store all the open connections */
 	inst->connlist = list_create();
+	inst->graphlist = list_create();
 
 	/* Listen on a socket */
 	listenfd = sockets_listen_int(inst->port, AF_INET, 0x00000000);
 	if(listenfd == -1) {
 		pthread_mutex_destroy(&inst->mutex);
+		list_destroy(inst->graphlist);
 		list_destroy(inst->connlist);
 		pthread_exit(NULL);
 		return NULL;
@@ -527,11 +594,11 @@ sockets_threadmain(void *arg)
 
 			if(FD_ISSET(fd, &readfds)) {
 				/* Handle reading */
-				sockets_readh(inst->connlist, elem);
+				sockets_readh(inst, inst->connlist, elem);
 			}
 			if(FD_ISSET(fd, &writefds)) {
 				/* Handle writing */
-				sockets_writeh(inst->connlist, elem);
+				sockets_writeh(inst, inst->connlist, elem);
 			}
 			if(FD_ISSET(fd, &errorfds)) {
 				/* Handle errors */
@@ -573,8 +640,9 @@ sockets_threadmain(void *arg)
 	/* Actually close all the open file descriptors */
 	sockets_clear_orphans(inst->connlist);
 
-	/* Free the list */
+	/* Free the lists */
 	list_destroy(inst->connlist);
+	list_destroy(inst->graphlist);
 
 	/* Close the listener file descriptor */
 	close(listenfd);
@@ -585,6 +653,37 @@ sockets_threadmain(void *arg)
 
 	pthread_exit(NULL);
 	return NULL;
+}
+
+/* If the dataset name isn't in the list already, add it. */
+int
+socket_recordgraph(struct list_t *graphlist, const char *dataset)
+{
+	char *graphstr;
+	int graphinlist;
+	struct list_elem_t *graphelem;
+
+	graphinlist = 0;
+
+	/* Add the graph name to the list of available graphs */
+	for(graphelem = graphlist->start; graphelem != NULL;
+		graphelem = graphelem->next)
+	{
+		graphstr = graphelem->data;
+
+		/* Graph is already in list */
+		if(strcmp(graphstr, dataset)) {
+			graphinlist = 1;
+			return 1;
+		}
+	}
+
+	/* If the graph wasn't in the list, add it. */
+	if(!graphinlist) {
+		list_add_after(graphlist, NULL, (void *)dataset);
+	}
+
+	return 0;
 }
 
 /* We assume that a float is 32 bits long */
@@ -604,6 +703,7 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
 	memset((void *)&payload, 0x00, sizeof(struct graph_payload_t));
 
 	/* Change to network byte order */
+	payload.type = 'd';
 	payload.x = x;
 	payload.y = y;
 	/*tmp = htonl(*((uint32_t *)&x));
@@ -615,6 +715,10 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
 	/* Giant lock approach */
 	pthread_mutex_lock(&graphhost->mutex);
 
+	/* If the dataset name isn't in the list already, add it. */
+	socket_recordgraph(graphhost->graphlist, dataset);
+
+	/* Send the point to connected clients */
 	for(elem = graphhost->connlist->start; elem != NULL; elem = elem->next) {
 		conn = elem->data;
 		for(datasetp = conn->datasets->start; datasetp != NULL; datasetp = datasetp->next) {

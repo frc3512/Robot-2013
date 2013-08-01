@@ -10,7 +10,6 @@ struct list_elem_t {
 
 struct list_t {
 	struct list_elem_t *start;
-
 };
 
 struct list_t * list_create();
