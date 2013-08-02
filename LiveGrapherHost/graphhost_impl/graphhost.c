@@ -168,11 +168,13 @@ void
 sockets_accept(struct list_t *connlist, int listenfd)
 {
 	int new_fd;
-	int on;
-	int clilen;
+	socklen_t clilen;
 	struct socketconn_t *conn;
 	struct sockaddr_in cli_addr;
 	int error;
+#ifdef VxWorks
+	int on;
+#endif
 #ifndef VxWorks
 	int flags;
 #endif
@@ -672,7 +674,7 @@ socket_recordgraph(struct list_t *graphlist, const char *dataset)
 		graphstr = graphelem->data;
 
 		/* Graph is already in list */
-		if(strcmp(graphstr, dataset)) {
+		if(strcmp(graphstr, dataset) == 0) {
 			graphinlist = 1;
 			return 1;
 		}

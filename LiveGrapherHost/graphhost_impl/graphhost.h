@@ -66,8 +66,8 @@ struct graph_payload_t {
 
 struct graph_list_t {
 	char type;
-	char end;
 	char dataset[15];
+	char end;
         char pad[7];
 } __attribute__ ((packed));
 

@@ -48,8 +48,8 @@ The 'l' character is sent to the server, followed by fifteen bytes of padding. O
   
 The body of each response contains the following fields:
 * The ASCII character 'l', the type of response.
-* A nonzero value of this one byte field indicates the datagram is the last in the sequence.
 * A fifteen byte string whose contents represent the name of a dataset in the list.
+* A nonzero value of this one byte field indicates the datagram is the last in the sequence.
 * Seven bytes of padding.
 
 ### Begin Sending Data ('c') ###
