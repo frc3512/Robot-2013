@@ -18,56 +18,56 @@ extern "C" {
 #include <pthread.h>
 
 struct graphhost_t {
-	pthread_t thread;
-	pthread_mutex_t mutex;
-	uint8_t running;
-	int ipcfd_r;
-	int ipcfd_w;
-	int port;
-	struct list_t *graphlist;
-	struct list_t *connlist;
+  pthread_t thread;
+  pthread_mutex_t mutex;
+  uint8_t running;
+  int ipcfd_r;
+  int ipcfd_w;
+  int port;
+  struct list_t *graphlist;
+  struct list_t *connlist;
 };
 
 struct socketconn_t {
-	int fd;
-	struct list_elem_t *elem;
+  int fd;
+  struct list_elem_t *elem;
 
-	/* char *dataset; */
-	struct list_t *datasets;
-	uint8_t selectflags;
+  /* char *dataset; */
+  struct list_t *datasets;
+  uint8_t selectflags;
 
-	int orphan;
+  int orphan;
 
-	/* Write buffer currently being written */
-	uint8_t *writebuf; /* The buffer that needs to be written into the socket */
-	size_t writebuflength; /* The length of the buffer to be written */
-	size_t writebufoffset; /* How much has been written so far */
-	struct queue_t *writequeue;
+  /* Write buffer currently being written */
+  uint8_t *writebuf; /* The buffer that needs to be written into the socket */
+  size_t writebuflength; /* The length of the buffer to be written */
+  size_t writebufoffset; /* How much has been written so far */
+  struct queue_t *writequeue;
 
-	/* Read buffer currently being read */
-	uint8_t *readbuf;
-	size_t readbuflength;
-	size_t readbufoffset;
+  /* Read buffer currently being read */
+  uint8_t *readbuf;
+  size_t readbuflength;
+  size_t readbufoffset;
 };
 
 struct writebuf_t {
-	/* Write buffer */
-	uint8_t *buf; /* The buffer that needs to be written into the socket */
-	uint32_t buflength; /* The length of the buffer to be written */
+  /* Write buffer */
+  uint8_t *buf; /* The buffer that needs to be written into the socket */
+  uint32_t buflength; /* The length of the buffer to be written */
 };
 
 struct graph_payload_t {
-	char type; /* Set to 'd' to identify this as a graph
-		payload packet */
-	char dataset[15];
-	float x;
-	float y;
+  char type; /* Set to 'd' to identify this as a graph
+    payload packet */
+  char dataset[15];
+  float x;
+  float y;
 } __attribute__ ((packed));
 
 struct graph_list_t {
-	char type;
-	char dataset[15];
-	char end;
+  char type;
+  char dataset[15];
+  char end;
         char pad[7];
 } __attribute__ ((packed));
 

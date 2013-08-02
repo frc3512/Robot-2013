@@ -4,10 +4,10 @@
 #include "list.h"
 
 struct queue_t {
-	struct list_t *list;
-	struct list_elem_t *last;
-	int size;
-	int length;
+  struct list_t *list;
+  struct list_elem_t *last;
+  int size;
+  int length;
 };
 
 struct queue_t *
