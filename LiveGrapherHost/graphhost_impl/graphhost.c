@@ -272,7 +272,7 @@ sockets_remove_orphan(struct socketconn_t *conn)
 	}
 
 	/* Give up on all other queued buffers too */
-	while(queue_dequeue(conn->writequeue, (void **)writebuf) == 0) {
+	while(queue_dequeue(conn->writequeue, (void *)&writebuf) == 0) {
 		free(writebuf->buf);
 		free(writebuf);
 	}
@@ -642,12 +642,17 @@ sockets_threadmain(void *arg)
 	/* Actually close all the open file descriptors */
 	sockets_clear_orphans(inst->connlist);
 
-	/* Free the lists */
+	/* Free the list of connections */
 	list_destroy(inst->connlist);
-	list_destroy(inst->graphlist);
 
 	/* Close the listener file descriptor */
 	close(listenfd);
+
+	/* Clean up & free the global dataset list */
+	for(elem = inst->graphlist->start; elem != NULL; elem = elem->next) {
+		free(elem->data);
+	}
+	list_destroy(inst->graphlist);
 
 	/* Destroy the mutex */
 	pthread_mutex_unlock(&inst->mutex);
@@ -682,7 +687,7 @@ socket_recordgraph(struct list_t *graphlist, const char *dataset)
 
 	/* If the graph wasn't in the list, add it. */
 	if(!graphinlist) {
-		list_add_after(graphlist, NULL, (void *)dataset);
+		list_add_after(graphlist, NULL, (void *)strdup(dataset));
 	}
 
 	return 0;
