@@ -168,7 +168,7 @@ void
 sockets_accept(struct list_t *connlist, int listenfd)
 {
   int new_fd;
-  socklen_t clilen;
+  int clilen;
   struct socketconn_t *conn;
   struct sockaddr_in cli_addr;
   int error;
