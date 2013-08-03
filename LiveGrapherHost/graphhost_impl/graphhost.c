@@ -168,7 +168,11 @@ void
 sockets_accept(struct list_t *connlist, int listenfd)
 {
   int new_fd;
+#ifdef VxWorks
   int clilen;
+#else
+  unsigned int clilen;
+#endif
   struct socketconn_t *conn;
   struct sockaddr_in cli_addr;
   int error;
