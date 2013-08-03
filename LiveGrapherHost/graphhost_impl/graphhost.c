@@ -368,7 +368,8 @@ sockets_readdoneh(struct graphhost_t *inst, uint8_t *inbuf, size_t bufsize, stru
   switch(inbuf[0]) {
   case 'c':
     /* Start sending data for the graph specified by graphstr. */
-    buf = strdup((const char *)graphstr);
+    buf = malloc(strlen(graphstr));
+    strcpy(buf, graphstr);
     list_add_after(conn->datasets, NULL, buf);
     break;
   case 'd':
@@ -669,6 +670,7 @@ socket_recordgraph(struct list_t *graphlist, const char *dataset)
   char *graphstr;
   int graphinlist;
   struct list_elem_t *graphelem;
+  char *tmpstr;
 
   graphinlist = 0;
 
@@ -687,7 +689,9 @@ socket_recordgraph(struct list_t *graphlist, const char *dataset)
 
   /* If the graph wasn't in the list, add it. */
   if(!graphinlist) {
-    list_add_after(graphlist, NULL, (void *)strdup(dataset));
+    tmpstr = malloc(strlen(dataset));
+    strcpy(tmpstr, dataset);
+    list_add_after(graphlist, NULL, tmpstr);
   }
 
   return 0;

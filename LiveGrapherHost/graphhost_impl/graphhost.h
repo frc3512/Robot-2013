@@ -1,7 +1,7 @@
 #ifndef _GRAPHHOST_H
 #define _GRAPHHOST_H
 
-#define VxWorks
+/* #define VxWorks */
 
 #ifdef __cplusplus
 extern "C" {
