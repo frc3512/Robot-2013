@@ -363,15 +363,15 @@ sockets_readdoneh(struct graphhost_t *inst, uint8_t *inbuf, size_t bufsize, stru
   struct list_elem_t *clelem;
 
   inbuf[15] = 0;
-        graphstr = ((char *)inbuf)+1;
+  graphstr = ((char *)inbuf)+1;
 
-        switch(inbuf[0]) {
-        case 'c':
+  switch(inbuf[0]) {
+  case 'c':
     /* Start sending data for the graph specified by graphstr. */
-    buf = strdup((char *)graphstr);
+    buf = strdup((const char *)graphstr);
     list_add_after(conn->datasets, NULL, buf);
     break;
-        case 'd':
+  case 'd':
     /* Stop sending data for the graph specified by graphstr. */
     for(clelem = inst->connlist->start; clelem != NULL;
       clelem = clelem->next) {
@@ -379,6 +379,7 @@ sockets_readdoneh(struct graphhost_t *inst, uint8_t *inbuf, size_t bufsize, stru
       tmpstr = clelem->data;
       if(strcmp(tmpstr, graphstr) == 0) {
         list_delete(conn->datasets, clelem);
+        free(tmpstr);
         break;
       }
     }
@@ -387,8 +388,7 @@ sockets_readdoneh(struct graphhost_t *inst, uint8_t *inbuf, size_t bufsize, stru
     /* If this fails, we just ignore it. There's really nothing we can
        do about it right now. */
     sockets_sendlist(inst, list, elem);
-        }
-
+  }
 
   return 0;
 }
@@ -701,6 +701,7 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
   struct list_elem_t *datasetp;
   struct socketconn_t *conn;
   struct graph_payload_t payload;
+  uint32_t tmp;
 
   char *dataset_str;
 
@@ -711,12 +712,17 @@ GraphHost_graphData(float x, float y, const char *dataset, struct graphhost_t *g
 
   /* Change to network byte order */
   payload.type = 'd';
-  payload.x = x;
-  payload.y = y;
-  /*tmp = htonl(*((uint32_t *)&x));
-  payload.x = *((float *)&tmp);
-  tmp = htonl(*((uint32_t *)&y));
-  payload.y = *((float *)&tmp);*/
+
+  /* Swap bytes in x, and copy into the payload struct */
+  memcpy(&tmp, &x, sizeof(uint32_t));
+  tmp = htonl(tmp);
+  memcpy(&payload.x, &tmp, sizeof(uint32_t));
+
+  /* Swap bytes in y, and copy into the payload struct */
+  memcpy(&tmp, &y, sizeof(uint32_t));
+  tmp = htonl(tmp);
+  memcpy(&payload.y, &tmp, sizeof(uint32_t));
+
   strncpy(payload.dataset, dataset, 15);
 
   /* Giant lock approach */
