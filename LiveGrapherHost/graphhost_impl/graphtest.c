@@ -1,11 +1,11 @@
 /* A very simple test harness for GraphHost */
 
+#ifndef VxWorks
+
 #include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
 #include "graphhost.h"
-
-#undef VxWorks /* HACK */
 
 /* main function */
 int
@@ -30,3 +30,5 @@ main()
 
   return 0;
 }
+
+#endif /* VxWorks */

@@ -6,6 +6,7 @@
 
 #include "MecanumDrive.hpp"
 
+#include <iostream> // TODO Remove me
 #include <cmath>
 #include <SpeedController.h>
 #include <CANJaguar.h>
@@ -22,7 +23,7 @@ double hypot2( double x , double y ) {
     return sqrt( x * x + y * y );
 }
 
-float MecanumDrive::maxWheelSpeed = 14.f;
+float MecanumDrive::maxWheelSpeed = 89.f;
 
 MecanumDrive::MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rearLeftMotor,
             SpeedController *frontRightMotor, SpeedController *rearRightMotor) :
@@ -234,14 +235,16 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         m_rlPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kRearLeftMotor] * m_invertedMotors[kRearLeftMotor] * m_maxOutput );
         m_rrPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kRearRightMotor] * m_invertedMotors[kRearRightMotor] * m_maxOutput );
 
+#if 0
         m_flPID->SetPID( m_flPID->GetP() , m_flPID->GetI() , m_flPID->GetD() ,
-                maxWheelSpeed * wheelSpeeds[kFrontLeftMotor] * m_invertedMotors[kFrontLeftMotor] * m_maxOutput );
+                std::fabs(wheelSpeeds[kFrontLeftMotor]) * m_invertedMotors[kFrontLeftMotor] * m_maxOutput );
         m_frPID->SetPID( m_frPID->GetP() , m_frPID->GetI() , m_frPID->GetD() ,
-                maxWheelSpeed * wheelSpeeds[kFrontRightMotor] * m_invertedMotors[kFrontRightMotor] * m_maxOutput );
+                std::fabs(wheelSpeeds[kFrontRightMotor]) * m_invertedMotors[kFrontRightMotor] * m_maxOutput );
         m_rlPID->SetPID( m_rlPID->GetP() , m_rlPID->GetI() , m_rlPID->GetD() ,
-                maxWheelSpeed * wheelSpeeds[kRearLeftMotor] * m_invertedMotors[kRearLeftMotor] * m_maxOutput );
+                std::fabs(wheelSpeeds[kRearLeftMotor]) * m_invertedMotors[kRearLeftMotor] * m_maxOutput );
         m_rrPID->SetPID( m_rrPID->GetP() , m_rrPID->GetI() , m_rrPID->GetD() ,
-                maxWheelSpeed * wheelSpeeds[kRearRightMotor] * m_invertedMotors[kRearRightMotor] * m_maxOutput );
+                std::fabs(wheelSpeeds[kRearRightMotor]) * m_invertedMotors[kRearRightMotor] * m_maxOutput );
+#endif
 
         // TODO Send PID values to DSDisplay for graphing
     }
@@ -310,10 +313,14 @@ void MecanumDrive::EnableEncoders( bool pidEnabled ) {
         /* =============================== */
 
         /* ===== Start PID loops for motors ===== */
-        m_flPID = new PIDController( 0 , 0 , 0 , 0 , m_flEncoder , m_frontLeftMotor );
-        m_rlPID = new PIDController( 0 , 0 , 0 , 0 ,  m_rlEncoder , m_rearLeftMotor );
-        m_frPID = new PIDController( 0 , 0 , 0 , 0 , m_frEncoder , m_frontRightMotor );
-        m_rrPID = new PIDController( 0 , 0 , 0 , 0 , m_rrEncoder , m_rearRightMotor );
+        float p = std::atof( getValueFor( "PID_DRIVE_P" ).c_str() );
+        float i = std::atof( getValueFor( "PID_DRIVE_I" ).c_str() );
+        float d = std::atof( getValueFor( "PID_DRIVE_D" ).c_str() );
+
+        m_flPID = new PIDController( p , i , d , 0.f , m_flEncoder , m_frontLeftMotor );
+        m_rlPID = new PIDController( p , i , d , 0.f ,  m_rlEncoder , m_rearLeftMotor );
+        m_frPID = new PIDController( p , i , d , 0.f , m_frEncoder , m_frontRightMotor );
+        m_rrPID = new PIDController( p , i , d , 0.f , m_rrEncoder , m_rearRightMotor );
 
         m_flPID->SetOutputRange( -1 , 1 );
         m_rlPID->SetOutputRange( -1 , 1 );
@@ -367,7 +374,12 @@ void MecanumDrive::ResetEncoders() {
 void MecanumDrive::ReloadPID() {
     Settings::update();
 
+#if 0
     m_flPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
+    m_frPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
+    m_rlPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
+    m_rrPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
+#endif
 }
 
 // Returns encoder values if the encoders are enabled

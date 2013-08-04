@@ -10,6 +10,7 @@
 
 void OurRobot::Disabled() {
     mainCompressor.Stop();
+    mainDrive.EnableEncoders( false );
     frisbeeShooter.stop();
 
     ButtonTracker driveStickButtons( 1 );
