@@ -13,12 +13,16 @@
 class Encoder;
 class PIDController;
 
-class MecanumDrive : public RobotDrive , public Settings {
+class MecanumDrive : public RobotDrive {
 public:
     MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rearLeftMotor,
-                SpeedController *frontRightMotor, SpeedController *rearRightMotor);
+                SpeedController *frontRightMotor, SpeedController *rearRightMotor,
+                UINT32 flA, UINT32 flB, UINT32 rlA, UINT32 rlB,
+                UINT32 frA, UINT32 frB, UINT32 rrA, UINT32 rrB);
     MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rearLeftMotor,
-                SpeedController &frontRightMotor, SpeedController &rearRightMotor);
+                SpeedController &frontRightMotor, SpeedController &rearRightMotor,
+                UINT32 flA, UINT32 flB, UINT32 rlA, UINT32 rlB,
+                UINT32 frA, UINT32 frB, UINT32 rrA, UINT32 rrB);
 
     virtual ~MecanumDrive();
 
@@ -46,9 +50,6 @@ public:
 
     void SetDriveMode( DriveMode mode );
     DriveMode GetDriveMode();
-
-    void SetEncoderPorts( UINT32 flA , UINT32 flB , UINT32 rlA , UINT32 rlB ,
-            UINT32 frA , UINT32 frB , UINT32 rrA , UINT32 rrB );
 
     // Makes class use encoders to keep robot driving properly
     void EnableEncoders( bool pidEnabled );
@@ -85,27 +86,21 @@ private:
 
     static float maxWheelSpeed;
 
+    Settings m_settings;
+
     bool m_squaredInputs;
     DriveMode m_driveMode;
 
     Encoder* m_flEncoder;
-    UINT32 m_flA; // front left encoder, DIO channel A
-    UINT32 m_flB; // front left encoder, DIO channel B
     PIDController* m_flPID;
 
     Encoder* m_rlEncoder;
-    UINT32 m_rlA;
-    UINT32 m_rlB;
     PIDController* m_rlPID;
 
     Encoder* m_frEncoder;
-    UINT32 m_frA;
-    UINT32 m_frB;
     PIDController* m_frPID;
 
     Encoder* m_rrEncoder;
-    UINT32 m_rrA;
-    UINT32 m_rrB;
     PIDController* m_rrPID;
 
     bool m_pidEnabled;

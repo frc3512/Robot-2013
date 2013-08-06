@@ -8,11 +8,10 @@
 
 #include <iostream> // TODO Remove me
 #include <cmath>
-#include <SpeedController.h>
-#include <CANJaguar.h>
-
 #include <Encoder.h>
 #include "../PIDController.hpp"
+#include <SpeedController.h>
+#include <CANJaguar.h>
 
 #define max( x , y ) (((x) > (y)) ? (x) : (y))
 
@@ -26,27 +25,118 @@ double hypot2( double x , double y ) {
 float MecanumDrive::maxWheelSpeed = 89.f;
 
 MecanumDrive::MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rearLeftMotor,
-            SpeedController *frontRightMotor, SpeedController *rearRightMotor) :
+            SpeedController *frontRightMotor, SpeedController *rearRightMotor,
+            UINT32 flA, UINT32 flB, UINT32 rlA, UINT32 rlB,
+            UINT32 frA, UINT32 frB, UINT32 rrA, UINT32 rrB) :
             RobotDrive(frontLeftMotor, rearLeftMotor,
                     frontRightMotor, rearRightMotor),
-            Settings( "/ni-rt/system/RobotSettings.txt" ) {
+            m_settings( "/ni-rt/system/RobotSettings.txt" ) {
     m_pidEnabled = false;
     m_squaredInputs = false;
     m_driveMode = Omni;
+
+    /* ===== Initialize encoders ===== */
+    m_flEncoder = new Encoder( flA , flB , true );
+    m_rlEncoder = new Encoder( rlA , rlB , true );
+    m_frEncoder = new Encoder( frA , frB , false );
+    m_rrEncoder = new Encoder( rrA , rrB , false );
+
+    float dPerP = 3.14159265f * 3.f /* wheel radius */ / 180.f;
+    m_flEncoder->SetDistancePerPulse( dPerP );
+    m_rlEncoder->SetDistancePerPulse( dPerP );
+    m_frEncoder->SetDistancePerPulse( dPerP );
+    m_rrEncoder->SetDistancePerPulse( dPerP );
+
+    m_flEncoder->SetPIDSourceParameter( Encoder::kRate );
+    m_rlEncoder->SetPIDSourceParameter( Encoder::kRate );
+    m_frEncoder->SetPIDSourceParameter( Encoder::kRate );
+    m_rrEncoder->SetPIDSourceParameter( Encoder::kRate );
+    /* =============================== */
+
+    /* ===== Start PID loops for motors ===== */
+    float p = std::atof( m_settings.getValueFor( "PID_DRIVE_P" ).c_str() );
+    float i = std::atof( m_settings.getValueFor( "PID_DRIVE_I" ).c_str() );
+    float d = std::atof( m_settings.getValueFor( "PID_DRIVE_D" ).c_str() );
+
+    m_flPID = new PIDController( p , i , d , 0.f , m_flEncoder , m_frontLeftMotor );
+    m_rlPID = new PIDController( p , i , d , 0.f ,  m_rlEncoder , m_rearLeftMotor );
+    m_frPID = new PIDController( p , i , d , 0.f , m_frEncoder , m_frontRightMotor );
+    m_rrPID = new PIDController( p , i , d , 0.f , m_rrEncoder , m_rearRightMotor );
+
+    m_flPID->SetOutputRange( -1 , 1 );
+    m_rlPID->SetOutputRange( -1 , 1 );
+    m_frPID->SetOutputRange( -1 , 1 );
+    m_rrPID->SetOutputRange( -1 , 1 );
+    /* ====================================== */
+
+    // Enable PID loops
+    EnableEncoders( true );
 }
 
 MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rearLeftMotor,
-            SpeedController &frontRightMotor, SpeedController &rearRightMotor) :
+            SpeedController &frontRightMotor, SpeedController &rearRightMotor,
+            UINT32 flA, UINT32 flB, UINT32 rlA, UINT32 rlB,
+            UINT32 frA, UINT32 frB, UINT32 rrA, UINT32 rrB) :
             RobotDrive(frontLeftMotor, rearLeftMotor,
                     frontRightMotor, rearRightMotor),
-            Settings( "/ni-rt/system/RobotSettings.txt" ) {
+            m_settings( "/ni-rt/system/RobotSettings.txt" ) {
     m_pidEnabled = false;
     m_squaredInputs = false;
     m_driveMode = Omni;
+
+    /* ===== Initialize encoders ===== */
+    m_flEncoder = new Encoder( flA , flB , true );
+    m_rlEncoder = new Encoder( rlA , rlB , true );
+    m_frEncoder = new Encoder( frA , frB , false );
+    m_rrEncoder = new Encoder( rrA , rrB , false );
+
+    float dPerP = 3.14159265f * 3.f /* wheel radius */ / 180.f;
+    m_flEncoder->SetDistancePerPulse( dPerP );
+    m_rlEncoder->SetDistancePerPulse( dPerP );
+    m_frEncoder->SetDistancePerPulse( dPerP );
+    m_rrEncoder->SetDistancePerPulse( dPerP );
+
+    m_flEncoder->SetPIDSourceParameter( Encoder::kRate );
+    m_rlEncoder->SetPIDSourceParameter( Encoder::kRate );
+    m_frEncoder->SetPIDSourceParameter( Encoder::kRate );
+    m_rrEncoder->SetPIDSourceParameter( Encoder::kRate );
+    /* =============================== */
+
+    /* ===== Start PID loops for motors ===== */
+    float p = std::atof( m_settings.getValueFor( "PID_DRIVE_P" ).c_str() );
+    float i = std::atof( m_settings.getValueFor( "PID_DRIVE_I" ).c_str() );
+    float d = std::atof( m_settings.getValueFor( "PID_DRIVE_D" ).c_str() );
+
+    m_flPID = new PIDController( p , i , d , m_flEncoder , m_frontLeftMotor );
+    m_rlPID = new PIDController( p , i , d ,  m_rlEncoder , m_rearLeftMotor );
+    m_frPID = new PIDController( p , i , d , m_frEncoder , m_frontRightMotor );
+    m_rrPID = new PIDController( p , i , d , m_rrEncoder , m_rearRightMotor );
+
+    m_flPID->SetOutputRange( -1 , 1 );
+    m_rlPID->SetOutputRange( -1 , 1 );
+    m_frPID->SetOutputRange( -1 , 1 );
+    m_rrPID->SetOutputRange( -1 , 1 );
+    /* ====================================== */
+
+    // Enable PID loops
+    EnableEncoders( true );
 }
 
 MecanumDrive::~MecanumDrive() {
+    m_flEncoder->Stop();
+    m_rlEncoder->Stop();
+    m_frEncoder->Stop();
+    m_rrEncoder->Stop();
 
+    delete m_flEncoder;
+    delete m_rlEncoder;
+    delete m_frEncoder;
+    delete m_rrEncoder;
+
+    delete m_flPID;
+    delete m_rlPID;
+    delete m_frPID;
+    delete m_rrPID;
 }
 
 /**
@@ -234,19 +324,6 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         m_frPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kFrontRightMotor] * m_invertedMotors[kFrontRightMotor] * m_maxOutput );
         m_rlPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kRearLeftMotor] * m_invertedMotors[kRearLeftMotor] * m_maxOutput );
         m_rrPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kRearRightMotor] * m_invertedMotors[kRearRightMotor] * m_maxOutput );
-
-#if 0
-        m_flPID->SetPID( m_flPID->GetP() , m_flPID->GetI() , m_flPID->GetD() ,
-                std::fabs(wheelSpeeds[kFrontLeftMotor]) * m_invertedMotors[kFrontLeftMotor] * m_maxOutput );
-        m_frPID->SetPID( m_frPID->GetP() , m_frPID->GetI() , m_frPID->GetD() ,
-                std::fabs(wheelSpeeds[kFrontRightMotor]) * m_invertedMotors[kFrontRightMotor] * m_maxOutput );
-        m_rlPID->SetPID( m_rlPID->GetP() , m_rlPID->GetI() , m_rlPID->GetD() ,
-                std::fabs(wheelSpeeds[kRearLeftMotor]) * m_invertedMotors[kRearLeftMotor] * m_maxOutput );
-        m_rrPID->SetPID( m_rrPID->GetP() , m_rrPID->GetI() , m_rrPID->GetD() ,
-                std::fabs(wheelSpeeds[kRearRightMotor]) * m_invertedMotors[kRearRightMotor] * m_maxOutput );
-#endif
-
-        // TODO Send PID values to DSDisplay for graphing
     }
     else {
         UINT8 syncGroup = 0x80;
@@ -274,64 +351,18 @@ MecanumDrive::DriveMode MecanumDrive::GetDriveMode() {
     return m_driveMode;
 }
 
-void MecanumDrive::SetEncoderPorts( UINT32 flA , UINT32 flB , UINT32 rlA ,
-        UINT32 rlB , UINT32 frA , UINT32 frB , UINT32 rrA , UINT32 rrB ) {
-    m_flA = flA;
-    m_flB = flB;
-    m_rlA = rlA;
-    m_rlB = rlB;
-    m_frA = frA;
-    m_frB = frB;
-    m_rrA = rrA;
-    m_rrB = rrB;
-}
-
 void MecanumDrive::EnableEncoders( bool pidEnabled ) {
     // If wasn't enabled and is now
     if ( !m_pidEnabled && pidEnabled ) {
-        /* ===== Initialize encoders ===== */
-        m_flEncoder = new Encoder( m_flA , m_flB , true );
-        m_rlEncoder = new Encoder( m_rlA , m_rlB , true );
-        m_frEncoder = new Encoder( m_frA , m_frB , false );
-        m_rrEncoder = new Encoder( m_rrA , m_rrB , false );
-
-        float dPerP = 3.14159265f * 3.f /* wheel radius */ / 180.f;
-        m_flEncoder->SetDistancePerPulse( dPerP );
-        m_rlEncoder->SetDistancePerPulse( dPerP );
-        m_frEncoder->SetDistancePerPulse( dPerP );
-        m_rrEncoder->SetDistancePerPulse( dPerP );
-
-        m_flEncoder->SetPIDSourceParameter( Encoder::kRate );
-        m_rlEncoder->SetPIDSourceParameter( Encoder::kRate );
-        m_frEncoder->SetPIDSourceParameter( Encoder::kRate );
-        m_rrEncoder->SetPIDSourceParameter( Encoder::kRate );
-
         m_flEncoder->Start();
         m_rlEncoder->Start();
         m_frEncoder->Start();
         m_rrEncoder->Start();
-        /* =============================== */
-
-        /* ===== Start PID loops for motors ===== */
-        float p = std::atof( getValueFor( "PID_DRIVE_P" ).c_str() );
-        float i = std::atof( getValueFor( "PID_DRIVE_I" ).c_str() );
-        float d = std::atof( getValueFor( "PID_DRIVE_D" ).c_str() );
-
-        m_flPID = new PIDController( p , i , d , 0.f , m_flEncoder , m_frontLeftMotor );
-        m_rlPID = new PIDController( p , i , d , 0.f ,  m_rlEncoder , m_rearLeftMotor );
-        m_frPID = new PIDController( p , i , d , 0.f , m_frEncoder , m_frontRightMotor );
-        m_rrPID = new PIDController( p , i , d , 0.f , m_rrEncoder , m_rearRightMotor );
-
-        m_flPID->SetOutputRange( -1 , 1 );
-        m_rlPID->SetOutputRange( -1 , 1 );
-        m_frPID->SetOutputRange( -1 , 1 );
-        m_rrPID->SetOutputRange( -1 , 1 );
 
         m_flPID->Enable();
         m_rlPID->Enable();
         m_frPID->Enable();
         m_rrPID->Enable();
-        /* ====================================== */
 
         m_pidEnabled = pidEnabled;
     }
@@ -340,20 +371,15 @@ void MecanumDrive::EnableEncoders( bool pidEnabled ) {
     else if ( m_pidEnabled && !pidEnabled ) {
         m_pidEnabled = pidEnabled;
 
+        m_flPID->Reset();
+        m_rlPID->Reset();
+        m_frPID->Reset();
+        m_rrPID->Reset();
+
         m_flEncoder->Stop();
         m_rlEncoder->Stop();
         m_frEncoder->Stop();
         m_rrEncoder->Stop();
-
-        delete m_flEncoder;
-        delete m_rlEncoder;
-        delete m_frEncoder;
-        delete m_rrEncoder;
-
-        delete m_flPID;
-        delete m_rlPID;
-        delete m_frPID;
-        delete m_rrPID;
     }
 }
 
@@ -372,14 +398,16 @@ void MecanumDrive::ResetEncoders() {
 }
 
 void MecanumDrive::ReloadPID() {
-    Settings::update();
+    m_settings.update();
 
-#if 0
-    m_flPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
-    m_frPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
-    m_rlPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
-    m_rrPID->SetPID( std::atof( getValueFor( "PID_DRIVE_P" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_I" ).c_str() ) , std::atof( getValueFor( "PID_DRIVE_D" ).c_str() ) , 0.f );
-#endif
+    float p = std::atof( m_settings.getValueFor( "PID_DRIVE_P" ).c_str() );
+    float i = std::atof( m_settings.getValueFor( "PID_DRIVE_I" ).c_str() );
+    float d = std::atof( m_settings.getValueFor( "PID_DRIVE_D" ).c_str() );
+
+    m_flPID->SetPID( p , i , d );
+    m_frPID->SetPID( p , i , d );
+    m_rlPID->SetPID( p , i , d );
+    m_rrPID->SetPID( p , i , d );
 }
 
 // Returns encoder values if the encoders are enabled

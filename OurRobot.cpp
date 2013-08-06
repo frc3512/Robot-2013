@@ -53,7 +53,8 @@ OurRobot::OurRobot() :
     rlMotor( 5 ),
     frMotor( 7 ),
     rrMotor( 1 ),
-    mainDrive( flMotor , rlMotor , frMotor , rrMotor ),
+    mainDrive( flMotor , rlMotor , frMotor , rrMotor ,
+            14 , 13 , 10 , 9 , 6 , 5 , 8 , 7 ),
 
     frisbeeShooter( 9 , 10 , 2 , 56 , 4.f ) ,
 
@@ -97,12 +98,6 @@ OurRobot::OurRobot() :
     else {
         autonMode = 0;
     }
-
-    // Set encoder ports
-    mainDrive.SetEncoderPorts( 14 , 13 , 10 , 9 ,
-            6 , 5 , 8 , 7 );
-
-    mainDrive.EnableEncoders( true );
 
     // Let motors run for up to 1 second uncontrolled before shutting them down
     // TODO Enable safety after testing
