@@ -137,11 +137,11 @@ void OurRobot::DS_PrintOut() {
     if ( pidGraph.hasIntervalPassed() ) {
         pidGraph.graphData( mainDrive.GetFLrate() , "FL PID" );
         pidGraph.graphData( mainDrive.GetFLsetpoint() , "FL Setpoint" );
-        pidGraph.graphData( mainDrive.GetFRrate() , "FR PID" );
+        pidGraph.graphData( -mainDrive.GetFRrate() , "FR PID" );
         pidGraph.graphData( mainDrive.GetFRsetpoint() , "FR Setpoint" );
         pidGraph.graphData( mainDrive.GetRLrate() , "RL PID" );
         pidGraph.graphData( mainDrive.GetRLsetpoint() , "RL Setpoint" );
-        pidGraph.graphData( mainDrive.GetRRrate() , "RR PID" );
+        pidGraph.graphData( -mainDrive.GetRRrate() , "RR PID" );
         pidGraph.graphData( mainDrive.GetRRsetpoint() , "RR Setpoint" );
 
         pidGraph.resetInterval();

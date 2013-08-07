@@ -182,12 +182,12 @@ void OurRobot::OperatorControl() {
 
         // Enable encoders with PID loops
         if ( driveStickButtons.releasedButton( 3 ) ) {
-            //mainDrive.EnableEncoders( true );
+            mainDrive.EnableEncoders( true );
         }
 
         // Disable encoders with PID loops
         if ( driveStickButtons.releasedButton( 4 ) ) {
-            //mainDrive.EnableEncoders( false );
+            mainDrive.EnableEncoders( false );
         }
 
         // Compensate with gyro angle if that's enabled

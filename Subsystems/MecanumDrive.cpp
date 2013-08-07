@@ -38,8 +38,8 @@ MecanumDrive::MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rea
     /* ===== Initialize encoders ===== */
     m_flEncoder = new Encoder( flA , flB , true );
     m_rlEncoder = new Encoder( rlA , rlB , true );
-    m_frEncoder = new Encoder( frA , frB , false );
-    m_rrEncoder = new Encoder( rrA , rrB , false );
+    m_frEncoder = new Encoder( frA , frB , true );
+    m_rrEncoder = new Encoder( rrA , rrB , true );
 
     float dPerP = 3.14159265f * 3.f /* wheel radius */ / 180.f;
     m_flEncoder->SetDistancePerPulse( dPerP );
@@ -87,8 +87,8 @@ MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rea
     /* ===== Initialize encoders ===== */
     m_flEncoder = new Encoder( flA , flB , true );
     m_rlEncoder = new Encoder( rlA , rlB , true );
-    m_frEncoder = new Encoder( frA , frB , false );
-    m_rrEncoder = new Encoder( rrA , rrB , false );
+    m_frEncoder = new Encoder( frA , frB , true );
+    m_rrEncoder = new Encoder( rrA , rrB , true );
 
     float dPerP = 3.14159265f * 3.f /* wheel radius */ / 180.f;
     m_flEncoder->SetDistancePerPulse( dPerP );
