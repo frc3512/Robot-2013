@@ -21,6 +21,7 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_shooterPID( 0.f , 0.f , 0.f , 1.f / maxSpeed , this , this , 0.04f ) ,
         //m_currentPID( 0 ) ,
         m_isShooting( false ) ,
+        m_firstApproach( false ) ,
         m_controlMode( Manual ) ,
         m_negativeOutputAllowed( true ) ,
         m_P( m_shooterPID.GetP() ) ,
@@ -47,6 +48,7 @@ void Shooter::start() {
     m_shooterPID.SetSetpoint( m_setpoint );
 
     m_isShooting = true;
+    m_firstApproach = true;
 }
 
 void Shooter::stop() {
@@ -224,6 +226,7 @@ void Shooter::PIDWrite( float output ) {
     /* Ouputs are negated because the motor controllers require a negative
      * number to make the shooter wheel spin in the correct direction
      */
+#if 0
     switch ( m_controlMode ) {
     case PID: {
         m_shooterMotor1.Set( -output );
@@ -261,5 +264,32 @@ void Shooter::PIDWrite( float output ) {
 
         break;
     }
+    }
+#endif
+    if ( m_controlMode != Shooter::Manual ) {
+        if ( m_firstApproach ) {
+            // Use BangBang controller until setpoint is reached the first time
+            if ( m_shooterEncoder.getRPM() < m_setpoint ) {
+                m_shooterMotor1.Set( -1.f );
+                m_shooterMotor2.Set( -1.f );
+            }
+            else {
+                m_firstApproach = false;
+
+                // Reset accumulated error and restart PID loop
+                m_shooterPID.Reset();
+                m_shooterPID.Enable();
+                m_shooterPID.SetSetpoint( m_setpoint );
+            }
+        }
+        else {
+            // Use PID controller for duration of enabled usage
+            m_shooterMotor1.Set( -output );
+            m_shooterMotor2.Set( -output );
+        }
+    }
+    else {
+        m_shooterMotor1.Set( -output );
+        m_shooterMotor2.Set( -output );
     }
 }

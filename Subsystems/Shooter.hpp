@@ -132,6 +132,7 @@ private:
     unsigned int m_currentPID;*/
 
     bool m_isShooting;
+    bool m_firstApproach;
 
     ControlMode m_controlMode;
 

@@ -100,9 +100,9 @@ OurRobot::OurRobot() :
     }
 
     // Let motors run for up to 1 second uncontrolled before shutting them down
-    // TODO Enable safety after testing
     //mainDrive.SetExpiration( 1.f );
     mainDrive.SetSafetyEnabled( false );
+    mainDrive.SetDeadband( 0.02f );
     frisbeeShooter.setPID( atof( getValueFor( "PID_CLOSE_P" ).c_str() ) , atof( getValueFor( "PID_CLOSE_I" ).c_str() ) , atof( getValueFor( "PID_CLOSE_D" ).c_str() ) );
 
 #if 0
@@ -135,14 +135,12 @@ OurRobot::~OurRobot() {
 
 void OurRobot::DS_PrintOut() {
     if ( pidGraph.hasIntervalPassed() ) {
-        pidGraph.graphData( mainDrive.GetFLrate() , "FL PID" );
-        pidGraph.graphData( mainDrive.GetFLsetpoint() , "FL Setpoint" );
+        pidGraph.graphData( frisbeeShooter.getRPM() , "Shoot RPM" );
+        pidGraph.graphData( frisbeeShooter.getTargetRPM() , "Shoot Setpoint" );
         pidGraph.graphData( -mainDrive.GetFRrate() , "FR PID" );
         pidGraph.graphData( mainDrive.GetFRsetpoint() , "FR Setpoint" );
-        pidGraph.graphData( mainDrive.GetRLrate() , "RL PID" );
-        pidGraph.graphData( mainDrive.GetRLsetpoint() , "RL Setpoint" );
-        pidGraph.graphData( -mainDrive.GetRRrate() , "RR PID" );
-        pidGraph.graphData( mainDrive.GetRRsetpoint() , "RR Setpoint" );
+        pidGraph.graphData( mainDrive.GetFLrate() , "FL PID" );
+        pidGraph.graphData( mainDrive.GetFLsetpoint() , "FL Setpoint" );
 
         pidGraph.resetInterval();
     }

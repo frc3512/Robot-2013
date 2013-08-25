@@ -33,6 +33,7 @@ MecanumDrive::MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rea
             m_settings( "/ni-rt/system/RobotSettings.txt" ) {
     m_pidEnabled = false;
     m_squaredInputs = false;
+    m_deadband = 0.f;
     m_driveMode = Omni;
 
     /* ===== Initialize encoders ===== */
@@ -82,6 +83,7 @@ MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rea
             m_settings( "/ni-rt/system/RobotSettings.txt" ) {
     m_pidEnabled = false;
     m_squaredInputs = false;
+    m_deadband = 0.f;
     m_driveMode = Omni;
 
     /* ===== Initialize encoders ===== */
@@ -184,6 +186,17 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         else {
             rotation = pow( rotation , 2 );
         }
+    }
+
+    // Apply joystick deadband
+    if ( std::fabs(xIn) < m_deadband ) {
+        xIn = 0.f;
+    }
+    if ( std::fabs(yIn) < m_deadband ) {
+        yIn = 0.f;
+    }
+    if ( std::fabs(rotation) < m_deadband ) {
+        rotation = 0.f;
     }
 
     // Compenstate for gyro angle
@@ -341,6 +354,10 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
 
 void MecanumDrive::SquareInputs( bool squared ) {
     m_squaredInputs = squared;
+}
+
+void MecanumDrive::SetDeadband( float band ) {
+    m_deadband = band;
 }
 
 void MecanumDrive::SetDriveMode( DriveMode mode ) {

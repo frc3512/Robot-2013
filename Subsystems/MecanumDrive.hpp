@@ -48,6 +48,9 @@ public:
      */
     void SquareInputs( bool squared );
 
+    // Sets joystick deadband
+    void SetDeadband( float band );
+
     void SetDriveMode( DriveMode mode );
     DriveMode GetDriveMode();
 
@@ -89,6 +92,7 @@ private:
     Settings m_settings;
 
     bool m_squaredInputs;
+    float m_deadband;
     DriveMode m_driveMode;
 
     Encoder* m_flEncoder;

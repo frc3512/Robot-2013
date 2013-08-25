@@ -8,11 +8,11 @@
 #include "GeartoothEncoder.hpp"
 
 GeartoothEncoder::GeartoothEncoder( UINT32 channel , UINT32 teeth , float gearRatio ) : m_counter( channel ) ,
-m_rpmAverager( 2 ) ,
+m_rpmAverager( 5 ) ,
 m_gearRatio( gearRatio ) ,
 m_teeth( teeth ) {
     m_sampleThread = new Notifier( &GeartoothEncoder::threadFunc , this );
-    m_sampleThread->StartPeriodic( 0.25f );
+    m_sampleThread->StartPeriodic( 0.1f );
 }
 
 GeartoothEncoder::~GeartoothEncoder() {
