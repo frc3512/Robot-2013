@@ -13,7 +13,6 @@
 #ifndef PID_CONTROLLER_HPP
 #define PID_CONTROLLER_HPP
 
-#include <atomic>
 #include <Base.h>
 #include <semLib.h>
 #include <Controller.h>
@@ -87,7 +86,7 @@ private:
     float m_result;
     float m_period;
 
-    std::atomic<float> m_deltaError;
+    float m_deltaError;
 
     SEM_ID m_semaphore;
 

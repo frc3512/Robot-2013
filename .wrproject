@@ -8,7 +8,7 @@
                 <stringAttribute value="DEFINES"/>
                 <stringAttribute value="EXPAND_DBG"/>
             </listAttribute>
-            <stringAttribute key="BLD::Info|GlobalMacro|DEFINES" value=""/>
+            <stringAttribute key="BLD::Info|GlobalMacro|DEFINES" value="-DVxWorks"/>
             <stringAttribute key="BLD::Info|GlobalMacro|EXPAND_DBG" value="0"/>
             <stringAttribute key="BLD::Info|GlobalMacro|PROJECT_TYPE" value="DKM"/>
             <listAttribute key="BLD::Info|Incl|PPC32diab">
@@ -245,6 +245,7 @@
         <buildtarget buildtool="Partial Image Linker" name="Cynisca_partialImage" passed="true" targetname="Cynisca_partialImage">
             <contents>
                 <folder name="/Cynisca/AutonomousModes" recursive="true"/>
+                <folder name="/Cynisca/KalmanGyro" recursive="true"/>
                 <folder name="/Cynisca/LiveGrapherHost" recursive="true"/>
                 <folder name="/Cynisca/SFMLNetwork" recursive="true"/>
                 <folder name="/Cynisca/SFMLSystem" recursive="true"/>
@@ -254,10 +255,10 @@
                 <file name="/Cynisca/Disabled.cpp"/>
                 <file name="/Cynisca/DriverStationDisplay.cpp"/>
                 <file name="/Cynisca/GeartoothEncoder.cpp"/>
+                <file name="/Cynisca/KalmanFilter.cpp"/>
                 <file name="/Cynisca/OperatorControl.cpp"/>
                 <file name="/Cynisca/OurRobot.cpp"/>
                 <file name="/Cynisca/PIDController.cpp"/>
-                <file name="/Cynisca/RollingAverage.cpp"/>
                 <file name="/Cynisca/RWProtect.cpp"/>
                 <file name="/Cynisca/Settings.cpp"/>
             </contents>

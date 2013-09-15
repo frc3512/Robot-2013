@@ -41,7 +41,7 @@ KOP_ADXL345::~KOP_ADXL345() {
 // Actually measures y-axis of gyro for consistency with accelerometer
 int KOP_ADXL345::readGyroX() {
     if ( m_gyro != NULL ) {
-        return (m_gyro->GetAverageVoltage( m_gyroChannel ) - getGyroXzero()) / getGyroLSBsPerUnit();
+        return static_cast<int>((m_gyro->GetAverageVoltage( m_gyroChannel ) - getGyroXzero()) / getGyroLSBsPerUnit());
     }
     else {
         return 0;

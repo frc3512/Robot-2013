@@ -461,6 +461,7 @@ void PIDController::SetAbsoluteTolerance(float absTolerance)
 bool PIDController::OnTarget()
 {
     bool temp = false;
+    float deltaError = 0.f;
     CRITICAL_REGION(m_semaphore)
     {
         switch (m_toleranceType) {
@@ -474,6 +475,8 @@ bool PIDController::OnTarget()
         case kNoTolerance:
             temp = false;
         }
+
+        deltaError = m_deltaError;
     }
     END_REGION;
 
@@ -481,7 +484,7 @@ bool PIDController::OnTarget()
      * is close to zero (if error is at setpoint and slope is zero, process
      * must be settled).
      */
-    return temp && m_deltaError < 0.05;
+    return temp && deltaError < 0.05;
 }
 
 /**

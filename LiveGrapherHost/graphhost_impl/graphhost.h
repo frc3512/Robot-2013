@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 #ifndef VxWorks
-#include <stdint.h>
+#include <types/vxTypes.h>
 #endif
 
 #include "list.h"
