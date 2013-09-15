@@ -28,7 +28,8 @@ void OurRobot::OperatorControl() {
     MecanumDrive::DriveMode driveMode = MecanumDrive::Omni;
     mainDrive.SetDriveMode( driveMode );
 
-    mainDrive.EnableEncoders( true );
+    // TODO Enable encoders
+    //mainDrive.EnableEncoders( true );
 
     while ( IsEnabled() && IsOperatorControl() ) {
         DS_PrintOut();
@@ -62,31 +63,9 @@ void OurRobot::OperatorControl() {
 
             mainDrive.ReloadPID();
 
-            frisbeeShooter.setPID( atof( getValueFor( "PID_CLOSE_P" ).c_str() ) , atof( getValueFor( "PID_CLOSE_I" ).c_str() ) , atof( getValueFor( "PID_CLOSE_D" ).c_str() ) );
+            frisbeeShooter.setPID( atof( getValueFor( "PID_SHOOT_P" ).c_str() ) , atof( getValueFor( "PID_SHOOT_I" ).c_str() ) , atof( getValueFor( "PID_SHOOT_D" ).c_str() ) );
+            frisbeeShooter.updateEncoderFilter( atof( getValueFor( "SHOOTER_RPM_Q").c_str() ) , atof( getValueFor( "SHOOTER_RPM_R" ).c_str() ) );
 
-#if 0
-            std::cout << "removing...\n";
-            frisbeeShooter.removeAllPIDConst();
-            std::cout << "removed\n";
-
-            PIDConst constants;
-
-            constants.P = 0.f;
-            constants.I = 0.f;
-            constants.D = 0.f;
-            constants.F = 1.f / Shooter::maxSpeed;
-            constants.setpoint = 0.f;
-            frisbeeShooter.addPIDConst( constants );
-
-            constants.P = atof( getValueFor( "PID_CLOSE_P" ).c_str() );
-            constants.I = atof( getValueFor( "PID_CLOSE_I" ).c_str() );
-            constants.D = atof( getValueFor( "PID_CLOSE_D" ).c_str() );
-            constants.F = 0.f;
-            constants.setpoint = 0.f;
-            frisbeeShooter.addPIDConst( constants );
-
-            std::cout << "setting control mode...\n";
-#endif
             frisbeeShooter.setControlMode( Shooter::PID );
         }
 
@@ -95,25 +74,7 @@ void OurRobot::OperatorControl() {
 
             frisbeeShooter.setControlMode( Shooter::Manual );
         }
-
-        //frisbeeShooter.setSetpoint( ScaleValue( shootStick.GetZ() ) );
         /* =================================================== */
-
-        /*if ( ScaleValue( driveStick.GetZ() ) < 0.333f ) {
-            pidSet = 0;
-        }
-        else if ( ScaleValue( driveStick.GetZ() ) < 0.666f ) {
-            pidSet = 1;
-        }
-        else {
-            pidSet = 2;
-        }
-
-        if ( pidSet != oldPidSet ) {
-            frisbeeShooter.setCurrentPID( 0 );
-
-            oldPidSet = pidSet;
-        }*/
 
         /* ===== Change shooter angle and speed ===== */
         // Use high shooter angle

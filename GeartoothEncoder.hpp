@@ -18,7 +18,7 @@
 #include <Counter.h>
 #include <Notifier.h>
 #include <Synchronized.h>
-#include "RollingAverage.hpp"
+#include "KalmanFilter.hpp"
 
 class GeartoothEncoder {
 public:
@@ -33,11 +33,15 @@ public:
 
     void setGearRatio( float ratio );
 
-    // Set number of RPM values to average together
-    void setAverageSize( UINT32 size );
+    // Returns filtered RPM
+    float getFilterRPM();
 
-    // Returns average RPM
-    float getRPM();
+    // Get lastest unfiltered RPM
+    float getCurrentRPM();
+
+    void setFilterQ( double Q );
+    void setFilterR( double R );
+    void resetFilter();
 
     // Set sample rate of RPM data collection thread
     void setSampleRate( UINT32 sampleRate );
@@ -47,7 +51,10 @@ private:
     Counter m_counter;
 
     // Averages values from encoder
-    RollingAverage<float> m_rpmAverager;
+    KalmanFilter m_rpmFilter;
+
+    // Holds latest unfiltered RPM
+    float m_latestRPM;
 
     /* Represents conversion factor between RPM of gear and RPM of shooter
      * wheel

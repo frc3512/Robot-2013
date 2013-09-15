@@ -89,6 +89,8 @@ public:
     // Get setpoint of PID loop
     float getTargetRPM();
 
+    void updateEncoderFilter( double Q , double R );
+
     /* Returns true if the motor value is allowed to be negative
      * (the RPM is above 500)
      */
@@ -100,26 +102,6 @@ public:
 
     void setPID( float p , float i , float d );
 
-#if 0
-    // Adds constants to list of PID constants
-    unsigned int addPIDConst( PIDConst constants );
-
-    // Removes constants from list of PID constants
-    void removeAllPIDConst();
-
-    // Sets a set of PID constants
-    void setPIDConst( unsigned int index , PIDConst constants );
-
-    // Retrieves set of PID constants
-    PIDConst getPIDConst( unsigned int index );
-
-    // Sets setpoint of current PID loop constants
-    void setSetpoint( float setpoint );
-
-    // Determines which set of PID constants is used in the PID loop
-    void setCurrentPID( unsigned int index );
-#endif
-
 private:
     Victor m_shooterMotor1;
     Victor m_shooterMotor2;
@@ -127,9 +109,6 @@ private:
     GeartoothEncoder m_shooterEncoder;
 
     PIDController m_shooterPID;
-    /*std::vector<PIDConst*> m_constants;
-    sf::Mutex m_constantsMutex;
-    unsigned int m_currentPID;*/
 
     bool m_isShooting;
     bool m_firstApproach;

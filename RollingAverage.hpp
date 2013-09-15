@@ -13,7 +13,7 @@
 
 #include "RWProtect.hpp"
 
-template<class T>
+template <class T>
 class RollingAverage {
 public:
     RollingAverage( unsigned int size );

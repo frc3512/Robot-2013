@@ -161,24 +161,25 @@ void PIDController::Calculate()
 
             if(m_I != 0)
             {
-                double potentialIGain = (m_totalError + m_error) * m_I * dt;
+                double potentialIGain = (m_totalError + m_error * dt) * m_I;
                 if (potentialIGain < m_maximumOutput)
                 {
                     if (potentialIGain > m_minimumOutput)
-                        m_totalError += m_error;
+                        m_totalError += m_error * dt;
                     else
-                        m_totalError = m_minimumOutput / (m_I * dt);
+                        m_totalError = m_minimumOutput / m_I;
                 }
                 else
                 {
-                    m_totalError = m_maximumOutput / (m_I * dt);
+                    m_totalError = m_maximumOutput / m_I;
                 }
             }
 
-            m_result = (m_P * m_error + m_I * m_totalError + m_D * (m_error - m_prevError)) * dt + m_setpoint * m_F;
-            m_prevError = m_error;
+            // Update deltaError for use in OnTarget()
+            m_deltaError = (m_error - m_prevError) / dt;
 
-            m_deltaError = (m_error - m_prevError) * dt;
+            m_result = m_P * m_error + m_I * m_totalError + m_D * m_deltaError + m_F * m_setpoint;
+            m_prevError = m_error;
 
             if (m_result > m_maximumOutput) m_result = m_maximumOutput;
             else if (m_result < m_minimumOutput) m_result = m_minimumOutput;

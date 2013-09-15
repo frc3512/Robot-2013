@@ -337,6 +337,8 @@ void MecanumDrive::Drive(float x , float y , float rotation , float gyroAngle ) 
         m_frPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kFrontRightMotor] * m_invertedMotors[kFrontRightMotor] * m_maxOutput );
         m_rlPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kRearLeftMotor] * m_invertedMotors[kRearLeftMotor] * m_maxOutput );
         m_rrPID->SetSetpoint( maxWheelSpeed * wheelSpeeds[kRearRightMotor] * m_invertedMotors[kRearRightMotor] * m_maxOutput );
+
+        m_safetyHelper->Feed();
     }
     else {
         UINT8 syncGroup = 0x80;

@@ -19,7 +19,6 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
         m_shooterMotor2( motor2 ) ,
         m_shooterEncoder( encChannel , encTeeth , encGearRatio ) ,
         m_shooterPID( 0.f , 0.f , 0.f , 1.f / maxSpeed , this , this , 0.04f ) ,
-        //m_currentPID( 0 ) ,
         m_isShooting( false ) ,
         m_firstApproach( false ) ,
         m_controlMode( Manual ) ,
@@ -40,7 +39,6 @@ Shooter::Shooter( UINT32 motor1 , UINT32 motor2 ,
 }
 
 Shooter::~Shooter() {
-    //removeAllPIDConst();
 }
 
 void Shooter::start() {
@@ -63,7 +61,6 @@ bool Shooter::isShooting() {
 
 bool Shooter::isReady() {
     return std::fabs(getRPM() - m_setpoint) < 100 && m_isShooting;
-    //return std::fabs(getRPM() - m_constants[m_currentPID]->setpoint) < 100 && m_isShooting;
 }
 
 void Shooter::setRPM( float wheelSpeed ) {
@@ -71,29 +68,9 @@ void Shooter::setRPM( float wheelSpeed ) {
         m_setpoint = wheelSpeed;
         m_shooterPID.SetSetpoint( m_setpoint );
     }
-#if 0
-    if ( m_isShooting ) {
-        m_constants[m_currentPID]->setpoint = wheelSpeed;
-        m_shooterPID.SetSetpoint( m_constants[m_currentPID]->setpoint );
-    }
-#endif
 }
 
 void Shooter::setScale( float scaleFactor ) {
-#if 0
-    if ( m_isShooting ) {
-        // Limit 'scaleFactor' to a value between 0 and 1 inclusive
-        if ( scaleFactor < 0.f ) {
-            scaleFactor = 0.f;
-        }
-        if ( scaleFactor > 1.f ) {
-            scaleFactor = 1.f;
-        }
-
-        m_constants[m_currentPID]->setpoint = scaleFactor * maxSpeed;
-        m_shooterPID.SetSetpoint( m_constants[m_currentPID]->setpoint );
-    }
-#endif
     if ( m_isShooting ) {
         // Limit 'scaleFactor' to a value between 0 and 1 inclusive
         if ( scaleFactor < 0.f ) {
@@ -109,12 +86,17 @@ void Shooter::setScale( float scaleFactor ) {
 }
 
 float Shooter::getRPM() {
-    return m_shooterEncoder.getRPM();
+    return m_shooterEncoder.getFilterRPM();
 }
 
 float Shooter::getTargetRPM() {
     return m_setpoint;
-    //return m_constants[m_currentPID]->setpoint;
+}
+
+void Shooter::updateEncoderFilter( double Q , double R ) {
+    m_shooterEncoder.setFilterQ( Q );
+    m_shooterEncoder.setFilterR( R );
+    m_shooterEncoder.resetFilter();
 }
 
 bool Shooter::negativeOutputAllowed() {
@@ -122,20 +104,6 @@ bool Shooter::negativeOutputAllowed() {
 }
 
 void Shooter::setControlMode( ControlMode mode ) {
-#if 0
-    m_controlMode = mode;
-    PIDConst constants;
-
-    if ( mode == Manual ) {
-        m_currentPID = 0;
-    }
-    else {
-        m_currentPID = 1;
-    }
-
-    constants = getPIDConst( m_currentPID );
-    m_shooterPID.SetPID( constants.P , constants.I , constants.D , constants.F );
-#endif
     m_controlMode = mode;
 
     if ( mode == Manual ) {
@@ -159,74 +127,23 @@ void Shooter::setPID( float p , float i , float d ) {
     setControlMode( getControlMode() );
 }
 
-#if 0
-// Adds constants to list of PID constants; returns position of constants
-unsigned int Shooter::addPIDConst( PIDConst constants ) {
-    sf::Lock tempLock( m_constantsMutex );
-
-    PIDConst* temp = new PIDConst;
-    *temp = constants;
-    m_constants.push_back( temp );
-
-    return m_constants.size() - 1;
-}
-
-// Removes constants from list of PID constants
-void Shooter::removeAllPIDConst() {
-    m_constantsMutex.lock();
-
-    while ( m_constants.size() > 0 ) {
-        delete m_constants[0];
-        m_constants.erase( 0 );
-    }
-
-    m_constantsMutex.unlock();
-}
-
-// Sets a set of PID constants
-void Shooter::setPIDConst( unsigned int index , PIDConst constants ) {
-    *m_constants[index] = constants;
-
-    // Updates PID constants for PIDController object internally
-    setControlMode( getControlMode() );
-}
-
-// Retrieves set of PID constants
-PIDConst Shooter::getPIDConst( unsigned int index ) {
-    return *m_constants[index];
-}
-
-void Shooter::setSetpoint( float setpoint ) {
-    m_constants[m_currentPID]->setpoint = setpoint;
-    m_shooterPID.SetSetpoint( setpoint );
-}
-
-void Shooter::setCurrentPID( unsigned int index ) {
-    m_currentPID = index;
-
-    // Updates PID constants for PIDController object internally
-    setControlMode( getControlMode() );
-}
-#endif
-
 double Shooter::PIDGet() {
-    if ( m_shooterEncoder.getRPM() < 100.f && m_negativeOutputAllowed ) {
+    if ( m_shooterEncoder.getCurrentRPM() < 100.f && m_negativeOutputAllowed ) {
         m_shooterPID.SetOutputRange( 0.f , 1.f );
         m_negativeOutputAllowed = false;
     }
-    else if ( m_shooterEncoder.getRPM() >= 100.f && !m_negativeOutputAllowed ) {
+    else if ( m_shooterEncoder.getCurrentRPM() >= 100.f && !m_negativeOutputAllowed ) {
         m_shooterPID.SetOutputRange( -1.f , 1.f );
         m_negativeOutputAllowed = true;
     }
 
-    return m_shooterEncoder.getRPM();
+    return m_shooterEncoder.getFilterRPM();
 }
 
 void Shooter::PIDWrite( float output ) {
     /* Ouputs are negated because the motor controllers require a negative
      * number to make the shooter wheel spin in the correct direction
      */
-#if 0
     switch ( m_controlMode ) {
     case PID: {
         m_shooterMotor1.Set( -output );
@@ -236,14 +153,7 @@ void Shooter::PIDWrite( float output ) {
     }
 
     case BangBang: {
-#if 0
-        m_constantsMutex.lock();
-        float sSetPoint = m_constants[m_currentPID]->setPoint;
-        m_constantsMutex.unlock();
-#endif
-
-        if ( m_shooterEncoder.getRPM() >= m_setpoint ) {
-        //if ( m_shooterEncoder.getRPM() >= sSetPoint ) {
+        if ( m_shooterEncoder.getFilterRPM() >= m_setpoint ) {
             m_shooterMotor1.Set( 0.f );
             m_shooterMotor2.Set( 0.f );
         }
@@ -264,32 +174,5 @@ void Shooter::PIDWrite( float output ) {
 
         break;
     }
-    }
-#endif
-    if ( m_controlMode != Shooter::Manual ) {
-        if ( m_firstApproach ) {
-            // Use BangBang controller until setpoint is reached the first time
-            if ( m_shooterEncoder.getRPM() < m_setpoint ) {
-                m_shooterMotor1.Set( -1.f );
-                m_shooterMotor2.Set( -1.f );
-            }
-            else {
-                m_firstApproach = false;
-
-                // Reset accumulated error and restart PID loop
-                m_shooterPID.Reset();
-                m_shooterPID.Enable();
-                m_shooterPID.SetSetpoint( m_setpoint );
-            }
-        }
-        else {
-            // Use PID controller for duration of enabled usage
-            m_shooterMotor1.Set( -output );
-            m_shooterMotor2.Set( -output );
-        }
-    }
-    else {
-        m_shooterMotor1.Set( -output );
-        m_shooterMotor2.Set( -output );
     }
 }

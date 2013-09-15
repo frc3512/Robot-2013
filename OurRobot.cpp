@@ -8,7 +8,6 @@
 #include "OurRobot.hpp"
 #include "DriverStationDisplay.hpp"
 
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -100,28 +99,10 @@ OurRobot::OurRobot() :
     }
 
     // Let motors run for up to 1 second uncontrolled before shutting them down
-    //mainDrive.SetExpiration( 1.f );
-    mainDrive.SetSafetyEnabled( false );
+    mainDrive.SetExpiration( 1.f );
     mainDrive.SetDeadband( 0.02f );
-    frisbeeShooter.setPID( atof( getValueFor( "PID_CLOSE_P" ).c_str() ) , atof( getValueFor( "PID_CLOSE_I" ).c_str() ) , atof( getValueFor( "PID_CLOSE_D" ).c_str() ) );
-
-#if 0
-    PIDConst constants;
-
-    constants.P = 0.f;
-    constants.I = 0.f;
-    constants.D = 0.f;
-    constants.F = 1.f / Shooter::maxSpeed;
-    constants.setpoint = 0.f;
-    frisbeeShooter.addPIDConst( constants );
-
-    constants.P = atof( getValueFor( "PID_CLOSE_P" ).c_str() );
-    constants.I = atof( getValueFor( "PID_CLOSE_I" ).c_str() );
-    constants.D = atof( getValueFor( "PID_CLOSE_D" ).c_str() );
-    constants.F = 0.f;
-    constants.setpoint = 0.f;
-    frisbeeShooter.addPIDConst( constants );
-#endif
+    frisbeeShooter.setPID( atof( getValueFor( "PID_SHOOT_P" ).c_str() ) , atof( getValueFor( "PID_SHOOT_I" ).c_str() ) , atof( getValueFor( "PID_SHOOT_D" ).c_str() ) );
+    frisbeeShooter.updateEncoderFilter( atof( getValueFor( "SHOOTER_RPM_Q").c_str() ) , atof( getValueFor( "SHOOTER_RPM_R" ).c_str() ) );
 
     frisbeeShooter.stop();
     mainDrive.SquareInputs( true );
@@ -135,10 +116,10 @@ OurRobot::~OurRobot() {
 
 void OurRobot::DS_PrintOut() {
     if ( pidGraph.hasIntervalPassed() ) {
-        pidGraph.graphData( frisbeeShooter.getRPM() , "Shoot RPM" );
-        pidGraph.graphData( frisbeeShooter.getTargetRPM() , "Shoot Setpoint" );
         pidGraph.graphData( -mainDrive.GetFRrate() , "FR PID" );
         pidGraph.graphData( mainDrive.GetFRsetpoint() , "FR Setpoint" );
+        pidGraph.graphData( frisbeeShooter.getRPM() , "Shoot Filt RPM" );
+        pidGraph.graphData( frisbeeShooter.getTargetRPM() , "Shoot Setpoint" );
         pidGraph.graphData( mainDrive.GetFLrate() , "FL PID" );
         pidGraph.graphData( mainDrive.GetFLsetpoint() , "FL Setpoint" );
 

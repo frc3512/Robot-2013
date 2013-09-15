@@ -7,8 +7,10 @@
 
 #include "GeartoothEncoder.hpp"
 
-GeartoothEncoder::GeartoothEncoder( UINT32 channel , UINT32 teeth , float gearRatio ) : m_counter( channel ) ,
-m_rpmAverager( 5 ) ,
+GeartoothEncoder::GeartoothEncoder( UINT32 channel , UINT32 teeth , float gearRatio ) :
+m_counter( channel ) ,
+m_rpmFilter( 0 , 0 ) ,
+m_latestRPM( 0 ) ,
 m_gearRatio( gearRatio ) ,
 m_teeth( teeth ) {
     m_sampleThread = new Notifier( &GeartoothEncoder::threadFunc , this );
@@ -43,12 +45,30 @@ void GeartoothEncoder::setGearRatio( float ratio ) {
     m_dataMutex.give();
 }
 
-void GeartoothEncoder::setAverageSize( UINT32 size ) {
-    m_rpmAverager.setSize( size );
+float GeartoothEncoder::getFilterRPM() {
+    return m_rpmFilter.getEstimate();
 }
 
-float GeartoothEncoder::getRPM() {
-    return m_rpmAverager.getAverage();
+float GeartoothEncoder::getCurrentRPM() {
+    m_dataMutex.take();
+
+    float latestRPM = m_latestRPM;
+
+    m_dataMutex.give();
+
+    return latestRPM;
+}
+
+void GeartoothEncoder::setFilterQ( double Q ) {
+    m_rpmFilter.setQ( Q );
+}
+
+void GeartoothEncoder::setFilterR( double R ) {
+    m_rpmFilter.setR( R );
+}
+
+void GeartoothEncoder::resetFilter() {
+    m_rpmFilter.reset();
 }
 
 void GeartoothEncoder::setSampleRate( UINT32 sampleRate ) {
@@ -70,8 +90,8 @@ void GeartoothEncoder::threadFunc( void* object ) {
 
     encoderObj->m_dataMutex.take();
 
-    // Add RPM value to rolling average filter
-    encoderObj->m_rpmAverager.addValue( encoderObj->m_gearRatio * 60.f /
+    // Add RPM value to Kalman filter
+    encoderObj->m_rpmFilter.update( encoderObj->m_gearRatio * 60.f /
             ( encoderObj->m_teeth * encoderObj->m_counter.GetPeriod() ) );
 
     encoderObj->m_dataMutex.give();

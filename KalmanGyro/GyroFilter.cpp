@@ -92,7 +92,6 @@ void GyroFilter::calcAngle() {
     // Update xhat - Project the state ahead
     /* Step 1 */
     m_rate = (m_funcObj->*m_rateFunc)() - m_bias;
-    //m_rate = m_rateFunc() - m_bias;
     m_angle = m_angle + m_dt * m_rate;
 
     // Update estimation error covariance - Project the error covariance ahead
@@ -116,7 +115,6 @@ void GyroFilter::calcAngle() {
     /* === Calculate angle and bias === */
     // Calculate angle difference
     /* Step 5 */
-    //m_y = m_angleFunc() - m_angle;
     m_y = (m_funcObj->*m_angleFunc)() - m_angle;
 
     // Update estimate with measurement zk (newAngle)
