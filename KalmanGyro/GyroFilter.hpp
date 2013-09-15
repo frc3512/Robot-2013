@@ -28,7 +28,7 @@
 #ifndef GYRO_FILTER_HPP
 #define GYRO_FILTER_HPP
 
-#include <atomic>
+#include <Synchronized.h>
 
 class GyroBase;
 class Notifier;
@@ -58,12 +58,17 @@ protected:
 
 private:
     /* Kalman filter variables */
-    std::atomic<double> m_Q_angle; // Process noise variance for the accelerometer/magnetometer
-    std::atomic<double> m_Q_bias; // Process noise variance for the gyro bias
-    std::atomic<double> m_R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
+    double m_Q_angle; // Process noise variance for the accelerometer/magnetometer
+    ReentrantSemaphore m_Q_angleSem;
+    double m_Q_bias; // Process noise variance for the gyro bias
+    ReentrantSemaphore m_Q_biasSem;
+    double m_R_measure; // Measurement noise variance - this is actually the variance of the measurement noise
+    ReentrantSemaphore m_R_measureSem;
 
-    std::atomic<double> m_angle; // The angle calculated by the Kalman filter - part of the 2x1 state matrix
-    std::atomic<double> m_rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
+    double m_angle; // The angle calculated by the Kalman filter - part of the 2x1 state matrix
+    ReentrantSemaphore m_angleSem;
+    double m_rate; // Unbiased rate calculated from the rate and the calculated bias - you have to call getAngle to update the rate
+    ReentrantSemaphore m_rateSem;
     double m_bias; // The gyro bias calculated by the Kalman filter - part of the 2x1 state matrix
 
     double m_P[2][2]; // Error covariance matrix - This is a 2x2 matrix

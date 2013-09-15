@@ -56,27 +56,55 @@ GyroFilter::~GyroFilter() {
 }
 
 double GyroFilter::getAngle() {
-    return m_angle;
+    m_angleSem.take();
+
+    double sAngle = m_angle;
+
+    m_angleSem.give();
+
+    return sAngle;
 }
 
 void GyroFilter::resetAngle( double newAngle ) {
+    m_angleSem.take();
+
     m_angle = newAngle;
+
+    m_angleSem.give();
 }
 
 double GyroFilter::getRate() {
-    return m_rate;
+    m_rateSem.take();
+
+    double sRate = m_rate;
+
+    m_rateSem.give();
+
+    return sRate;
 }
 
 void GyroFilter::setQAngle( double variance ) {
+    m_Q_angleSem.take();
+
     m_Q_angle = variance;
+
+    m_Q_angleSem.give();
 }
 
 void GyroFilter::setQBias( double variance ) {
+    m_Q_biasSem.take();
+
     m_Q_bias = variance;
+
+    m_Q_biasSem.give();
 }
 
 void GyroFilter::setRMeasure( double variance ) {
+    m_R_measureSem.take();
+
     m_R_measure = variance;
+
+    m_R_measureSem.give();
 }
 
 void GyroFilter::calcAngle() {
@@ -88,23 +116,44 @@ void GyroFilter::calcAngle() {
     // Get the current dt since the last call to calcAngle()
     m_dt = GetTime() - m_lastTime;
 
+    /* ===== Get safe versions of necessary constants ===== */
+    m_Q_angleSem.take();
+    double sQ_angle = m_Q_angle;
+    m_Q_angleSem.give();
+
+    m_Q_biasSem.take();
+    double sQ_bias = m_Q_bias;
+    m_Q_biasSem.give();
+
+    m_R_measureSem.take();
+    double sR_measure = m_R_measure;
+    m_R_measureSem.give();
+    /* ==================================================== */
+
     // Discrete Kalman filter time update equations - Time Update ("Predict")
     // Update xhat - Project the state ahead
     /* Step 1 */
+    m_rateSem.take();
     m_rate = (m_funcObj->*m_rateFunc)() - m_bias;
-    m_angle = m_angle + m_dt * m_rate;
+    m_rateSem.give();
+
+    m_angleSem.take();
+    m_rateSem.take();
+    m_angle += m_dt * m_rate;
+    m_rateSem.give();
+    m_angleSem.give();
 
     // Update estimation error covariance - Project the error covariance ahead
     /* Step 2 */
-    m_P[0][0] += m_dt * (m_dt * m_P[1][1] - m_P[0][1] - m_P[1][0] + m_Q_angle);
+    m_P[0][0] += m_dt * (m_dt * m_P[1][1] - m_P[0][1] - m_P[1][0] + sQ_angle);
     m_P[0][1] -= m_dt * m_P[1][1];
     m_P[1][0] -= m_dt * m_P[1][1];
-    m_P[1][1] += m_Q_bias * m_dt;
+    m_P[1][1] += sQ_bias * m_dt;
 
     /* === Discrete Kalman filter measurement update equations - Measurement Update ("Correct") === */
     // Calculate the estimate error
     /* Step 3 */
-    m_S = m_P[0][0] + m_R_measure;
+    m_S = m_P[0][0] + sR_measure;
 
     // Calculate the Kalman gain
     /* Step 4 */
@@ -115,11 +164,16 @@ void GyroFilter::calcAngle() {
     /* === Calculate angle and bias === */
     // Calculate angle difference
     /* Step 5 */
+    m_angleSem.take();
     m_y = (m_funcObj->*m_angleFunc)() - m_angle;
+    m_angleSem.give();
 
     // Update estimate with measurement zk (newAngle)
     /* Step 6 */
-    m_angle = m_angle + m_K[0] * m_y;
+    m_angleSem.take();
+    m_angle += m_K[0] * m_y;
+    m_angleSem.give();
+
     m_bias += m_K[1] * m_y;
     /* ================================ */
 

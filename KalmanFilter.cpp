@@ -75,11 +75,11 @@ void KalmanFilter::setR( double R ) {
 double KalmanFilter::getEstimate() {
     m_dataMutex.take();
 
-    double m_SxHat = m_xHat;
+    double sXHat = m_xHat;
 
     m_dataMutex.give();
 
-    return m_SxHat;
+    return sXHat;
 }
 
 void KalmanFilter::reset() {
