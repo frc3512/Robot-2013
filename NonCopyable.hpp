@@ -17,7 +17,7 @@ protected:
 
 private:
     /* By making the copy constructor and assignment operator private, the
-     * compiler will trow an error if anyone outside tries to use it. To
+     * compiler will throw an error if anyone outside tries to use it. To
      * prevent NonCopyable or friend classes from using it, we also provide no
      * definition, so that the linker will throw an error upon use.
      */
