@@ -90,9 +90,12 @@ void GeartoothEncoder::threadFunc( void* object ) {
 
     encoderObj->m_dataMutex.take();
 
+    // Store latest RPM
+    encoderObj->m_latestRPM = encoderObj->m_gearRatio * 60.f /
+            ( encoderObj->m_teeth * encoderObj->m_counter.GetPeriod() );
+
     // Add RPM value to Kalman filter
-    encoderObj->m_rpmFilter.update( encoderObj->m_gearRatio * 60.f /
-            ( encoderObj->m_teeth * encoderObj->m_counter.GetPeriod() ) );
+    encoderObj->m_rpmFilter.update( encoderObj->m_latestRPM );
 
     encoderObj->m_dataMutex.give();
 }

@@ -93,6 +93,10 @@ float Shooter::getTargetRPM() {
     return m_setpoint;
 }
 
+float Shooter::getRawRPM() {
+    return m_shooterEncoder.getCurrentRPM();
+}
+
 void Shooter::updateEncoderFilter( double Q , double R ) {
     m_shooterEncoder.setFilterQ( Q );
     m_shooterEncoder.setFilterR( R );

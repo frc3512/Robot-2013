@@ -41,20 +41,11 @@
 
 #include <PIDSource.h>
 #include <PIDOutput.h>
-#include <Victor.h>
+#include <Talon.h>
 #include "../PIDController.hpp"
 #include "../GeartoothEncoder.hpp"
 
 #include "../SFML/System/Mutex.hpp"
-#include <vector>
-
-typedef struct PIDConst {
-    float P;
-    float I;
-    float D;
-    float F;
-    float setpoint;
-} PIDConst;
 
 class Shooter : public PIDSource , public PIDOutput {
 public:
@@ -89,6 +80,9 @@ public:
     // Get setpoint of PID loop
     float getTargetRPM();
 
+    // Returns latest unfiltered RPM value from encoder
+    float getRawRPM();
+
     void updateEncoderFilter( double Q , double R );
 
     /* Returns true if the motor value is allowed to be negative
@@ -103,8 +97,8 @@ public:
     void setPID( float p , float i , float d );
 
 private:
-    Victor m_shooterMotor1;
-    Victor m_shooterMotor2;
+    Talon m_shooterMotor1;
+    Talon m_shooterMotor2;
 
     GeartoothEncoder m_shooterEncoder;
 

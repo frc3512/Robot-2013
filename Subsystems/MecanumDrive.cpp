@@ -22,57 +22,7 @@ double hypot2( double x , double y ) {
     return sqrt( x * x + y * y );
 }
 
-float MecanumDrive::maxWheelSpeed = 89.f;
-
-MecanumDrive::MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rearLeftMotor,
-            SpeedController *frontRightMotor, SpeedController *rearRightMotor,
-            UINT32 flA, UINT32 flB, UINT32 rlA, UINT32 rlB,
-            UINT32 frA, UINT32 frB, UINT32 rrA, UINT32 rrB) :
-            RobotDrive(frontLeftMotor, rearLeftMotor,
-                    frontRightMotor, rearRightMotor),
-            m_settings( "/ni-rt/system/RobotSettings.txt" ) {
-    m_pidEnabled = false;
-    m_squaredInputs = false;
-    m_deadband = 0.f;
-    m_driveMode = Omni;
-
-    /* ===== Initialize encoders ===== */
-    m_flEncoder = new Encoder( flA , flB , true );
-    m_rlEncoder = new Encoder( rlA , rlB , true );
-    m_frEncoder = new Encoder( frA , frB , true );
-    m_rrEncoder = new Encoder( rrA , rrB , true );
-
-    float dPerP = 3.14159265f * 3.f /* wheel radius */ / 180.f;
-    m_flEncoder->SetDistancePerPulse( dPerP );
-    m_rlEncoder->SetDistancePerPulse( dPerP );
-    m_frEncoder->SetDistancePerPulse( dPerP );
-    m_rrEncoder->SetDistancePerPulse( dPerP );
-
-    m_flEncoder->SetPIDSourceParameter( Encoder::kRate );
-    m_rlEncoder->SetPIDSourceParameter( Encoder::kRate );
-    m_frEncoder->SetPIDSourceParameter( Encoder::kRate );
-    m_rrEncoder->SetPIDSourceParameter( Encoder::kRate );
-    /* =============================== */
-
-    /* ===== Start PID loops for motors ===== */
-    float p = std::atof( m_settings.getValueFor( "PID_DRIVE_P" ).c_str() );
-    float i = std::atof( m_settings.getValueFor( "PID_DRIVE_I" ).c_str() );
-    float d = std::atof( m_settings.getValueFor( "PID_DRIVE_D" ).c_str() );
-
-    m_flPID = new PIDController( p , i , d , 0.f , m_flEncoder , m_frontLeftMotor );
-    m_rlPID = new PIDController( p , i , d , 0.f ,  m_rlEncoder , m_rearLeftMotor );
-    m_frPID = new PIDController( p , i , d , 0.f , m_frEncoder , m_frontRightMotor );
-    m_rrPID = new PIDController( p , i , d , 0.f , m_rrEncoder , m_rearRightMotor );
-
-    m_flPID->SetOutputRange( -1 , 1 );
-    m_rlPID->SetOutputRange( -1 , 1 );
-    m_frPID->SetOutputRange( -1 , 1 );
-    m_rrPID->SetOutputRange( -1 , 1 );
-    /* ====================================== */
-
-    // Enable PID loops
-    EnableEncoders( true );
-}
+const float MecanumDrive::maxWheelSpeed = 89.f;
 
 MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rearLeftMotor,
             SpeedController &frontRightMotor, SpeedController &rearRightMotor,
@@ -92,7 +42,10 @@ MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rea
     m_frEncoder = new Encoder( frA , frB , true );
     m_rrEncoder = new Encoder( rrA , rrB , true );
 
-    float dPerP = 3.14159265f * 3.f /* wheel radius */ / 180.f;
+    // d = 148mm -> r = 74mm = 7.4cm
+    // dPerP = s = r * theta
+    //       = r * (2 * PI / 360)
+    float dPerP = 3.14159265f * 7.4f /* wheel radius */ / 180.f;
     m_flEncoder->SetDistancePerPulse( dPerP );
     m_rlEncoder->SetDistancePerPulse( dPerP );
     m_frEncoder->SetDistancePerPulse( dPerP );

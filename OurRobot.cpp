@@ -78,7 +78,7 @@ OurRobot::OurRobot() :
     pidGraph( 3513 )
 {
     pidGraph.resetTime();
-    pidGraph.setSendInterval( 5 );
+    pidGraph.setSendInterval( 20 );
 
     driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
@@ -116,8 +116,7 @@ OurRobot::~OurRobot() {
 
 void OurRobot::DS_PrintOut() {
     if ( pidGraph.hasIntervalPassed() ) {
-        pidGraph.graphData( -mainDrive.GetFRrate() , "FR PID" );
-        pidGraph.graphData( mainDrive.GetFRsetpoint() , "FR Setpoint" );
+        pidGraph.graphData( frisbeeShooter.getRawRPM() , "Shoot Raw RPM" );
         pidGraph.graphData( frisbeeShooter.getRPM() , "Shoot Filt RPM" );
         pidGraph.graphData( frisbeeShooter.getTargetRPM() , "Shoot Setpoint" );
         pidGraph.graphData( mainDrive.GetFLrate() , "FL PID" );

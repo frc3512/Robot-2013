@@ -15,10 +15,6 @@ class PIDController;
 
 class MecanumDrive : public RobotDrive {
 public:
-    MecanumDrive(SpeedController *frontLeftMotor, SpeedController *rearLeftMotor,
-                SpeedController *frontRightMotor, SpeedController *rearRightMotor,
-                UINT32 flA, UINT32 flB, UINT32 rlA, UINT32 rlB,
-                UINT32 frA, UINT32 frB, UINT32 rrA, UINT32 rrB);
     MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rearLeftMotor,
                 SpeedController &frontRightMotor, SpeedController &rearRightMotor,
                 UINT32 flA, UINT32 flB, UINT32 rlA, UINT32 rlB,
@@ -84,10 +80,10 @@ public:
     double GetFRsetpoint();
     double GetRRsetpoint();
 
+    const static float maxWheelSpeed;
+
 private:
     DISALLOW_COPY_AND_ASSIGN(MecanumDrive);
-
-    static float maxWheelSpeed;
 
     Settings m_settings;
 

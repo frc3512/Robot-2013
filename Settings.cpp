@@ -7,6 +7,7 @@
 
 #include "Settings.hpp"
 #include <fstream>
+#include <iostream>
 
 Settings::Settings( std::string fileName ) :
         m_fileName( fileName ) ,
@@ -47,6 +48,7 @@ std::string Settings::getValueFor( const std::string& key ) {
 
     // If the element wasn't found
     if ( index == m_values.end() ) {
+        std::cout << "Settings Error: '" << key << "' not found\n";
         return "NOT_FOUND";
     }
 
