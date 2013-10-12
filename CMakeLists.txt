@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 include(FRCDeploy)
 
-project(Cynisca)
+set(NAME "Cynisca")
+
+project(${NAME})
 find_package(WPILib)
 include_directories(${WPILib_INCLUDE_DIRS})
 
@@ -12,6 +14,7 @@ set(DIRS
     AutonomousModes/*
     KalmanGyro/*
     LiveGrapherHost/*
+    MotionProfile/*
     SFMLNetwork/*
     SFMLSystem/*
     Subsystems/*
@@ -24,8 +27,8 @@ foreach(ELEM ${DIRS})
     list(APPEND SRC ${FILES})
 endforeach(ELEM)
 
-add_executable(Cynisca.out ${SRC})
+add_executable(${NAME}.out ${SRC})
 
-target_link_libraries(Cynisca.out ${WPILib_LIBRARY})
+target_link_libraries(${NAME}.out ${WPILib_LIBRARY})
 
-add_make_deploy(Cynisca.out 10.35.12.2)
+add_make_deploy(${NAME}.out 10.35.12.2)
