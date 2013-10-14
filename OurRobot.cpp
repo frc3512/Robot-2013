@@ -6,21 +6,9 @@
 //=============================================================================
 
 #include "OurRobot.hpp"
-#include "DriverStationDisplay.hpp"
 
-#include <fstream>
-#include <sstream>
 #include <string>
-
-#include <cstring>
 #include <types/vxTypes.h>
-
-/* Declare typedef for wide C++ string since the VxWorks 6.3 headers usually
- * fail to define it
- */
-namespace std {
-typedef basic_string<wchar_t> wstring;
-}
 
 float ScaleValue( float value ) {
     // CONSTANT^-1 is step value (now 1/500)
@@ -78,25 +66,14 @@ OurRobot::OurRobot() :
     pidGraph( 3513 )
 {
     pidGraph.resetTime();
-    pidGraph.setSendInterval( 20 );
+    pidGraph.setSendInterval( 5 );
 
-    driverStation = DriverStationDisplay::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
+    driverStation = DriverStationDisplay<OurRobot>::getInstance( atoi( Settings::getValueFor( "DS_Port" ).c_str() ) );
 
-    autonModes.addMethod( "CenterMove" , &OurRobot::AutonCenterMove , this );
-    autonModes.addMethod( "RightMove" , &OurRobot::AutonRightMove , this );
-    autonModes.addMethod( "LeftMove" , &OurRobot::AutonLeftMove , this );
-    autonModes.addMethod( "TwoDisc" , &OurRobot::AutonTwoDisc , this );
-
-    // Retrieve stored autonomous index
-    std::ifstream autonModeFile( "autonMode.txt" );
-    if ( autonModeFile.is_open() ) {
-        autonModeFile >> autonMode;
-
-        autonModeFile.close();
-    }
-    else {
-        autonMode = 0;
-    }
+    driverStation->addAutonMethod( "CenterMove" , &OurRobot::AutonCenterMove , this );
+    driverStation->addAutonMethod( "RightMove" , &OurRobot::AutonRightMove , this );
+    driverStation->addAutonMethod( "LeftMove" , &OurRobot::AutonLeftMove , this );
+    driverStation->addAutonMethod( "TwoDisc" , &OurRobot::AutonTwoDisc , this );
 
     // Let motors run for up to 1 second uncontrolled before shutting them down
     mainDrive.SetExpiration( 1.f );
@@ -116,7 +93,8 @@ OurRobot::~OurRobot() {
 
 void OurRobot::DS_PrintOut() {
     if ( pidGraph.hasIntervalPassed() ) {
-        pidGraph.graphData( frisbeeShooter.getRawRPM() , "Shoot Raw RPM" );
+        pidGraph.graphData( -mainDrive.GetFRrate() , "FR PID" );
+        pidGraph.graphData( mainDrive.GetFRsetpoint() , "FR Setpoint" );
         pidGraph.graphData( frisbeeShooter.getRPM() , "Shoot Filt RPM" );
         pidGraph.graphData( frisbeeShooter.getTargetRPM() , "Shoot Setpoint" );
         pidGraph.graphData( mainDrive.GetFLrate() , "FL PID" );
@@ -143,183 +121,94 @@ void OurRobot::DS_PrintOut() {
 
         driverStation->clear();
 
-        *driverStation << static_cast<std::string>( "display\r\n" );
-
-        unsigned int driveMode = mainDrive.GetDriveMode();
-        std::wstring strDriveMode;
+        MecanumDrive::DriveMode driveMode = mainDrive.GetDriveMode();
+        std::string strDriveMode;
         if ( driveMode == MecanumDrive::Omni ) {
-            strDriveMode = L"Omni";
+            strDriveMode = "Omni";
         }
         else if ( driveMode == MecanumDrive::Strafe ) {
-            strDriveMode = L"Strafe";
+            strDriveMode = "Strafe";
         }
         else if ( driveMode == MecanumDrive::Arcade ) {
-            strDriveMode = L"Arcade";
+            strDriveMode = "Arcade";
         }
         else if ( driveMode == MecanumDrive::FLpivot ) {
-            strDriveMode = L"FLpivot";
+            strDriveMode = "FLpivot";
         }
         else if ( driveMode == MecanumDrive::FRpivot ) {
-            strDriveMode = L"FRpivot";
+            strDriveMode = "FRpivot";
         }
         else if ( driveMode == MecanumDrive::RLpivot ) {
-            strDriveMode = L"RLpivot";
+            strDriveMode = "RLpivot";
         }
         else if ( driveMode == MecanumDrive::RRpivot ) {
-            strDriveMode = L"RRpivot";
+            strDriveMode = "RRpivot";
         }
-        driverStation->addElementData( 's' , L"MODE" , strDriveMode );
+        DS::AddElementData( driverStation , "MODE" , strDriveMode );
 
 #if defined(KOP_KGYRO) || defined(NEW_KGYRO)
-        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
+        DS::AddElementData( driverStation , "GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
 //#elif defined NEW_KGYRO
-//        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
+//        DS::AddElementData( driverStation , "GYRO_VAL" , static_cast<int32_t>( fieldGyro.getXangle() ) );
 #else
-        driverStation->addElementData( 'i' , L"GYRO_VAL" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
+        DS::AddElementData( driverStation , "GYRO_VAL" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
 #endif
 
         if ( isGyroEnabled ) {
-            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<uint8_t>( 0 ) );
+            DS::AddElementData( driverStation , "GYRO_ON" , DS::active );
         }
         else {
-            driverStation->addElementData( 'c' , L"GYRO_ON" , static_cast<uint8_t>( 2 ) );
+            DS::AddElementData( driverStation , "GYRO_ON" , DS::inactive );
         }
 
         if ( slowRotate ) {
-            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<uint8_t>( 0 ) );
+            DS::AddElementData( driverStation , "ROTATE" , DS::active );
         }
         else {
-            driverStation->addElementData( 'c' , L"ROTATE" , static_cast<uint8_t>( 2 ) );
+            DS::AddElementData( driverStation , "ROTATE" , DS::inactive );
         }
 
-        {
-        std::stringstream ss;
-        ss << 100.f * ScaleValue(shootStick.GetZ());
+        DS::AddElementData( driverStation , "RPM_MAN_DISP" , 100.f * ScaleValue(shootStick.GetZ()) );
+        DS::AddElementData( driverStation , "RPM_MAN" , static_cast<uint8_t>( 100.f * ScaleValue(shootStick.GetZ()) ) );
 
-        driverStation->addElementData( 's' , L"RPM_MAN_DISP" , ss.str() );
-        }
+        DS::AddElementData( driverStation , "RPM_SET_DISP" , frisbeeShooter.getTargetRPM() );
+        DS::AddElementData( driverStation , "RPM_SET" , static_cast<uint8_t>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
 
-        driverStation->addElementData( 'c' , L"RPM_MAN" , static_cast<unsigned char>( ScaleValue(shootStick.GetZ()) * 100.f ) );
-
-        {
-        std::stringstream ss;
-        ss << frisbeeShooter.getTargetRPM();
-
-        driverStation->addElementData( 's' , L"RPM_SET_DISP" , ss.str() );
-        }
-
-        driverStation->addElementData( 'c' , L"RPM_SET" , static_cast<unsigned char>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
-
-        {
-        std::stringstream ss;
-        ss << frisbeeShooter.getRPM();
-
-        driverStation->addElementData( 's' , L"RPM_REAL_DISP" , ss.str() );
-        }
-
-        driverStation->addElementData( 'c' , L"RPM_REAL" , static_cast<unsigned char>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
+        DS::AddElementData( driverStation , "RPM_REAL_DISP" , frisbeeShooter.getRPM() );
+        DS::AddElementData( driverStation , "RPM_REAL" , static_cast<uint8_t>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
 
         if ( frisbeeShooter.isReady() ) {
-            driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 0 ) );
+            DS::AddElementData( driverStation , "SHOOT_READY" , DS::active );
         }
         else {
-            driverStation->addElementData( 'c' , L"SHOOT_READY" , static_cast<unsigned char>( 2 ) );
+            DS::AddElementData( driverStation , "SHOOT_READY" , DS::inactive );
         }
 
         if ( frisbeeShooter.isShooting() ) {
-            driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 0 ) );
+            DS::AddElementData( driverStation , "SHOOT_ON" , DS::active );
         }
         else {
-            driverStation->addElementData( 'c' , L"SHOOT_ON" , static_cast<unsigned char>( 2 ) );
+            DS::AddElementData( driverStation , "SHOOT_ON" , DS::inactive );
         }
 
         if ( isShooterManual ) {
-            driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 0 ) );
+            DS::AddElementData( driverStation , "SHOOT_MAN" , DS::active );
         }
         else {
-            driverStation->addElementData( 'c' , L"SHOOT_MAN" , static_cast<unsigned char>( 2 ) );
+            DS::AddElementData( driverStation , "SHOOT_MAN" , DS::inactive );
         }
 
         if ( !climbArms.Get() ) {
-            driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 0 ) );
+            DS::AddElementData( driverStation , "ARMS_DOWN" , DS::active );
         }
         else {
-            driverStation->addElementData( 'c' , L"ARMS_DOWN" , static_cast<unsigned char>( 2 ) );
+            DS::AddElementData( driverStation , "ARMS_DOWN" , DS::inactive );
         }
 
         driverStation->sendToDS();
     }
 
-    // Gets messages from DS and fills 'autonMode' if it's a connection message
-    const std::string& command = driverStation->receiveFromDS( &autonMode );
-
-    if ( std::strcmp( command.c_str() , "connect\r\n" ) == 0 ) {
-        // Send GUI element file to DS
-        driverStation->clear();
-
-        *driverStation << static_cast<std::string>( "guiCreate\r\n" );
-
-        // Open the file
-        std::ifstream guiFile(
-                "/ni-rt/system/GUISettings.txt" , std::ifstream::binary );
-
-        if( guiFile.is_open() ) {
-            // Get its length
-            guiFile.seekg( 0 , guiFile.end );
-            unsigned int fileSize = guiFile.tellg();
-            guiFile.seekg( 0 , guiFile.beg );
-
-            // Send the length
-            *driverStation << static_cast<uint32_t>(fileSize);
-
-            // Allocate a buffer for the file
-            char* tempBuf = new char[fileSize];
-
-            // Send the data TODO: htonl() the data before it's sent
-            guiFile.read( tempBuf , fileSize );
-            driverStation->append( tempBuf , fileSize );
-
-            delete[] tempBuf;
-            guiFile.close();
-        }
-
-        driverStation->sendToDS();
-
-        // Send a list of available autonomous modes
-        driverStation->clear();
-
-        *driverStation << static_cast<std::string>( "autonList\r\n" );
-
-        for ( unsigned int i = 0 ; i < autonModes.size() ; i++ ) {
-            *driverStation << autonModes.name( i );
-        }
-
-        driverStation->sendToDS();
-
-        // Make sure driver knows which autonomous mode is selected
-        driverStation->clear();
-
-        *driverStation << static_cast<std::string>( "autonConfirmed\r\n" );
-        *driverStation << autonModes.name( autonMode );
-
-        driverStation->sendToDS();
-    }
-    else if ( std::strcmp( command.c_str() , "autonSelect\r\n" ) == 0 ) {
-        driverStation->clear();
-
-        *driverStation << static_cast<std::string>( "autonConfirmed\r\n" );
-        *driverStation << autonModes.name( autonMode );
-
-        // Store newest autonomous choice to file for persistent storage
-        std::ofstream autonModeFile( "autonMode.txt" , std::ofstream::trunc );
-        if ( autonModeFile.is_open() ) {
-            autonModeFile << autonMode;
-
-            autonModeFile.close();
-        }
-
-        driverStation->sendToDS();
-    }
+    driverStation->receiveFromDS();
     /* ====================================== */
 }
 

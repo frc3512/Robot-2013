@@ -5,27 +5,264 @@
 //=============================================================================
 
 template <class T>
-void DriverStationDisplay::addElementData( unsigned char type , std::wstring ID , T data ) {
-    *this << type;
-    *this << ID;
-    *this << data;
+DriverStationDisplay<T>* DriverStationDisplay<T>::m_dsDisplay = NULL;
+
+template <class T>
+DriverStationDisplayInit<T>::DriverStationDisplayInit() {
 }
 
-// Make sure every std::string is converted to a std::wstring before it's sent
-template <>
-inline void DriverStationDisplay::addElementData( unsigned char type , std::wstring ID , std::string data ) {
-    *this << type;
-    *this << ID;
+template <class T>
+DriverStationDisplayInit<T>::~DriverStationDisplayInit() {
+    delete DriverStationDisplay<T>::m_dsDisplay;
+}
 
-    // Convert std::string to std::wstring
-    wchar_t cStr[data.length() + 1];
-    std::memset( cStr , 0 , sizeof(cStr) );
+template <class T>
+DriverStationDisplay<T>::~DriverStationDisplay() {
+    m_socket.unbind();
+}
 
-    for ( unsigned int i = 0 ; i < sizeof(cStr) / sizeof(wchar_t) ; i++ ) {
-        cStr[i] = data[i];
+template <class T>
+DriverStationDisplay<T>* DriverStationDisplay<T>::getInstance( unsigned short dsPort ) {
+    if ( m_dsDisplay == NULL ) {
+        m_dsDisplay = new DriverStationDisplay<T>( dsPort );
     }
 
-    std::wstring tempStr( cStr );
+    return m_dsDisplay;
+}
 
-    *this << tempStr;
+template <class T>
+void DriverStationDisplay<T>::clear() {
+    static_cast<sf::Packet*>(this)->clear();
+}
+
+template <class T>
+void DriverStationDisplay<T>::sendToDS( sf::Packet* userData ) {
+    if ( m_dsIP != sf::IpAddress::None ) {
+        if ( userData == NULL ) {
+            m_socket.send( *static_cast<sf::Packet*>(this) , m_dsIP , m_dsPort );
+        }
+        else {
+            m_socket.send( *userData , m_dsIP , m_dsPort );
+        }
+    }
+
+    // Used for testing purposes
+    sf::IpAddress testIP( 10 , 35 , 12 , 42 );
+    if ( userData == NULL ) {
+        m_socket.send( *static_cast<sf::Packet*>(this) , testIP , m_dsPort );
+    }
+    else {
+        m_socket.send( *userData , testIP , m_dsPort );
+    }
+}
+
+template <class T>
+const std::string DriverStationDisplay<T>::receiveFromDS() {
+    if ( m_socket.receive( m_recvBuffer , 256 , m_recvAmount , m_recvIP , m_recvPort ) == sf::Socket::Done ) {
+        if ( std::strncmp( m_recvBuffer , "connect\r\n" , 9 ) == 0 ) {
+            m_dsIP = m_recvIP;
+            m_dsPort = m_recvPort;
+
+            // Send GUI element file to DS
+            clear();
+
+            *this << static_cast<std::string>( "guiCreate\r\n" );
+
+            // Open the file
+            // FIXME: May crash if file has \n for newlines instead of \r\n
+            std::ifstream guiFile(
+                    "/ni-rt/system/GUISettings.txt" , std::ifstream::binary );
+
+            if ( guiFile.is_open() ) {
+                // Get its length
+                guiFile.seekg( 0 , guiFile.end );
+                unsigned int fileSize = guiFile.tellg();
+                guiFile.seekg( 0 , guiFile.beg );
+
+                // Send the length
+                *this << static_cast<uint32_t>(fileSize);
+
+                // Allocate a buffer for the file
+                char* tempBuf = new char[fileSize];
+
+                // Send the data TODO: htonl() the data before it's sent
+                guiFile.read( tempBuf , fileSize );
+                append( tempBuf , fileSize );
+
+                delete[] tempBuf;
+                guiFile.close();
+            }
+
+            sendToDS();
+
+            // Send a list of available autonomous modes
+            clear();
+
+            *this << static_cast<std::string>( "autonList\r\n" );
+
+            for ( unsigned int i = 0 ; i < m_autonModes.size() ; i++ ) {
+                *this << m_autonModes.name( i );
+            }
+
+            sendToDS();
+
+            // Make sure driver knows which autonomous mode is selected
+            clear();
+
+            *this << static_cast<std::string>( "autonConfirmed\r\n" );
+            *this << m_autonModes.name( curAutonMode );
+
+            sendToDS();
+
+            return "connect\r\n";
+        }
+        else if ( std::strncmp( m_recvBuffer , "autonSelect\r\n" , 13 ) == 0 ) {
+            // Next byte after command is selection choice
+            curAutonMode = m_recvBuffer[13];
+
+            clear();
+
+            *this << static_cast<std::string>( "autonConfirmed\r\n" );
+            *this << m_autonModes.name( curAutonMode );
+
+            // Store newest autonomous choice to file for persistent storage
+            std::ofstream autonModeFile( "autonMode.txt" , std::ofstream::trunc );
+            if ( autonModeFile.is_open() ) {
+                autonModeFile << curAutonMode;
+
+                autonModeFile.close();
+            }
+
+            sendToDS();
+
+            return "autonSelect\r\n";
+        }
+    }
+
+    return "NONE";
+}
+
+template <class T>
+DriverStationDisplay<T>::DriverStationDisplay( unsigned short portNumber ) : m_dsIP( sf::IpAddress::None ) , m_dsPort( portNumber ) {
+    m_socket.bind( portNumber );
+    m_socket.setBlocking( false );
+    m_recvIP = sf::IpAddress( 0 , 0 , 0 , 0 );
+    m_recvPort = 0;
+    m_recvAmount = 0;
+
+    // Retrieve stored autonomous index
+    std::ifstream autonModeFile( "autonMode.txt" );
+    if ( autonModeFile.is_open() ) {
+        autonModeFile >> curAutonMode;
+
+        autonModeFile.close();
+    }
+    else {
+        curAutonMode = 0;
+    }
+}
+
+template <class T>
+void DriverStationDisplay<T>::addAutonMethod( const std::string& methodName , void (T::*function)() , T* object ) {
+    m_autonModes.addMethod( methodName , function , object );
+}
+
+template <class T>
+void DriverStationDisplay<T>::deleteAllMethods() {
+    m_autonModes.deleteAllMethods();
+}
+
+template <class T>
+void DriverStationDisplay<T>::execAutonomous() {
+    m_autonModes.execAutonomous( curAutonMode );
+}
+
+template <class T>
+inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , DS::StatusLight data ) {
+    // If packet is empty, add "display\r\n" header to packet
+    if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
+        *inst << std::string( "display\r\n" );
+    }
+
+    *inst << 'c';
+    *inst << ID;
+    *inst << static_cast<unsigned char>(data);
+}
+
+template <class T>
+inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , char data ) {
+    // If packet is empty, add "display\r\n" header to packet
+    if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
+        *inst << std::string( "display\r\n" );
+    }
+
+    *inst << 'c';
+    *inst << ID;
+    *inst << data;
+}
+
+template <class T>
+inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , int data ) {
+    // If packet is empty, add "display\r\n" header to packet
+    if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
+        *inst << std::string( "display\r\n" );
+    }
+
+    *inst << 'i';
+    *inst << ID;
+    *inst << data;
+}
+
+template <class T>
+inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , unsigned int data ) {
+    // If packet is empty, add "display\r\n" header to packet
+    if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
+        *inst << std::string( "display\r\n" );
+    }
+
+    *inst << 'u';
+    *inst << ID;
+    *inst << data;
+}
+
+template <class T>
+inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , std::string data ) {
+    // If packet is empty, add "display\r\n" header to packet
+    if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
+        *inst << std::string( "display\r\n" );
+    }
+
+    *inst << 's';
+    *inst << ID;
+    *inst << data;
+}
+
+template <class T>
+inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , float data ) {
+    // If packet is empty, add "display\r\n" header to packet
+    if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
+        *inst << std::string( "display\r\n" );
+    }
+
+    *inst << 's';
+    *inst << ID;
+
+    std::stringstream ss;
+    ss << data;
+    *inst << ss.str();
+}
+
+template <class T>
+inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , double data ) {
+    // If packet is empty, add "display\r\n" header to packet
+    if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
+        *inst << std::string( "display\r\n" );
+    }
+
+    *inst << 's';
+    *inst << ID;
+
+    std::stringstream ss;
+    ss << data;
+    *inst << ss.str();
 }

@@ -13,7 +13,7 @@
 #include <SimpleRobot.h>
 #include "Settings.hpp"
 
-#include "AutonContainer.hpp"
+#include "DriverStationDisplay.hpp"
 
 #include <Joystick.h>
 
@@ -51,11 +51,9 @@ float ScaleValue( float value );
 // Adds deadband to joystick value
 double deadband( double value );
 
-class DriverStationDisplay;
-
 class OurRobot : public SimpleRobot , public Settings {
 public:
-    DriverStationDisplay* driverStation; // used for sending data to the Driver Station
+    DriverStationDisplay<OurRobot>* driverStation; // used for sending data to the Driver Station
 
     OurRobot();
     ~OurRobot();
@@ -70,8 +68,6 @@ public:
     void Disabled();
 
 private:
-    AutonContainer<OurRobot> autonModes;
-
     Joystick driveStick;
     Joystick shootStick;
 
@@ -105,9 +101,6 @@ private:
     bool isGyroEnabled;
     bool slowRotate; // True when slow robot rotation is enabled
     bool isShooterManual;
-
-    // Determines which autonomous mode is run
-    char autonMode;
 
     // Used for timing in all Autonomous routines
     Timer autoTime;

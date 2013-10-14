@@ -12,7 +12,7 @@ void OurRobot::Autonomous() {
     autoTime.Reset();
     autoTime.Start();
 
-    autonModes.execAutonomous( autonMode );
+    driverStation->execAutonomous();
 
     autoTime.Stop();
 }
