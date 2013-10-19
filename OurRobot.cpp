@@ -153,20 +153,9 @@ void OurRobot::DS_PrintOut() {
 #else
         DS::AddElementData( driverStation , "GYRO_VAL" , static_cast<int32_t>( fieldGyro.GetAngle() ) );
 #endif
+        DS::AddElementData( driverStation , "GYRO_ON" , isGyroEnabled );
 
-        if ( isGyroEnabled ) {
-            DS::AddElementData( driverStation , "GYRO_ON" , DS::active );
-        }
-        else {
-            DS::AddElementData( driverStation , "GYRO_ON" , DS::inactive );
-        }
-
-        if ( slowRotate ) {
-            DS::AddElementData( driverStation , "ROTATE" , DS::active );
-        }
-        else {
-            DS::AddElementData( driverStation , "ROTATE" , DS::inactive );
-        }
+        DS::AddElementData( driverStation , "ROTATE" , slowRotate );
 
         DS::AddElementData( driverStation , "RPM_MAN_DISP" , 100.f * ScaleValue(shootStick.GetZ()) );
         DS::AddElementData( driverStation , "RPM_MAN" , static_cast<int8_t>( 100.f * ScaleValue(shootStick.GetZ()) ) );
@@ -177,33 +166,13 @@ void OurRobot::DS_PrintOut() {
         DS::AddElementData( driverStation , "RPM_REAL_DISP" , frisbeeShooter.getRPM() );
         DS::AddElementData( driverStation , "RPM_REAL" , static_cast<int8_t>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
 
-        if ( frisbeeShooter.isReady() ) {
-            DS::AddElementData( driverStation , "SHOOT_READY" , DS::active );
-        }
-        else {
-            DS::AddElementData( driverStation , "SHOOT_READY" , DS::inactive );
-        }
+        DS::AddElementData( driverStation , "SHOOT_READY" , frisbeeShooter.isReady() );
 
-        if ( frisbeeShooter.isShooting() ) {
-            DS::AddElementData( driverStation , "SHOOT_ON" , DS::active );
-        }
-        else {
-            DS::AddElementData( driverStation , "SHOOT_ON" , DS::inactive );
-        }
+        DS::AddElementData( driverStation , "SHOOT_ON" , frisbeeShooter.isShooting() );
 
-        if ( isShooterManual ) {
-            DS::AddElementData( driverStation , "SHOOT_MAN" , DS::active );
-        }
-        else {
-            DS::AddElementData( driverStation , "SHOOT_MAN" , DS::inactive );
-        }
+        DS::AddElementData( driverStation , "SHOOT_MAN" , isShooterManual );
 
-        if ( !climbArms.Get() ) {
-            DS::AddElementData( driverStation , "ARMS_DOWN" , DS::active );
-        }
-        else {
-            DS::AddElementData( driverStation , "ARMS_DOWN" , DS::inactive );
-        }
+        DS::AddElementData( driverStation , "ARMS_DOWN" , !climbArms.Get() );
 
         driverStation->sendToDS();
     }

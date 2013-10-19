@@ -191,6 +191,24 @@ inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , DS:
 }
 
 template <class T>
+inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , bool data ) {
+    // If packet is empty, add "display\r\n" header to packet
+    if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
+        *static_cast<sf::Packet*>(inst) << std::string( "display\r\n" );
+    }
+
+    *static_cast<sf::Packet*>(inst) << static_cast<int8_t>('c');
+    *static_cast<sf::Packet*>(inst) << ID;
+
+    if ( data == true ) {
+        *static_cast<sf::Packet*>(inst) << static_cast<int8_t>(DS::active);
+    }
+    else {
+        *static_cast<sf::Packet*>(inst) << static_cast<int8_t>(DS::inactive);
+    }
+}
+
+template <class T>
 inline void AddElementData( DriverStationDisplay<T>* inst , std::string ID , int8_t data ) {
     // If packet is empty, add "display\r\n" header to packet
     if ( static_cast<sf::Packet*>(inst)->getData() == NULL ) {
