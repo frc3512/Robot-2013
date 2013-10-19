@@ -169,13 +169,13 @@ void OurRobot::DS_PrintOut() {
         }
 
         DS::AddElementData( driverStation , "RPM_MAN_DISP" , 100.f * ScaleValue(shootStick.GetZ()) );
-        DS::AddElementData( driverStation , "RPM_MAN" , static_cast<uint8_t>( 100.f * ScaleValue(shootStick.GetZ()) ) );
+        DS::AddElementData( driverStation , "RPM_MAN" , static_cast<int8_t>( 100.f * ScaleValue(shootStick.GetZ()) ) );
 
         DS::AddElementData( driverStation , "RPM_SET_DISP" , frisbeeShooter.getTargetRPM() );
-        DS::AddElementData( driverStation , "RPM_SET" , static_cast<uint8_t>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
+        DS::AddElementData( driverStation , "RPM_SET" , static_cast<int8_t>( frisbeeShooter.getTargetRPM() / Shooter::maxSpeed * 100.f ) );
 
         DS::AddElementData( driverStation , "RPM_REAL_DISP" , frisbeeShooter.getRPM() );
-        DS::AddElementData( driverStation , "RPM_REAL" , static_cast<uint8_t>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
+        DS::AddElementData( driverStation , "RPM_REAL" , static_cast<int8_t>( frisbeeShooter.getRPM() / Shooter::maxSpeed * 100.f ) );
 
         if ( frisbeeShooter.isReady() ) {
             DS::AddElementData( driverStation , "SHOOT_READY" , DS::active );

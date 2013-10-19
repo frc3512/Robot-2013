@@ -48,6 +48,8 @@
 #include <sstream>
 #include <string>
 
+#include <types/vxTypes.h>
+
 template <class T>
 class DriverStationDisplayInit {
 public:
@@ -56,7 +58,7 @@ public:
 };
 
 template <class T>
-class DriverStationDisplay : protected sf::Packet {
+class DriverStationDisplay : public sf::Packet {
 public:
     virtual ~DriverStationDisplay();
 
