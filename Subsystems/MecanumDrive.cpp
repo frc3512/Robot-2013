@@ -58,9 +58,9 @@ MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rea
     /* =============================== */
 
     /* ===== Start PID loops for motors ===== */
-    float p = std::atof( m_settings.getValueFor( "PID_DRIVE_P" ).c_str() );
-    float i = std::atof( m_settings.getValueFor( "PID_DRIVE_I" ).c_str() );
-    float d = std::atof( m_settings.getValueFor( "PID_DRIVE_D" ).c_str() );
+    float p = atof( m_settings.getValueFor( "PID_DRIVE_P" ).c_str() );
+    float i = atof( m_settings.getValueFor( "PID_DRIVE_I" ).c_str() );
+    float d = atof( m_settings.getValueFor( "PID_DRIVE_D" ).c_str() );
 
     m_flPID = new PIDController( p , i , d , m_flEncoder , m_frontLeftMotor );
     m_rlPID = new PIDController( p , i , d ,  m_rlEncoder , m_rearLeftMotor );
@@ -372,9 +372,9 @@ void MecanumDrive::ResetEncoders() {
 void MecanumDrive::ReloadPID() {
     m_settings.update();
 
-    float p = std::atof( m_settings.getValueFor( "PID_DRIVE_P" ).c_str() );
-    float i = std::atof( m_settings.getValueFor( "PID_DRIVE_I" ).c_str() );
-    float d = std::atof( m_settings.getValueFor( "PID_DRIVE_D" ).c_str() );
+    float p = atof( m_settings.getValueFor( "PID_DRIVE_P" ).c_str() );
+    float i = atof( m_settings.getValueFor( "PID_DRIVE_I" ).c_str() );
+    float d = atof( m_settings.getValueFor( "PID_DRIVE_D" ).c_str() );
 
     m_flPID->SetPID( p , i , d );
     m_frPID->SetPID( p , i , d );
