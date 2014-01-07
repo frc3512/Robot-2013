@@ -91,8 +91,6 @@ private:
 
     static DriverStationDisplay<T>* m_dsDisplay;
 
-    sf::UdpSocket m_socket;
-
     sf::IpAddress m_dsIP; // IP address of Driver Station
     unsigned short m_dsPort; // port to which to send data
 
@@ -130,6 +128,17 @@ namespace DS {
     template <class T, class U>
     void AddElementData( DriverStationDisplay<T>* inst , std::string ID , U data );
 }
+
+class SocketInit {
+public:
+    SocketInit();
+    virtual ~SocketInit();
+
+    static sf::UdpSocket& getInstance();
+
+private:
+    static sf::UdpSocket* m_socket;
+};
 
 #include "DriverStationDisplay.inl"
 

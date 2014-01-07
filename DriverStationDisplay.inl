@@ -18,7 +18,6 @@ DriverStationDisplayInit<T>::~DriverStationDisplayInit() {
 
 template <class T>
 DriverStationDisplay<T>::~DriverStationDisplay() {
-    m_socket.unbind();
 }
 
 template <class T>
@@ -39,26 +38,26 @@ template <class T>
 void DriverStationDisplay<T>::sendToDS( sf::Packet* userData ) {
     if ( m_dsIP != sf::IpAddress::None ) {
         if ( userData == NULL ) {
-            m_socket.send( *static_cast<sf::Packet*>(this) , m_dsIP , m_dsPort );
+            SocketInit::getInstance().send( *static_cast<sf::Packet*>(this) , m_dsIP , m_dsPort );
         }
         else {
-            m_socket.send( *userData , m_dsIP , m_dsPort );
+            SocketInit::getInstance().send( *userData , m_dsIP , m_dsPort );
         }
     }
 
     // Used for testing purposes
     sf::IpAddress testIP( 10 , 35 , 12 , 42 );
     if ( userData == NULL ) {
-        m_socket.send( *static_cast<sf::Packet*>(this) , testIP , m_dsPort );
+        SocketInit::getInstance().send( *static_cast<sf::Packet*>(this) , testIP , m_dsPort );
     }
     else {
-        m_socket.send( *userData , testIP , m_dsPort );
+        SocketInit::getInstance().send( *userData , testIP , m_dsPort );
     }
 }
 
 template <class T>
 const std::string DriverStationDisplay<T>::receiveFromDS() {
-    if ( m_socket.receive( m_recvBuffer , 256 , m_recvAmount , m_recvIP , m_recvPort ) == sf::Socket::Done ) {
+    if ( SocketInit::getInstance().receive( m_recvBuffer , 256 , m_recvAmount , m_recvIP , m_recvPort ) == sf::Socket::Done ) {
         if ( std::strncmp( m_recvBuffer , "connect\r\n" , 9 ) == 0 ) {
             m_dsIP = m_recvIP;
             m_dsPort = m_recvPort;
@@ -126,7 +125,7 @@ const std::string DriverStationDisplay<T>::receiveFromDS() {
             *this << m_autonModes.name( curAutonMode );
 
             // Store newest autonomous choice to file for persistent storage
-            std::ofstream autonModeFile( "autonMode.txt" , std::ofstream::trunc );
+            std::ofstream autonModeFile( "/ni-rt/system/autonMode.txt" , std::ofstream::trunc );
             if ( autonModeFile.is_open() ) {
                 autonModeFile << curAutonMode;
 
@@ -144,8 +143,6 @@ const std::string DriverStationDisplay<T>::receiveFromDS() {
 
 template <class T>
 DriverStationDisplay<T>::DriverStationDisplay( unsigned short portNumber ) : m_dsIP( sf::IpAddress::None ) , m_dsPort( portNumber ) {
-    m_socket.bind( portNumber );
-    m_socket.setBlocking( false );
     m_recvIP = sf::IpAddress( 0 , 0 , 0 , 0 );
     m_recvPort = 0;
     m_recvAmount = 0;
