@@ -25,7 +25,7 @@ double deadband( double value ) {
 }
 
 OurRobot::OurRobot() :
-    Settings( "/ni-rt/system/RobotSettings.txt" ),
+    Settings( "RobotSettings.txt" ),
 
     driveStick( 1 ),
     shootStick( 2 ),

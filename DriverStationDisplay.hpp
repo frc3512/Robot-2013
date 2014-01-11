@@ -22,7 +22,7 @@
  * any other SFML packet.
  *
  * receiveFromDS() requires that the file GUISettings.txt exist in
- * "/ni-rt/system", which follows the convention described in the
+ * "/c", which follows the convention described in the
  * DriverStationDisplay's readme. This class creates a file "autonMode.txt"
  * internally to store the currently selected autonomous routine.
  *

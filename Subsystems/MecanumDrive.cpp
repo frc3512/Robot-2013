@@ -30,7 +30,7 @@ MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rea
             UINT32 frA, UINT32 frB, UINT32 rrA, UINT32 rrB) :
             RobotDrive(frontLeftMotor, rearLeftMotor,
                     frontRightMotor, rearRightMotor),
-            m_settings( "/ni-rt/system/RobotSettings.txt" ) {
+            m_settings( "RobotSettings.txt" ) {
     m_pidEnabled = false;
     m_squaredInputs = false;
     m_deadband = 0.f;
@@ -42,10 +42,7 @@ MecanumDrive::MecanumDrive(SpeedController &frontLeftMotor, SpeedController &rea
     m_frEncoder = new Encoder( frA , frB , true );
     m_rrEncoder = new Encoder( rrA , rrB , true );
 
-    // d = 148mm -> r = 74mm = 7.4cm
-    // dPerP = s = r * theta
-    //       = r * (2 * PI / 360)
-    float dPerP = 3.14159265f * 7.4f /* wheel radius */ / 180.f;
+    float dPerP = 60.f / 250.f;
     m_flEncoder->SetDistancePerPulse( dPerP );
     m_rlEncoder->SetDistancePerPulse( dPerP );
     m_frEncoder->SetDistancePerPulse( dPerP );

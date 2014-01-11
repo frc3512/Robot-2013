@@ -70,7 +70,7 @@ const std::string DriverStationDisplay<T>::receiveFromDS() {
             // Open the file
             // FIXME: May crash if file has \n for newlines instead of \r\n
             std::ifstream guiFile(
-                    "/ni-rt/system/GUISettings.txt" , std::ifstream::binary );
+                    "GUISettings.txt" , std::ifstream::binary );
 
             if ( guiFile.is_open() ) {
                 // Get its length
@@ -125,7 +125,7 @@ const std::string DriverStationDisplay<T>::receiveFromDS() {
             *this << m_autonModes.name( curAutonMode );
 
             // Store newest autonomous choice to file for persistent storage
-            std::ofstream autonModeFile( "/ni-rt/system/autonMode.txt" , std::ofstream::trunc );
+            std::ofstream autonModeFile( "autonMode.txt" , std::ofstream::trunc );
             if ( autonModeFile.is_open() ) {
                 autonModeFile << curAutonMode;
 
