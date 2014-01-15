@@ -147,6 +147,8 @@ DriverStationDisplay<T>::DriverStationDisplay( unsigned short portNumber ) : m_d
     m_recvPort = 0;
     m_recvAmount = 0;
 
+    SocketInit::getInstance( portNumber );
+
     // Retrieve stored autonomous index
     std::ifstream autonModeFile( "autonMode.txt" );
     if ( autonModeFile.is_open() ) {

@@ -16,10 +16,15 @@ SocketInit::~SocketInit() {
     delete m_socket;
 }
 
-sf::UdpSocket& SocketInit::getInstance() {
+sf::UdpSocket& SocketInit::getInstance( unsigned short portNumber ) {
     if ( m_socket == NULL ) {
         m_socket = new sf::UdpSocket;
-        m_socket->bind( 1130 );
+        if ( portNumber == 0 ) {
+            m_socket->bind( 1130 );
+        }
+        else {
+            m_socket->bind( portNumber );
+        }
         m_socket->setBlocking( false );
     }
 

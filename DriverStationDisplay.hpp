@@ -12,11 +12,12 @@
  *
  * USAGE:
  * 1) Call DriverStationDisplay::getInstance() to create an instance of this
- *    class
- * 2) Call clear() on the pointer to empty the packet before adding new data
- * 3) Add new data with the << operator (e.g. *dsPtr << 4.f; *dsPtr << myVar;)
+ *    class. The port number passed in should be the port on which
+ *    communications will be received (probably 1130).
+ * 2) Call clear() on the pointer to empty the packet before adding new data.
+ * 3) Add new data with the << operator (e.g. *dsPtr << 4.f; *dsPtr << myVar;).
  * 4) After all data is packed, call sendToDS() to send the data to the Driver
- *    Station
+ *    Station.
  *
  * Extract the received packet on the DriverStation with the >> operator like
  * any other SFML packet.
@@ -67,9 +68,9 @@ public:
     // Empties internal packet of data
     void clear();
 
-    /* Sends data currently in packet to Driver Station
-     * 'userData' holds the packet to be sent to the Driver Station
-     * If the pointer is NULL, this class's internal packet is sent instead.
+    /* Sends data currently in packet to Driver Station. 'userData' holds the
+     * packet to be sent to the Driver Station. If the pointer is NULL, this
+     * class's internal packet is sent instead.
      */
     void sendToDS( sf::Packet* userData = NULL );
 
@@ -77,7 +78,7 @@ public:
     const std::string receiveFromDS();
 
     // Add and remove autonomous functions
-    void addAutonMethod( const std::string& methodName , void (T::*function)() , T* object );
+    void addAutonMethod( const std::string& methodName , void ( T::*function)() , T* object );
     void deleteAllMethods();
 
     // Runs autonomous function currently selected
@@ -134,7 +135,7 @@ public:
     SocketInit();
     virtual ~SocketInit();
 
-    static sf::UdpSocket& getInstance();
+    static sf::UdpSocket& getInstance( unsigned short portNumber = 0 );
 
 private:
     static sf::UdpSocket* m_socket;
