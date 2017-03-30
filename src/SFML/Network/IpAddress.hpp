@@ -32,7 +32,6 @@
 #ifndef SFML_IPADDRESS_HPP
 #define SFML_IPADDRESS_HPP
 
-#include "../System/Time.hpp"
 #include <istream>
 #include <ostream>
 #include <string>

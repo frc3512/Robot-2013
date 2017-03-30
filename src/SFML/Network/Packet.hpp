@@ -45,7 +45,6 @@ uint64_t htonll( uint64_t value );
 uint64_t ntohll( uint64_t value );
 
 namespace sf {
-class TcpSocket;
 class UdpSocket;
 
 ////////////////////////////////////////////////////////////
@@ -163,7 +162,6 @@ public:
     Packet& operator <<(const std::wstring&   data);
 
 protected:
-    friend class TcpSocket;
     friend class UdpSocket;
 
     ////////////////////////////////////////////////////////////

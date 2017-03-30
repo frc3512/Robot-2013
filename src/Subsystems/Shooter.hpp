@@ -39,11 +39,10 @@
 
 #include "../GeartoothEncoder.hpp"
 #include "../PIDController.hpp"
-#include "../SFML/System/Mutex.hpp"
 
 class Shooter : public PIDSource, public PIDOutput {
 public:
-    static const float maxSpeed;
+    static constexpr double maxSpeed = 5000.0;
 
     Shooter(uint32_t motor1, uint32_t motor2, uint32_t encChannel,
             uint32_t encTeeth, float encGearRatio);

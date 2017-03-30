@@ -5,10 +5,6 @@
 #include <cfloat>
 #include <cmath>
 
-#include "../SFML/System/Lock.hpp"
-
-const float Shooter::maxSpeed = 5000.f;
-
 Shooter::Shooter(uint32_t motor1, uint32_t motor2, uint32_t encChannel,
                  uint32_t encTeeth, float encGearRatio)
     : m_shooterMotor1(motor1),
