@@ -24,10 +24,10 @@ ifeq ($(JOBS),1)
 main_all : external_build  $(PROJECT_TARGETS)
 	@echo "make: built targets of `pwd`"
 else
-main_all : external_build 
+main_all : external_build
 	@$(MAKE) -f $(MAKEFILE) --jobs $(JOBS) $(MFLAGS) $(PROJECT_TARGETS);\
 	echo "make: built targets of `pwd`"
-endif 
+endif
 
 # entry point for extending the build
 external_build ::
