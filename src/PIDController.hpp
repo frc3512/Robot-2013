@@ -1,4 +1,4 @@
-// Copyright (c) FRC Team 3512, Spartatroniks 2013-2017. All Rights Reserved.
+// Copyright (c) 2013-2017 FRC Team 3512. All Rights Reserved.
 
 /* We modified WPILib's PIDController class because it didn't multiply the PID
  * constants by the loop's dt; a change in sample rate produces different

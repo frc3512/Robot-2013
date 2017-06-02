@@ -1,4 +1,4 @@
-// Copyright (c) FRC Team 3512, Spartatroniks 2017. All Rights Reserved.
+// Copyright (c) 2017 FRC Team 3512. All Rights Reserved.
 
 #include "queue.h"
 #include <stdlib.h>
