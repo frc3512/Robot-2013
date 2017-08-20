@@ -1,7 +1,6 @@
 // Copyright (c) 2017 FRC Team 3512. All Rights Reserved.
 
-#ifndef _QUEUE_H
-#define _QUEUE_H
+#pragma once
 
 #include "list.h"
 
@@ -19,5 +18,3 @@ int queue_dequeue(struct queue_t* queue, void** data);
 int queue_queue(struct queue_t* queue, void* data);
 
 void queue_free(struct queue_t* queue);
-
-#endif

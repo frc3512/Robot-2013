@@ -1,9 +1,9 @@
 cExtensions {
   c
-  h
 }
 
 cppHeaderExtensions {
+  h
   hpp
   inl
 }
@@ -12,35 +12,8 @@ cppSrcExtensions {
   cpp
 }
 
-otherExtensions {
-}
-
-genFolderExclude {
-  SFML
-  SFMLNetwork
-  SFMLSystem
-}
-
 genFileExclude {
-}
-
-modifiableFolderExclude {
-}
-
-modifiableFileExclude {
-}
-
-includeRelated {
-}
-
-includeCSys {
-}
-
-includeCppSys {
-}
-
-includeOtherLibs {
-}
-
-includeProject {
+  SFML/
+  SFMLNetwork/
+  SFMLSystem/
 }

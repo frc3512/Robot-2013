@@ -1,7 +1,6 @@
 // Copyright (c) 2017 FRC Team 3512. All Rights Reserved.
 
-#ifndef _LIST_H
-#define _LIST_H
+#pragma once
 
 struct list_elem_t {
     void* data;
@@ -20,5 +19,3 @@ void list_delete(struct list_t* list, struct list_elem_t* elem);
 
 struct list_elem_t* list_add_after(struct list_t* list,
                                    struct list_elem_t* before, void* data);
-
-#endif

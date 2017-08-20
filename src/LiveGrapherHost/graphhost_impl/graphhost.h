@@ -1,7 +1,6 @@
 // Copyright (c) 2017 FRC Team 3512. All Rights Reserved.
 
-#ifndef _GRAPHHOST_H
-#define _GRAPHHOST_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -57,8 +56,7 @@ struct writebuf_t {
 };
 
 struct graph_payload_t {
-    char type; /* Set to 'd' to identify this as a graph
-      payload packet */
+    char type; /* Set to 'd' to identify this as a graph payload packet */
     char dataset[15];
     float x;
     float y;
@@ -118,5 +116,3 @@ void* sockets_threadmain(void* arg);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* _GRAPHHOST_H */
