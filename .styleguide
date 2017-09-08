@@ -1,18 +1,14 @@
-cExtensions {
-  c
+cppHeaderFileInclude {
+  \.h$
+  \.hpp$
+  \.inl$
 }
 
-cppHeaderExtensions {
-  h
-  hpp
-  inl
+cppSrcFileInclude {
+  \.cpp$
 }
 
-cppSrcExtensions {
-  cpp
-}
-
-genFileExclude {
+generatedFileExclude {
   SFML/
   SFMLNetwork/
   SFMLSystem/
