@@ -13,3 +13,11 @@ generatedFileExclude {
   SFMLNetwork/
   SFMLSystem/
 }
+
+includeOtherLibs {
+  ^frc/
+  ^frc2/
+  ^networktables/
+  ^units/
+  ^wpi/
+}
