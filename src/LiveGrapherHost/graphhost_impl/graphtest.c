@@ -1,4 +1,4 @@
-// Copyright (c) 2017 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2017-2020 FRC Team 3512. All Rights Reserved.
 
 /* A very simple test harness for GraphHost */
 
@@ -7,10 +7,11 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
+
 #include "graphhost.h"
 
 /* main function */
-int main() {
+int main(void) {
     struct graphhost_t* gh;
 
     /* Ignore SIGPIPE */

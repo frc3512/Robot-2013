@@ -1,34 +1,28 @@
-// Copyright (c) 2017 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2017-2020 FRC Team 3512. All Rights Reserved.
 
 #include "graphhost.h"
+
 #include <errno.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include "list.h"
-#include "queue.h"
 
 #ifdef VxWorks
-
-#include <ioLib.h>
-#include <pipeDrv.h>
-
 #include <arpa/inet.h>
+#include <hostLib.h>
+#include <ioLib.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#include <pipeDrv.h>
+#include <selectLib.h>
+#include <sockLib.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
-#include <hostLib.h>
-#include <selectLib.h>
-#include <sockLib.h>
-
 #else
-
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <signal.h>
@@ -38,8 +32,10 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
 #endif
+
+#include "list.h"
+#include "queue.h"
 
 /* Listens on a specified port (listenport), and returns the file
  * descriptor to the listening socket.

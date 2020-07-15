@@ -1,4 +1,4 @@
-// Copyright (c) 2017 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2017-2020 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -114,5 +114,5 @@ int sockets_queuewrite(struct graphhost_t* inst, struct socketconn_t* conn,
 void* sockets_threadmain(void* arg);
 
 #ifdef __cplusplus
-}
+}  // extern "C"
 #endif

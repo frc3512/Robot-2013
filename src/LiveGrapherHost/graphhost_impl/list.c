@@ -1,6 +1,7 @@
-// Copyright (c) 2017 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2017-2020 FRC Team 3512. All Rights Reserved.
 
 #include "list.h"
+
 #include <stdlib.h>
 
 struct list_t* list_create() {

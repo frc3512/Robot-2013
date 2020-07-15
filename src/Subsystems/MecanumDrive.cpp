@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2017 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2013-2020 FRC Team 3512. All Rights Reserved.
 
 #include "MecanumDrive.hpp"
 
@@ -116,19 +116,19 @@ void MecanumDrive::Drive(float x, float y, float rotation, float gyroAngle) {
 
     if (m_squaredInputs) {
         if (xIn < 0) {
-            xIn = -pow(xIn, 2);
+            xIn = -std::pow(xIn, 2);
         } else {
             xIn = std::pow(xIn, 2);
         }
 
         if (yIn < 0) {
-            yIn = -pow(yIn, 2);
+            yIn = -std::pow(yIn, 2);
         } else {
             yIn = std::pow(yIn, 2);
         }
 
         if (rotation < 0) {
-            rotation = -pow(rotation, 2);
+            rotation = -std::pow(rotation, 2);
         } else {
             rotation = std::pow(rotation, 2);
         }
