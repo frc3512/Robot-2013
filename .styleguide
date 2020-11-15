@@ -8,12 +8,6 @@ cppSrcFileInclude {
   \.cpp$
 }
 
-generatedFileExclude {
-  SFML/
-  SFMLNetwork/
-  SFMLSystem/
-}
-
 includeOtherLibs {
   ^frc/
   ^frc2/
