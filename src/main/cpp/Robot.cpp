@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2013-2021 FRC Team 3512. All Rights Reserved.
 
 #include "Robot.hpp"
 
@@ -13,26 +13,21 @@ Robot::Robot() {
     m_rlEncoder.SetDistancePerPulse(60.0 / 250.0);
     m_rrEncoder.SetDistancePerPulse(60.0 / 250.0);
 
-    m_autonChooser.AddAutonomous(
-        "CenterMove", [=] { AutonCenterMove(); }, [] {});
-    m_autonChooser.AddAutonomous(
-        "RightMove", [=] { AutonRightMove(); }, [] {});
-    m_autonChooser.AddAutonomous(
-        "LeftMove", [=] { AutonLeftMove(); }, [] {});
-    m_autonChooser.AddAutonomous(
-        "TwoDisc", [=] { AutonTwoDisc(); }, [] {});
+    m_autonChooser.AddAutonomous("CenterMove", [=] { AutonCenterMove(); });
+    m_autonChooser.AddAutonomous("RightMove", [=] { AutonRightMove(); });
+    m_autonChooser.AddAutonomous("LeftMove", [=] { AutonLeftMove(); });
+    m_autonChooser.AddAutonomous("TwoDisc", [=] { AutonTwoDisc(); });
 }
 
-void Robot::AutonomousInit() {
-    m_gyro.Reset();
+void Robot::AutonomousInit() { m_gyro.Reset(); }
 
-    m_autoTime.Reset();
-    m_autoTime.Start();
+void Robot::AutonomousPeriodic() {
+    m_autonChooser.AwaitRunAutonomous();
 
-    m_autonChooser.RunAutonomousInit();
+    // Updates state of feed actuators
+    m_feeder.Update();
+    m_shooter.Update();
 }
-
-void Robot::AutonomousPeriodic() { m_autonChooser.RunAutonomousPeriodic(); }
 
 void Robot::TeleopInit() {
     m_gyro.Reset();

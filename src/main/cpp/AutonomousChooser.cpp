@@ -1,20 +1,22 @@
-// Copyright (c) 2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2020-2021 FRC Team 3512. All Rights Reserved.
 
 #include "AutonomousChooser.hpp"
 
 #include <algorithm>
 
+#include <fmt/core.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 
+namespace frc3512 {
+
 AutonomousChooser::AutonomousChooser(wpi::StringRef name,
-                                     std::function<void()> initFunc,
-                                     std::function<void()> periodicFunc) {
+                                     std::function<void()> func) {
     m_defaultChoice = name;
-    m_choices[name] = {initFunc, periodicFunc};
+    m_choices[name] = func;
     m_names.emplace_back(name);
 
     m_selectedChoice = name;
-    m_selectedAuton = m_choices[name];
+    m_selectedAuton = &m_choices[name];
 
     frc::SmartDashboard::PutData("Autonomous modes", this);
 
@@ -36,31 +38,19 @@ AutonomousChooser::AutonomousChooser(wpi::StringRef name,
 }
 
 AutonomousChooser::~AutonomousChooser() {
+    EndAutonomous();
     m_selectedEntry.RemoveListener(m_selectedListenerHandle);
 }
 
 void AutonomousChooser::AddAutonomous(wpi::StringRef name,
-                                      std::function<void()> initFunc,
-                                      std::function<void()> periodicFunc) {
-    m_choices[name] = {initFunc, periodicFunc};
+                                      std::function<void()> func) {
+    m_choices[name] = func;
     m_names.emplace_back(name);
 
     // Unlike std::map, wpi::StringMap elements are not sorted
     std::sort(m_names.begin(), m_names.end());
 
     m_optionsEntry.SetStringArray(m_names);
-}
-
-void AutonomousChooser::RunAutonomousInit() {
-    {
-        std::scoped_lock lock{m_mutex};
-        m_selectedAuton = m_choices[m_selectedChoice];
-    }
-    std::get<0>(m_selectedAuton)();
-}
-
-void AutonomousChooser::RunAutonomousPeriodic() {
-    std::get<1>(m_selectedAuton)();
 }
 
 void AutonomousChooser::SelectAutonomous(wpi::StringRef name) {
@@ -73,6 +63,55 @@ void AutonomousChooser::SelectAutonomous(wpi::StringRef name) {
 
 const std::vector<std::string>& AutonomousChooser::GetAutonomousNames() const {
     return m_names;
+}
+
+void AutonomousChooser::YieldToMain() {
+    m_awaitingAuton = false;
+    m_cond.notify_one();
+    m_cond.wait(m_autonLock, [&] { return m_awaitingAuton; });
+}
+
+void AutonomousChooser::Return() {
+    m_awaitingAuton = false;
+    m_cond.notify_one();
+}
+
+void AutonomousChooser::AwaitStartAutonomous() {
+    {
+        std::scoped_lock lock{m_mutex};
+        fmt::print("{} autonomous\n", m_selectedChoice);
+        m_selectedAuton = &m_choices[m_selectedChoice];
+    }
+
+    m_awaitingAuton = true;
+    m_autonThread = std::thread{[=] {
+        m_autonLock.lock();
+        m_autonRunning = true;
+        (*m_selectedAuton)();
+        m_autonRunning = false;
+        Return();
+        m_autonLock.unlock();
+    }};
+    m_cond.wait(m_mainLock, [&] { return !m_awaitingAuton; });
+}
+
+void AutonomousChooser::AwaitRunAutonomous() {
+    if (m_autonRunning) {
+        m_awaitingAuton = true;
+        m_cond.notify_one();
+        m_cond.wait(m_mainLock, [&] { return !m_awaitingAuton; });
+    }
+}
+
+void AutonomousChooser::EndAutonomous() {
+    if (m_autonRunning) {
+        m_awaitingAuton = true;
+        m_cond.notify_one();
+        m_cond.wait(m_mainLock, [&] { return !m_awaitingAuton; });
+    }
+    if (m_autonThread.joinable()) {
+        m_autonThread.join();
+    }
 }
 
 void AutonomousChooser::InitSendable(frc::SendableBuilder& builder) {
@@ -89,3 +128,5 @@ void AutonomousChooser::InitSendable(frc::SendableBuilder& builder) {
     m_activeEntry = builder.GetEntry("active");
     m_activeEntry.SetString(m_defaultChoice);
 }
+
+}  // namespace frc3512

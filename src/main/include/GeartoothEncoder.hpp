@@ -1,9 +1,9 @@
-// Copyright (c) 2013-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2013-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
 #include <frc/Counter.h>
-#include <units/units.h>
+#include <units/angular_velocity.h>
 
 /**
  * This class counts the number of gear teeth which have passed using a Counter

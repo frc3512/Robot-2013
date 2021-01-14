@@ -1,4 +1,4 @@
-// Copyright (c) 2013-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2013-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
@@ -10,7 +10,6 @@
 #include <frc/Talon.h>
 #include <frc/TimedRobot.h>
 #include <frc/drive/MecanumDrive.h>
-#include <frc2/Timer.h>
 #include <wpi/raw_ostream.h>
 
 #include "AutonomousChooser.hpp"
@@ -68,7 +67,6 @@ private:
     bool m_isGyroEnabled = true;
 
     // Used for timing in all Autonomous routines
-    AutonomousChooser m_autonChooser{
-        "No-op", [] { wpi::outs() << "No-op autonomous\n"; }, [] {}};
-    frc2::Timer m_autoTime;
+    frc3512::AutonomousChooser m_autonChooser{
+        "No-op", [] { wpi::outs() << "No-op autonomous\n"; }};
 };

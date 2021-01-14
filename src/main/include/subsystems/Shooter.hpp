@@ -1,10 +1,10 @@
-// Copyright (c) 2013-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2013-2021 FRC Team 3512. All Rights Reserved.
 
 #pragma once
 
 #include <frc/Talon.h>
 #include <frc/controller/PIDController.h>
-#include <units/units.h>
+#include <units/angular_velocity.h>
 
 #include "GeartoothEncoder.hpp"
 

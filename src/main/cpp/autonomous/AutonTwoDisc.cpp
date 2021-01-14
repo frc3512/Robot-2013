@@ -1,4 +1,6 @@
-// Copyright (c) 2013-2020 FRC Team 3512. All Rights Reserved.
+// Copyright (c) 2013-2021 FRC Team 3512. All Rights Reserved.
+
+#include <frc2/Timer.h>
 
 #include "Robot.hpp"
 
@@ -8,25 +10,31 @@ void Robot::AutonTwoDisc() {
     m_shooter.Enable();
     m_shooter.SetReference(Shooter::kMaxSpeed);
 
-    frc2::Wait(7_s);
+    frc2::Timer timer;
+    timer.Start();
+    while (!timer.HasPeriodPassed(7_s)) {
+        m_autonChooser.YieldToMain();
+        if (!IsAutonomousEnabled()) {
+            return;
+        }
+    }
 
     // Initialize variables needed for feeding frisbees properly
-    auto feedTimeStart = m_autoTime.Get();
+    auto feedTimeStart = timer.Get();
     unsigned int shot = 0;
 
     // Feed frisbees into shooter with a small delay between each
-    while (IsAutonomous()) {
-        if (m_autoTime.Get() - feedTimeStart > 1.4_s && shot <= 2 &&
-            !m_feeder.IsFeeding()) {
+    while (shot <= 2) {
+        if (timer.Get() - feedTimeStart > 1.4_s && !m_feeder.IsFeeding()) {
             m_feeder.Activate();
             shot++;
 
-            feedTimeStart = m_autoTime.Get();
+            feedTimeStart = timer.Get();
         }
 
-        m_feeder.Update();
-        m_shooter.Update();
-
-        frc2::Wait(0.05_s);
+        m_autonChooser.YieldToMain();
+        if (!IsAutonomousEnabled()) {
+            return;
+        }
     }
 }
